@@ -1,11 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Settings, Globe, Volume2, Shield } from 'lucide-react';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
+import { Dropdown } from '../components';
 
 const SettingsView: React.FC = () => {
     const disconnectAll = usePlatformStore((state) => state.disconnectAll);
     const { visualizerEnabled, toggleVisualizer } = usePlayerStore();
+
+    // Settings State
+    const [language, setLanguage] = useState('en');
+    const [outputDevice, setOutputDevice] = useState('default');
+    const [quality, setQuality] = useState('master');
+
+    const languageOptions = [
+        { value: 'en', label: 'English' },
+        { value: 'zh', label: '中文' },
+    ];
+
+    const outputOptions = [
+        { value: 'default', label: 'System Default', description: 'Use system sound settings' },
+        { value: 'speakers', label: 'MacBook Pro Speakers', description: 'Built-in Output' },
+        { value: 'airpods', label: 'AirPods Pro', description: 'Bluetooth' },
+        { value: 'dac', label: 'External DAC (USB)', description: 'FiiO K5 Pro' },
+    ];
+
+    const qualityOptions = [
+        { value: 'master', label: 'Master', description: 'Hi-Res Lossless • Up to 9216kbps' },
+        { value: 'hifi', label: 'Hi-Fi', description: 'Lossless • 1411kbps' },
+        { value: 'high', label: 'High', description: 'AAC • 320kbps' },
+        { value: 'normal', label: 'Normal', description: 'AAC • 128kbps' },
+    ];
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 animate-fade-in pt-8">
@@ -23,10 +48,12 @@ const SettingsView: React.FC = () => {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span>Language</span>
-                                <select className="bg-[rgba(0,0,0,0.3)] border border-[var(--glass-border)] rounded-md px-3 py-1 text-sm outline-none">
-                                    <option>English</option>
-                                    <option>中文</option>
-                                </select>
+                                <Dropdown
+                                    options={languageOptions}
+                                    value={language}
+                                    onChange={setLanguage}
+                                    width="w-32"
+                                />
                             </div>
                             <div className="flex items-center justify-between">
                                 <span>Startup</span>
@@ -74,12 +101,12 @@ const SettingsView: React.FC = () => {
                                     <div className="font-medium">Output Device</div>
                                     <div className="text-xs text-[var(--text-secondary)]">Select playback device</div>
                                 </div>
-                                <select className="bg-[rgba(0,0,0,0.3)] border border-[var(--glass-border)] rounded-lg px-4 py-2 text-sm outline-none w-48 text-right focus:border-[var(--accent-color)] transition-colors">
-                                    <option>System Default</option>
-                                    <option>MacBook Pro Speakers</option>
-                                    <option>AirPods Pro</option>
-                                    <option>External DAC (USB)</option>
-                                </select>
+                                <Dropdown
+                                    options={outputOptions}
+                                    value={outputDevice}
+                                    onChange={setOutputDevice}
+                                    width="w-64"
+                                />
                             </div>
 
                             {/* Streaming Quality */}
@@ -88,12 +115,12 @@ const SettingsView: React.FC = () => {
                                     <div className="font-medium">Streaming Quality (Wi-Fi)</div>
                                     <div className="text-xs text-[var(--text-secondary)]">Adjust for best performance</div>
                                 </div>
-                                <select className="bg-[rgba(0,0,0,0.3)] border border-[var(--glass-border)] rounded-lg px-4 py-2 text-sm outline-none w-48 text-right focus:border-[var(--accent-color)] transition-colors">
-                                    <option>Master (Hi-Res Lossless)</option>
-                                    <option>Hi-Fi (Lossless)</option>
-                                    <option>High (320kbps AAC)</option>
-                                    <option>Normal (128kbps AAC)</option>
-                                </select>
+                                <Dropdown
+                                    options={qualityOptions}
+                                    value={quality}
+                                    onChange={setQuality}
+                                    width="w-64"
+                                />
                             </div>
 
                             {/* Exclusive Mode */}

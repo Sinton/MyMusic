@@ -1,5 +1,6 @@
-import { Platform, Album, Playlist, Song, HomeCard, Comment, LyricLine } from '../types';
+import type { Album, Playlist, Song, HomeCard, Comment, LyricLine } from '../types';
 
+// ================== LYRICS ==================
 export const mockLyrics: LyricLine[] = [
     { time: 0, text: "Midnight City - M83" },
     { time: 5, text: "Waiting in a car" },
@@ -100,11 +101,12 @@ export const unifiedSongs: Song[] = [
 ];
 
 // ================== PLAYLISTS ==================
+// Note: count is now a number type
 export const playlists: Playlist[] = [
-    { id: 1, title: 'Top Hits of 2024', count: '50 songs', creator: 'Spotify', cover: 'bg-purple-600' },
-    { id: 2, title: 'Deep Focus', count: '120 songs', creator: 'Apple Music', cover: 'bg-blue-600' },
-    { id: 3, title: 'Workout Pump', count: '45 songs', creator: 'Yan', cover: 'bg-red-500' },
-    { id: 4, title: 'Chill Lofi Beats', count: '80 songs', creator: 'Lofi Girl', cover: 'bg-emerald-600' },
+    { id: 1, title: 'Top Hits of 2024', count: 50, creator: 'Spotify', cover: 'bg-purple-600' },
+    { id: 2, title: 'Deep Focus', count: 120, creator: 'Apple Music', cover: 'bg-blue-600' },
+    { id: 3, title: 'Workout Pump', count: 45, creator: 'Yan', cover: 'bg-red-500' },
+    { id: 4, title: 'Chill Lofi Beats', count: 80, creator: 'Lofi Girl', cover: 'bg-emerald-600' },
 ];
 
 // ================== ALBUMS ==================

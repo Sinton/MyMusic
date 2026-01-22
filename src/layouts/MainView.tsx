@@ -3,12 +3,6 @@ import HomeView from '../views/HomeView';
 import ExploreView from '../views/ExploreView';
 import LibraryView from '../views/LibraryView';
 import SettingsView from '../views/SettingsView';
-
-interface MainViewProps {
-    activeView: string;
-    onNavigate: (view: string) => void;
-}
-
 import PlaylistDetailView from '../views/PlaylistDetailView';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 
@@ -21,6 +15,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     const { userPlaylists } = usePlaylistStore();
 
     const renderContent = () => {
+        // Handle playlist detail view
         if (activeView.startsWith('Playlist:')) {
             const playlistId = parseInt(activeView.split(':')[1]);
             const playlist = userPlaylists.find(p => p.id === playlistId);
@@ -29,6 +24,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
             }
         }
 
+        // Handle main views
         switch (activeView) {
             case 'Home':
                 return <HomeView key={activeView} onNavigate={onNavigate} />;

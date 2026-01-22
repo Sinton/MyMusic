@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Play, ChevronDown, Heart, Plus, Check } from 'lucide-react';
 import { QualityBadge, PlatformBadge, VipBadge } from './index';
 import type { Song, AudioSource } from '../types';
-import { usePlaylistStore } from '../stores/usePlaylistStore';
-import { usePlayerStore } from '../stores/usePlayerStore';
+import { useSongActions } from '../hooks/useSongActions';
 
 interface SongRowProps {
     song: Song;
@@ -14,27 +13,21 @@ interface SongRowProps {
 const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
     const [expanded, setExpanded] = useState(false);
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
-    const { userPlaylists, addSongToPlaylist, likedSongs, toggleLike } = usePlaylistStore();
-    const { play, setTrack } = usePlayerStore();
 
-    const isLiked = likedSongs.some(s => s.id === song.id);
+    const {
+        isLiked,
+        userPlaylists,
+        handleLike,
+        handleAddToPlaylist,
+        handlePlaySource,
+        isInPlaylist
+    } = useSongActions(song);
 
-    const handlePlaySource = (source: AudioSource) => {
+    const handleSourceClick = (source: AudioSource) => {
         if (onPlay) {
             onPlay(song, source);
         } else {
-            const track: any = {
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                album: song.album,
-                duration: song.duration,
-                currentTime: '0:00',
-                source: source.platform,
-                quality: source.qualityLabel
-            };
-            setTrack(track);
-            play();
+            handlePlaySource(source);
         }
     };
 
@@ -64,7 +57,7 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                        onClick={(e) => { e.stopPropagation(); toggleLike(song); }}
+                        onClick={(e) => { e.stopPropagation(); handleLike(); }}
                         className={`p-2 transition-colors ${isLiked ? 'text-rose-500' : 'text-[var(--text-muted)] hover:text-white'}`}
                     >
                         <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
@@ -86,13 +79,13 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                                     <button
                                         key={pl.id}
                                         onClick={() => {
-                                            addSongToPlaylist(pl.id, song);
+                                            handleAddToPlaylist(pl.id);
                                             setShowPlaylistMenu(false);
                                         }}
                                         className="w-full flex items-center justify-between gap-3 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors text-sm text-[var(--text-secondary)] hover:text-white"
                                     >
                                         <span className="truncate">{pl.title}</span>
-                                        {pl.songs?.some(s => s.id === song.id) && <Check className="w-3 h-3 text-[var(--accent-color)]" />}
+                                        {isInPlaylist(pl.id) && <Check className="w-3 h-3 text-[var(--accent-color)]" />}
                                     </button>
                                 ))}
                             </div>
@@ -129,7 +122,7 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                             <QualityBadge label={source.qualityLabel} />
                             {source.vip && <VipBadge variant="outline" />}
                             <button
-                                onClick={() => handlePlaySource(source)}
+                                onClick={() => handleSourceClick(source)}
                                 className="p-1.5 rounded-full bg-[rgba(255,255,255,0.1)] hover:bg-[var(--text-main)] hover:text-black transition-colors"
                             >
                                 <Play className="w-3 h-3 fill-current" />

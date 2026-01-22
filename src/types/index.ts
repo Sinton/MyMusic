@@ -31,7 +31,7 @@ export interface Song {
 export interface Playlist {
     id: number;
     title: string;
-    count: string;
+    count: number; // Fixed: was string, now number for proper type
     creator: string;
     cover: string;
     songs?: Song[];
@@ -65,8 +65,32 @@ export interface HomeCard {
     color: string;
 }
 
+// ================== COMMENT ==================
+export interface Comment {
+    id: number;
+    user: string;
+    avatar: string;
+    content: string;
+    time: string;
+    likes: number;
+}
+
+// ================== LYRIC LINE ==================
+export interface LyricLine {
+    time: number;
+    text: string;
+}
+
+// ================== LOADING STATE ==================
+export interface LoadingState<T> {
+    data: T | null;
+    isLoading: boolean;
+    error: string | null;
+}
+
 // ================== STORE TYPES ==================
 export interface PlayerState {
+    // State
     currentTrack: Track;
     isPlaying: boolean;
     volume: number;
@@ -75,6 +99,8 @@ export interface PlayerState {
     currentTimeSec: number;
     durationSec: number;
     queue: Track[];
+    visualizerEnabled: boolean;
+    // Actions
     play: () => void;
     pause: () => void;
     togglePlay: () => void;
@@ -86,7 +112,6 @@ export interface PlayerState {
     nextTrack: () => void;
     previousTrack: () => void;
     setProgress: (time: number) => void;
-    visualizerEnabled: boolean;
     toggleVisualizer: () => void;
 }
 
@@ -97,24 +122,12 @@ export interface PlatformState {
     disconnectAll: () => void;
 }
 
-// ================== COMMENT ==================
-export interface Comment {
-    id: number;
-    user: string;
-    avatar: string;
-    content: string;
-    time: string;
-    likes: number;
-}
-
-export interface LyricLine {
-    time: number;
-    text: string;
-}
-
-export interface PlatformState {
-    platforms: Platform[];
-    connectPlatform: (platformName: string) => void;
-    disconnectPlatform: (platformName: string) => void;
-    disconnectAll: () => void;
+export interface PlaylistState {
+    userPlaylists: Playlist[];
+    likedSongs: Song[];
+    createPlaylist: (title: string) => void;
+    addSongToPlaylist: (playlistId: number, song: Song) => void;
+    removeSongFromPlaylist: (playlistId: number, songId: number) => void;
+    removePlaylist: (id: number) => void;
+    toggleLike: (song: Song) => void;
 }

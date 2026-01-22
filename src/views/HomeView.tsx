@@ -4,7 +4,7 @@ import { FeatureCard, PlaylistCard, SongRow } from '../components';
 import { homeCards } from '../data/mockData';
 import { usePlaylists, useSongs } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { HomeCard, Playlist } from '../types';
+import type { HomeCard, Playlist, Track } from '../types';
 
 interface HomeViewProps {
     onNavigate?: (view: string) => void;
@@ -26,11 +26,11 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
         );
     }, [searchQuery, songs]);
 
-    const handlePlayPlaylist = (playlist: Playlist) => {
+    const handlePlayPlaylist = (_playlist: Playlist) => {
         // Select a random song to simulate playing the playlist
         if (songs.length > 0) {
             const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            const track: any = {
+            const track: Track = {
                 id: randomSong.id,
                 title: randomSong.title,
                 artist: randomSong.artist,
