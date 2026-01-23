@@ -17,9 +17,10 @@ import OptionsPanel from './OptionsPanel';
 interface FullScreenPlayerProps {
     isOpen: boolean;
     onClose: () => void;
+    onNavigate?: (view: string) => void;
 }
 
-const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) => {
+const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, onNavigate }) => {
     const { t } = useTranslation();
     const [isVisible, setIsVisible] = useState(false);
 
@@ -168,6 +169,10 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
                 currentTrack={currentTrack}
                 userPlaylists={userPlaylists}
                 onAddToPlaylist={addSongToPlaylist}
+                onNavigate={(view) => {
+                    onNavigate?.(view);
+                    onClose();
+                }}
             />
         </div>
     );

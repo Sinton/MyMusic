@@ -12,7 +12,9 @@ export interface Song {
     id: number;
     title: string;
     artist: string;
+    artistId?: number;
     album: string;
+    albumId?: number;
     duration: string;
     sources: AudioSource[];
     bestSource: string;
@@ -34,8 +36,23 @@ export interface Album {
     id: number;
     title: string;
     artist: string;
+    artistId?: number;
     year: string;
     cover: string;
+    songs?: Song[];
+    genre?: string;
+}
+
+// ================== ARTIST ==================
+export interface Artist {
+    id: number;
+    name: string;
+    avatar: string;
+    bio?: string;
+    genres?: string[];
+    followers?: string;
+    popularSongs?: Song[];
+    albums?: Album[];
 }
 
 // ================== TRACK (Currently Playing) ==================
@@ -43,7 +60,9 @@ export interface Track {
     id: number;
     title: string;
     artist: string;
+    artistId?: number;
     album: string;
+    albumId?: number;
     duration: string;
     currentTime: string;
     source: string;

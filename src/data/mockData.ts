@@ -46,12 +46,15 @@ export const mockLyrics: LyricLine[] = [
 ];
 
 // ================== SONGS ==================
+// ================== SONGS ==================
 export const unifiedSongs: Song[] = [
     {
         id: 1,
         title: 'Starboy',
         artist: 'The Weeknd / Daft Punk',
+        artistId: 101,
         album: 'Starboy',
+        albumId: 1,
         duration: '3:50',
         sources: [
             { platform: 'NetEase Cloud', quality: 'HR', qualityLabel: 'Hi-Res', vip: true, color: '#e60026' },
@@ -65,7 +68,9 @@ export const unifiedSongs: Song[] = [
         id: 2,
         title: 'Shape of You',
         artist: 'Ed Sheeran',
+        artistId: 102,
         album: 'Divide',
+        albumId: 2,
         duration: '3:53',
         sources: [
             { platform: 'QQ Music', quality: 'Master', qualityLabel: 'Master', vip: true, color: '#31c27c' },
@@ -77,7 +82,9 @@ export const unifiedSongs: Song[] = [
         id: 3,
         title: 'Bohemian Rhapsody',
         artist: 'Queen',
+        artistId: 103,
         album: 'A Night at the Opera',
+        albumId: 3,
         duration: '5:55',
         sources: [
             { platform: 'Soda Music', quality: 'SQ', qualityLabel: 'FLAC', vip: false, color: '#ffde00' },
@@ -89,7 +96,9 @@ export const unifiedSongs: Song[] = [
         id: 4,
         title: 'Blinding Lights',
         artist: 'The Weeknd',
+        artistId: 101,
         album: 'After Hours',
+        albumId: 4,
         duration: '3:20',
         sources: [
             { platform: 'NetEase Cloud', quality: 'HR', qualityLabel: 'Hi-Res', vip: true, color: '#e60026' },
@@ -111,10 +120,10 @@ export const playlists: Playlist[] = [
 
 // ================== ALBUMS ==================
 export const albums: Album[] = [
-    { id: 1, title: 'Starboy', artist: 'The Weeknd', year: '2016', cover: 'bg-pink-600' },
-    { id: 2, title: 'Divide', artist: 'Ed Sheeran', year: '2017', cover: 'bg-cyan-600' },
-    { id: 3, title: 'A Night at the Opera', artist: 'Queen', year: '1975', cover: 'bg-yellow-600' },
-    { id: 4, title: 'After Hours', artist: 'The Weeknd', year: '2020', cover: 'bg-rose-700' },
+    { id: 1, title: 'Starboy', artist: 'The Weeknd', artistId: 101, year: '2016', cover: 'bg-pink-600' },
+    { id: 2, title: 'Divide', artist: 'Ed Sheeran', artistId: 102, year: '2017', cover: 'bg-cyan-600' },
+    { id: 3, title: 'A Night at the Opera', artist: 'Queen', artistId: 103, year: '1975', cover: 'bg-yellow-600' },
+    { id: 4, title: 'After Hours', artist: 'The Weeknd', artistId: 101, year: '2020', cover: 'bg-rose-700' },
 ];
 
 // ================== HOME CARDS ==================

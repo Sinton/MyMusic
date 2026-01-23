@@ -121,6 +121,14 @@
         "deleteConfirmDesc": "This will permanently delete \"{{title}}\". This action cannot be undone.",
         "yesDelete": "Yes, Delete Playlist"
     },
+    "album": {
+        "label": "Album",
+        "playAll": "Play Album",
+        "songs": "songs",
+        "ep": "EP",
+        "single": "Single",
+        "released": "Released"
+    },
     "explore": {
         "back": "Back to Explore",
         "topSongsIn": "Top songs in {{genre}} category",

@@ -57,7 +57,11 @@ const AppLayout: React.FC = () => {
             <main className="flex-1 relative flex flex-col min-w-0">
                 <MainView activeView={activeView} onNavigate={setActiveView} />
                 <PlayerBar onExpand={openFullScreenPlayer} />
-                <FullScreenPlayer isOpen={isFullScreenPlayerOpen} onClose={closeFullScreenPlayer} />
+                <FullScreenPlayer
+                    isOpen={isFullScreenPlayerOpen}
+                    onClose={closeFullScreenPlayer}
+                    onNavigate={setActiveView}
+                />
 
                 <AuthModal
                     isOpen={authModalOpen}
