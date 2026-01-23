@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { ListMusic, Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 
 
@@ -9,6 +10,7 @@ interface MiniQueuePopupProps {
 }
 
 export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const { queue, currentTrack, isPlaying, setTrack, play } = usePlayerStore();
     const popupRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +52,7 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
             <div className="p-4 border-b border-[var(--glass-border)] bg-[var(--glass-highlight)]">
                 <h3 className="font-bold text-sm flex items-center gap-2">
                     <ListMusic className="w-4 h-4 text-[var(--accent-color)]" />
-                    Next Up
+                    {t('playerBar.nextUp')}
                 </h3>
             </div>
             <div className="overflow-y-auto max-h-[440px] p-2 space-y-1 custom-scrollbar-none">

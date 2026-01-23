@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Maximize2, ListMusic } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import VolumeControl from '../player/VolumeControl';
 import { MiniQueuePopup } from '../player-bar/MiniQueuePopup';
@@ -9,6 +10,7 @@ interface PlayerBarProps {
 }
 
 const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
+    const { t } = useTranslation();
     // We can use a local state for this popup or use UIStore.
     // Given the previous refactoring, maybe UIStore is better for consistency,
     // but the requirement "MiniQueuePopup" extraction implies local UI logic is fine for this specific component unless 
@@ -57,6 +59,15 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
         return colors[(id - 1) % colors.length];
     };
 
+    const getPlatformKey = (name: string) => {
+        if (!name) return 'netease';
+        const lowerName = name.toLowerCase();
+        if (lowerName.includes('netease') || lowerName.includes('网易')) return 'netease';
+        if (lowerName.includes('qq')) return 'qq';
+        if (lowerName.includes('soda') || lowerName.includes('汽水')) return 'soda';
+        return 'netease';
+    };
+
     return (
         <div className="absolute bottom-6 left-6 right-6 h-[var(--player-height)] glass rounded-2xl flex items-center px-8 justify-between z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--glass-border)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.2)] transition-all duration-300">
             {/* Left: Track Info */}
@@ -81,7 +92,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                     <button
                         onClick={toggleMode}
                         className={`btn-icon w-8 h-8 transition-colors ${shuffle || repeat === 'one' ? 'text-[var(--accent-color)] active:scale-95' : 'hover:text-[var(--text-main)]'}`}
-                        title={shuffle ? 'Shuffle On' : repeat === 'one' ? 'Single Loop' : 'Sequential'}
+                        title={shuffle ? t('playerBar.shuffleOn') : repeat === 'one' ? t('playerBar.singleLoop') : t('playerBar.sequential')}
                     >
                         {shuffle ? (
                             <Shuffle className="w-4 h-4" />
@@ -136,7 +147,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
             {/* Right: Volume & Options */}
             <div className="flex items-center gap-3 w-[300px] justify-end">
                 <div className="text-[10px] text-[var(--text-muted)] mr-2">
-                    {currentTrack.source} | <span className="text-[#fbbf24]">{currentTrack.quality}</span>
+                    {t(`platforms.${getPlatformKey(currentTrack.source)}`)} | <span className="text-[#fbbf24]">{currentTrack.quality}</span>
                 </div>
                 <VolumeControl />
                 <button onClick={onExpand} className="btn-icon"><Maximize2 className="w-4 h-4" /></button>

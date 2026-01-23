@@ -140,6 +140,13 @@
             "indiePicks": "Indie Picks"
         }
     },
+    "playerBar": {
+        "shuffleOn": "Shuffle On",
+        "singleLoop": "Single Loop",
+        "sequential": "Sequential",
+        "nextUp": "Next Up",
+        "nowPlaying": "Now Playing"
+    },
     "auth": {
         "connect": "Connect {{platform}}",
         "scanDesc": "Open <b>{{platform}} App</b> on your phone and scan the QR code to authorize.",
@@ -155,5 +162,29 @@
         "netease": "NetEase Cloud",
         "qq": "QQ Music",
         "soda": "Soda Music"
+    },
+    "fullPlayer": {
+        "nowPlaying": "Now Playing",
+        "comments": {
+            "title": "Comments",
+            "likes": "Likes",
+            "reply": "Reply",
+            "addPlaceholder": "Add a comment..."
+        },
+        "queue": {
+            "nextUp": "Next Up"
+        },
+        "options": {
+            "title": "Options",
+            "like": "Like this song",
+            "addToPlaylist": "Add to Playlist",
+            "viewArtist": "View Artist",
+            "viewAlbum": "View Album",
+            "share": "Share",
+            "sleepTimer": "Sleep Timer",
+            "back": "Back to Options",
+            "songs": "songs",
+            "playingFrom": "Playing From"
+        }
     }
 }

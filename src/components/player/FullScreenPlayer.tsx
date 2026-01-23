@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, MoreHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { usePlaylistStore } from '../../stores/usePlaylistStore';
 import { useUIStore } from '../../stores/useUIStore';
@@ -19,6 +20,7 @@ interface FullScreenPlayerProps {
 }
 
 const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const [isVisible, setIsVisible] = useState(false);
 
     // UI Store State & Actions
@@ -29,8 +31,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
         showQueuePanel,
         toggleCommentsPanel,
         toggleOptionsPanel,
-        toggleQueuePanel,
-        closeAllPanels
+        toggleQueuePanel
     } = useUIStore();
 
     const {
@@ -91,7 +92,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
                 <button onClick={onClose} className="p-2 rounded-full hover:bg-[rgba(255,255,255,0.1)] transition-colors">
                     <ChevronDown className="w-6 h-6 text-[var(--text-main)]" />
                 </button>
-                <div className="text-sm font-medium tracking-wide text-[var(--text-secondary)] uppercase">Now Playing</div>
+                <div className="text-sm font-medium tracking-wide text-[var(--text-secondary)] uppercase">{t('fullPlayer.nowPlaying')}</div>
                 <button
                     onClick={toggleOptionsPanel}
                     className={`p-2 rounded-full transition-colors ${showOptionsPanel ? 'bg-white/10' : 'hover:bg-white/10'}`}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, ListMusic, Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Track } from '../../types';
 import { getTrackGradient } from '../../lib/playerUtils';
 
@@ -20,6 +21,7 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
     isPlaying,
     onPlayTrack
 }) => {
+    const { t } = useTranslation();
     const [showShadow, setShowShadow] = React.useState(false);
 
     React.useEffect(() => {
@@ -37,7 +39,7 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
                         <ListMusic className="w-6 h-6 text-[var(--accent-color)]" />
-                        <h3 className="text-xl font-bold text-[var(--text-main)]">Next Up</h3>
+                        <h3 className="text-xl font-bold text-[var(--text-main)]">{t('fullPlayer.queue.nextUp')}</h3>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-colors">
                         <X className="w-6 h-6 text-[var(--text-secondary)]" />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Comment } from '../../types';
 
 interface CommentsPanelProps {
@@ -13,6 +14,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
     onClose,
     comments
 }) => {
+    const { t } = useTranslation();
     const [showShadow, setShowShadow] = React.useState(false);
 
     React.useEffect(() => {
@@ -28,7 +30,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
         <div className={`absolute inset-y-0 right-0 w-full lg:w-[450px] glass-drawer border-l border-[var(--glass-border)] z-[100] transition-transform duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${showShadow ? 'shadow-[-20px_0_50px_rgba(0,0,0,0.3)]' : ''}`}>
             <div className="p-8 h-full flex flex-col">
                 <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-xl font-bold text-[var(--text-main)]">Comments</h3>
+                    <h3 className="text-xl font-bold text-[var(--text-main)]">{t('fullPlayer.comments.title')}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-main)]">
                         <X className="w-6 h-6" />
                     </button>
@@ -45,8 +47,8 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
                                     </div>
                                     <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{comment.content}</p>
                                     <div className="flex items-center gap-4 mt-2">
-                                        <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">{comment.likes} Likes</span>
-                                        <button className="text-[10px] text-[var(--accent-color)] font-bold uppercase tracking-wider hover:underline transition-all">Reply</button>
+                                        <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">{comment.likes} {t('fullPlayer.comments.likes')}</span>
+                                        <button className="text-[10px] text-[var(--accent-color)] font-bold uppercase tracking-wider hover:underline transition-all">{t('fullPlayer.comments.reply')}</button>
                                     </div>
                                 </div>
                             </div>
@@ -54,7 +56,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
                     ))}
                 </div>
                 <div className="mt-8">
-                    <input type="text" placeholder="Add a comment..." className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl px-4 py-3 text-sm text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
+                    <input type="text" placeholder={t('fullPlayer.comments.addPlaceholder')} className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl px-4 py-3 text-sm text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
                 </div>
             </div>
         </div>

@@ -140,6 +140,13 @@
             "indiePicks": "独立音乐精选"
         }
     },
+    "playerBar": {
+        "shuffleOn": "随机播放开启",
+        "singleLoop": "单曲循环",
+        "sequential": "顺序播放",
+        "nextUp": "接下来播放",
+        "nowPlaying": "正在播放"
+    },
     "auth": {
         "connect": "连接 {{platform}}",
         "scanDesc": "打开手机上的 <b>{{platform}} App</b> 扫一扫授权。",
@@ -155,5 +162,29 @@
         "netease": "网易云音乐",
         "qq": "QQ音乐",
         "soda": "汽水音乐"
+    },
+    "fullPlayer": {
+        "nowPlaying": "正在播放",
+        "comments": {
+            "title": "评论",
+            "likes": "点赞",
+            "reply": "回复",
+            "addPlaceholder": "添加评论..."
+        },
+        "queue": {
+            "nextUp": "接下来播放"
+        },
+        "options": {
+            "title": "选项",
+            "like": "喜欢这首歌",
+            "addToPlaylist": "添加到歌单",
+            "viewArtist": "查看歌手",
+            "viewAlbum": "查看专辑",
+            "share": "分享",
+            "sleepTimer": "睡眠定时器",
+            "back": "返回",
+            "songs": "首歌曲",
+            "playingFrom": "播放来源"
+        }
     }
 }
