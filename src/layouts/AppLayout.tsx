@@ -5,15 +5,23 @@ import { PlayerBar, FullScreenPlayer } from '../components/player';
 import { AuthModal } from '../components';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Platform } from '../types';
+
+
+import { useUIStore } from '../stores/useUIStore';
 
 const AppLayout: React.FC = () => {
-    const [isPlayerOpen, setIsPlayerOpen] = useState(false);
-    const [activeView, setActiveView] = useState('Home');
+    // UI Store State
+    const {
+        isFullScreenPlayerOpen,
+        openFullScreenPlayer,
+        closeFullScreenPlayer,
+        authModalOpen,
+        authModalTarget,
+        openAuthModal,
+        closeAuthModal
+    } = useUIStore();
 
-    // Auth State
-    const [authModalOpen, setAuthModalOpen] = useState(false);
-    const [authTarget, setAuthTarget] = useState<Platform | null>(null);
+    const [activeView, setActiveView] = useState('Home');
 
     const { isPlaying, currentTimeSec, durationSec, setProgress } = usePlayerStore();
 
@@ -31,13 +39,12 @@ const AppLayout: React.FC = () => {
 
     const connectPlatform = usePlatformStore((state) => state.connectPlatform);
 
-    const handleOpenAuth = (platform: Platform) => {
-        setAuthTarget(platform);
-        setAuthModalOpen(true);
-    };
-
     const handleConnect = (platformName: string) => {
         connectPlatform(platformName);
+        // Modal will close automatically via AuthModal internal logic calling onClose, or we can ensure it closes here if needed.
+        // But AuthModal receives onClose={closeAuthModal} which just toggles state. 
+        // AuthModal internal logic: calling onConnect then onClose.
+        // So this is fine.
     };
 
     return (
@@ -45,17 +52,17 @@ const AppLayout: React.FC = () => {
             <Sidebar
                 activeView={activeView}
                 onNavigate={setActiveView}
-                onOpenAuth={handleOpenAuth}
+                onOpenAuth={openAuthModal}
             />
             <main className="flex-1 relative flex flex-col min-w-0">
                 <MainView activeView={activeView} onNavigate={setActiveView} />
-                <PlayerBar onExpand={() => setIsPlayerOpen(true)} />
-                <FullScreenPlayer isOpen={isPlayerOpen} onClose={() => setIsPlayerOpen(false)} />
+                <PlayerBar onExpand={openFullScreenPlayer} />
+                <FullScreenPlayer isOpen={isFullScreenPlayerOpen} onClose={closeFullScreenPlayer} />
 
                 <AuthModal
                     isOpen={authModalOpen}
-                    onClose={() => setAuthModalOpen(false)}
-                    platform={authTarget}
+                    onClose={closeAuthModal}
+                    platform={authModalTarget}
                     onConnect={handleConnect}
                 />
             </main>

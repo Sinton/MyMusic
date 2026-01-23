@@ -1,13 +1,13 @@
 import React from 'react';
-import { Settings, Globe, Volume2, Shield, Info, Palette, HardDrive, Layout, ChevronRight } from 'lucide-react';
+import { Settings, Globe, Volume2, Shield, Info, Palette, ChevronRight } from 'lucide-react';
 import { usePlatformStore } from '../stores/usePlatformStore';
-import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSettingsStore } from '../stores/useSettingsStore'; // Import settings store
+import { useUIStore } from '../stores/useUIStore';
 import { Dropdown } from '../components';
 
 const SettingsView: React.FC = () => {
     const disconnectAll = usePlatformStore((state) => state.disconnectAll);
-    const { visualizerEnabled, toggleVisualizer } = usePlayerStore();
+    const { visualizerEnabled, toggleVisualizer } = useUIStore();
 
     // Use the comprehensive settings store
     const {

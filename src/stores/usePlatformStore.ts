@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { PlatformState, Platform } from '../types';
+import type { PlatformStore, Platform } from '../types';
 
 const defaultPlatforms: Platform[] = [
     { name: 'NetEase Cloud', connected: true, vip: true, color: '#e60026' },
@@ -7,7 +7,7 @@ const defaultPlatforms: Platform[] = [
     { name: 'Soda Music', connected: false, vip: false, color: '#ffde00' },
 ];
 
-export const usePlatformStore = create<PlatformState>((set) => ({
+export const usePlatformStore = create<PlatformStore>((set) => ({
     platforms: defaultPlatforms,
 
     connectPlatform: (platformName: string) =>

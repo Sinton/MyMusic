@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, MoreHorizontal } from 'lucide-react';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { usePlaylistStore } from '../../stores/usePlaylistStore';
+import { useUIStore } from '../../stores/useUIStore';
 import { mockComments, mockLyrics } from '../../data/mockData';
 
 // Sub-components
@@ -19,9 +20,18 @@ interface FullScreenPlayerProps {
 
 const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [showComments, setShowComments] = useState(false);
-    const [showMenu, setShowMenu] = useState(false);
-    const [showQueue, setShowQueue] = useState(false);
+
+    // UI Store State & Actions
+    const {
+        visualizerEnabled,
+        showCommentsPanel,
+        showOptionsPanel,
+        showQueuePanel,
+        toggleCommentsPanel,
+        toggleOptionsPanel,
+        toggleQueuePanel,
+        closeAllPanels
+    } = useUIStore();
 
     const {
         isPlaying,
@@ -37,8 +47,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
         play,
         shuffle,
         repeat,
-        toggleMode,
-        visualizerEnabled
+        toggleMode
     } = usePlayerStore();
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
@@ -55,6 +64,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
         play();
     };
 
+    // Close all panels when player closes or opens
     useEffect(() => {
         if (isOpen) {
             setIsVisible(true);
@@ -83,8 +93,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
                 </button>
                 <div className="text-sm font-medium tracking-wide text-[var(--text-secondary)] uppercase">Now Playing</div>
                 <button
-                    onClick={() => setShowMenu(!showMenu)}
-                    className={`p-2 rounded-full transition-colors ${showMenu ? 'bg-white/10' : 'hover:bg-white/10'}`}
+                    onClick={toggleOptionsPanel}
+                    className={`p-2 rounded-full transition-colors ${showOptionsPanel ? 'bg-white/10' : 'hover:bg-white/10'}`}
                 >
                     <MoreHorizontal className="w-6 h-6 text-[var(--text-main)]" />
                 </button>
@@ -124,27 +134,27 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
                 repeat={repeat}
                 currentTimeSec={currentTimeSec}
                 durationSec={durationSec}
-                showComments={showComments}
-                showQueue={showQueue}
+                showComments={showCommentsPanel}
+                showQueue={showQueuePanel}
                 onTogglePlay={togglePlay}
                 onNextTrack={nextTrack}
                 onPreviousTrack={previousTrack}
                 onToggleMode={toggleMode}
                 onSeek={handleSeek}
-                onToggleComments={() => setShowComments(!showComments)}
-                onToggleQueue={() => setShowQueue(!showQueue)}
+                onToggleComments={toggleCommentsPanel}
+                onToggleQueue={toggleQueuePanel}
             />
 
             {/* Sidebars */}
             <CommentsPanel
-                isOpen={showComments}
-                onClose={() => setShowComments(false)}
+                isOpen={showCommentsPanel}
+                onClose={toggleCommentsPanel}
                 comments={mockComments}
             />
 
             <QueuePanel
-                isOpen={showQueue}
-                onClose={() => setShowQueue(false)}
+                isOpen={showQueuePanel}
+                onClose={toggleQueuePanel}
                 queue={queue}
                 currentTrack={currentTrack}
                 isPlaying={isPlaying}
@@ -152,8 +162,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
             />
 
             <OptionsPanel
-                isOpen={showMenu}
-                onClose={() => setShowMenu(false)}
+                isOpen={showOptionsPanel}
+                onClose={toggleOptionsPanel}
                 currentTrack={currentTrack}
                 userPlaylists={userPlaylists}
                 onAddToPlaylist={addSongToPlaylist}

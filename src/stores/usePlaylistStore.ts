@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import type { Playlist, Song, PlaylistState } from '../types';
+import type { Playlist, Song, PlaylistStore } from '../types';
 import { unifiedSongs } from '../data/mockData';
 
-export const usePlaylistStore = create<PlaylistState>((set) => ({
+export const usePlaylistStore = create<PlaylistStore>((set) => ({
     // ================== STATE ==================
     userPlaylists: [
         {

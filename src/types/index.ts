@@ -1,3 +1,7 @@
+// =====================================================
+// CORE DOMAIN TYPES - Business Entities
+// =====================================================
+
 // ================== PLATFORM ==================
 export interface Platform {
     name: string;
@@ -31,7 +35,7 @@ export interface Song {
 export interface Playlist {
     id: number;
     title: string;
-    count: number; // Fixed: was string, now number for proper type
+    count: number;
     creator: string;
     cover: string;
     songs?: Song[];
@@ -81,26 +85,36 @@ export interface LyricLine {
     text: string;
 }
 
-// ================== LOADING STATE ==================
+// =====================================================
+// DATA FETCHING TYPES
+// =====================================================
+
 export interface LoadingState<T> {
     data: T | null;
     isLoading: boolean;
     error: string | null;
 }
 
-// ================== STORE TYPES ==================
+// =====================================================
+// STORE STATE TYPES - Separated by Domain
+// =====================================================
+
+// --- Player Domain State ---
+export type RepeatMode = 'off' | 'all' | 'one';
+
 export interface PlayerState {
-    // State
+    // Core Playback State
     currentTrack: Track;
     isPlaying: boolean;
     volume: number;
-    repeat: 'off' | 'all' | 'one';
+    repeat: RepeatMode;
     shuffle: boolean;
     currentTimeSec: number;
     durationSec: number;
     queue: Track[];
-    visualizerEnabled: boolean;
-    // Actions
+}
+
+export interface PlayerActions {
     play: () => void;
     pause: () => void;
     togglePlay: () => void;
@@ -112,22 +126,98 @@ export interface PlayerState {
     nextTrack: () => void;
     previousTrack: () => void;
     setProgress: (time: number) => void;
-    toggleVisualizer: () => void;
 }
 
-export interface PlatformState {
-    platforms: Platform[];
-    connectPlatform: (platformName: string) => void;
-    disconnectPlatform: (platformName: string) => void;
-    disconnectAll: () => void;
-}
+export type PlayerStore = PlayerState & PlayerActions;
 
+// --- Playlist Domain State ---
 export interface PlaylistState {
     userPlaylists: Playlist[];
     likedSongs: Song[];
+}
+
+export interface PlaylistActions {
     createPlaylist: (title: string) => void;
     addSongToPlaylist: (playlistId: number, song: Song) => void;
     removeSongFromPlaylist: (playlistId: number, songId: number) => void;
     removePlaylist: (id: number) => void;
     toggleLike: (song: Song) => void;
 }
+
+export type PlaylistStore = PlaylistState & PlaylistActions;
+
+// --- Platform Domain State ---
+export interface PlatformState {
+    platforms: Platform[];
+}
+
+export interface PlatformActions {
+    connectPlatform: (platformName: string) => void;
+    disconnectPlatform: (platformName: string) => void;
+    disconnectAll: () => void;
+}
+
+export type PlatformStore = PlatformState & PlatformActions;
+
+// --- Settings Domain State (persisted) ---
+export type ThemeMode = 'dark' | 'light' | 'system';
+export type AccentColor = 'pink' | 'purple' | 'blue' | 'green' | 'orange';
+
+export interface SettingsState {
+    themeMode: ThemeMode;
+    accentColor: AccentColor;
+    language: string;
+    launchOnLogin: boolean;
+    outputDevice: string;
+    streamingQuality: string;
+    exclusiveMode: boolean;
+}
+
+export interface SettingsActions {
+    setThemeMode: (mode: ThemeMode) => void;
+    setAccentColor: (color: AccentColor) => void;
+    setLanguage: (lang: string) => void;
+    toggleLaunchOnLogin: () => void;
+    setOutputDevice: (device: string) => void;
+    setStreamingQuality: (quality: string) => void;
+    toggleExclusiveMode: () => void;
+}
+
+export type SettingsStore = SettingsState & SettingsActions;
+
+// =====================================================
+// UI STATE TYPES - Transient, non-persisted
+// =====================================================
+
+export interface UIState {
+    // Player UI
+    visualizerEnabled: boolean;
+    isFullScreenPlayerOpen: boolean;
+    showQueuePanel: boolean;
+    showCommentsPanel: boolean;
+    showOptionsPanel: boolean;
+
+    // Modal UI
+    authModalOpen: boolean;
+    authModalTarget: Platform | null;
+    createPlaylistModalOpen: boolean;
+}
+
+export interface UIActions {
+    // Player UI
+    toggleVisualizer: () => void;
+    openFullScreenPlayer: () => void;
+    closeFullScreenPlayer: () => void;
+    toggleQueuePanel: () => void;
+    toggleCommentsPanel: () => void;
+    toggleOptionsPanel: () => void;
+    closeAllPanels: () => void;
+
+    // Modal UI
+    openAuthModal: (platform: Platform) => void;
+    closeAuthModal: () => void;
+    openCreatePlaylistModal: () => void;
+    closeCreatePlaylistModal: () => void;
+}
+
+export type UIStore = UIState & UIActions;

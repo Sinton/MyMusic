@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { PlayerState, Track } from '../types';
+import type { PlayerStore, Track } from '../types';
 import { defaultTrack, initialQueue } from '../data/initialPlayerData';
 import { getNextIndex, getPreviousIndex } from '../lib/playerUtils';
 
-export const usePlayerStore = create<PlayerState>((set, get) => ({
+export const usePlayerStore = create<PlayerStore>((set, get) => ({
     // ================== STATE ==================
     currentTrack: defaultTrack,
     isPlaying: false,
@@ -13,7 +13,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     currentTimeSec: 84, // 1:24
     durationSec: 243,   // 4:03
     queue: initialQueue,
-    visualizerEnabled: true,
 
     // ================== PLAYBACK ACTIONS ==================
     play: () => set({ isPlaying: true }),
@@ -43,8 +42,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
             return { shuffle: true, repeat: 'all' };
         }
     }),
-
-    toggleVisualizer: () => set((state) => ({ visualizerEnabled: !state.visualizerEnabled })),
 
     // ================== NAVIGATION ACTIONS ==================
     nextTrack: () => {
