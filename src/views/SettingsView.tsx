@@ -30,9 +30,8 @@ const SettingsView: React.FC = () => {
 
     // Options - Dynamic based on language
     const languageOptions = [
-        { value: 'en', label: 'English', icon: <span className="text-xs">🇺🇸</span> },
         { value: 'zh', label: '中文', icon: <span className="text-xs">🇨🇳</span> },
-        { value: 'ja', label: '日本語', icon: <span className="text-xs">🇯🇵</span> },
+        { value: 'en', label: 'English', icon: <span className="text-xs">🇺🇸</span> },
     ];
 
     const outputOptions = [
@@ -70,7 +69,7 @@ const SettingsView: React.FC = () => {
                                     <div className="text-xs text-[var(--text-secondary)]">{t('settings.appearance.themeDesc')}</div>
                                 </div>
                                 <div className="flex bg-[var(--glass-border)] p-1 rounded-lg border border-[var(--glass-border)]">
-                                    {(['light', 'system', 'dark'] as const).map((mode) => (
+                                    {(['light', 'dark', 'system'] as const).map((mode) => (
                                         <button
                                             key={mode}
                                             onClick={() => setThemeMode(mode)}
@@ -92,11 +91,11 @@ const SettingsView: React.FC = () => {
                                     <div className="text-xs text-[var(--text-secondary)]">{t('settings.appearance.accentDesc')}</div>
                                 </div>
                                 <div className="flex gap-3">
-                                    {(['pink', 'purple', 'blue', 'green', 'orange'] as const).map((color) => (
+                                    {(['green', 'blue', 'orange', 'purple', 'pink'] as const).map((color) => (
                                         <button
                                             key={color}
                                             onClick={() => setAccentColor(color)}
-                                            className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${accentColor === color ? 'border-white scale-110' : 'border-transparent'
+                                            className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${accentColor === color ? 'border-[var(--text-main)] scale-110' : 'border-transparent'
                                                 }`}
                                             style={{ backgroundColor: `var(--color-${color}, ${getColorValue(color)})` }}
                                         />
@@ -140,14 +139,14 @@ const SettingsView: React.FC = () => {
                             </div>
                             <div className="flex items-center justify-between">
                                 <span>{t('settings.general.launchOnLogin')}</span>
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        className="accent-[var(--accent-color)] h-4 w-4"
+                                        className="sr-only peer"
                                         checked={launchOnLogin}
                                         onChange={toggleLaunchOnLogin}
                                     />
-                                    <span className="text-sm text-[var(--text-secondary)]">{t('settings.general.launchOnLoginDesc')}</span>
+                                    <div className="w-11 h-6 bg-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--accent-color)]"></div>
                                 </label>
                             </div>
                         </div>
