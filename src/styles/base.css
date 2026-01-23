@@ -1,0 +1,46 @@
+/* ================== GLOBAL STYLES ================== */
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--bg-color);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-main);
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
+
+/* ================== CUSTOM SCROLLBAR ================== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Hide scrollbar utility */
+.custom-scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.custom-scrollbar-none::-webkit-scrollbar {
+    display: none;
+}

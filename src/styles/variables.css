@@ -1,0 +1,65 @@
+/* Typography */
+:root {
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+    /* Animation Timing */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* --- Light Mode (Default) --- */
+:root {
+    /* Background & Glass */
+    --bg-color: #f0f4f8;
+    --bg-gradient: radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.8) 0, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(243, 232, 255, 0.8) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(254, 226, 226, 0.8) 0, transparent 50%);
+
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(0, 0, 0, 0.06);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    --glass-highlight: rgba(0, 0, 0, 0.04);
+    --glass-drawer-bg: rgba(255, 255, 255, 0.25);
+
+    /* Text Colors */
+    --text-main: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+
+    /* Accent Colors */
+    --accent-color: #ec4899;
+    --accent-hover: #db2777;
+    --accent-glow: rgba(236, 72, 153, 0.3);
+
+    /* Quality Badge Colors */
+    --quality-hq: #60a5fa;
+    --quality-sq: #4ade80;
+    --quality-master: #fbbf24;
+
+    /* Layout Dimensions */
+    --sidebar-width: 260px;
+    --player-height: 80px;
+    --header-height: 60px;
+}
+
+/* --- Dark Mode Overrides --- */
+.dark {
+    /* Background & Glass */
+    --bg-color: #0d1117;
+    --bg-gradient: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+
+    --glass-bg: rgba(20, 20, 25, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+
+    /* Drawer/Overlay specific glass */
+    --glass-drawer-bg: rgba(10, 10, 15, 0.25);
+
+    /* Text Colors */
+    --text-main: rgba(255, 255, 255, 0.9);
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.4);
+}
