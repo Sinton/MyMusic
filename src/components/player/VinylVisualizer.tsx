@@ -6,7 +6,7 @@ interface VinylVisualizerProps {
     trackId: number;
 }
 
-const VinylVisualizer: React.FC<VinylVisualizerProps> = ({
+const VinylVisualizer: React.FC<VinylVisualizerProps> = React.memo(({
     isPlaying,
     visualizerEnabled,
     trackId
@@ -81,6 +81,6 @@ const VinylVisualizer: React.FC<VinylVisualizerProps> = ({
             </div>
         </div>
     );
-};
+});
 
 export default VinylVisualizer;

@@ -48,15 +48,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
 
     return (
         <div className="glass-panel h-full flex flex-col" style={{ width: 'var(--sidebar-width)', flexShrink: 0 }}>
-            {/* Traffic Lights Area */}
-            <div className="h-12 flex items-center px-4 gap-2 mb-4">
-                <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-            </div>
-
             {/* Menu */}
-            <nav className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar">
+            <nav className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar pt-6">
                 {menuItems.map((item) => (
                     <button
                         key={item.id}

@@ -22,8 +22,9 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
         handlePlaySource
     } = useSongActions(song);
 
-    const { currentTrack, isPlaying } = usePlayerStore();
-    const isCurrent = currentTrack?.id === song.id;
+    const currentTrackId = usePlayerStore((state) => state.currentTrack.id);
+    const isPlaying = usePlayerStore((state) => state.isPlaying);
+    const isCurrent = currentTrackId === song.id;
 
     const handleSourceClick = (source: AudioSource) => {
         if (onPlay) {
