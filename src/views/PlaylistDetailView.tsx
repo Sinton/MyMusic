@@ -49,7 +49,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
     };
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="animate-fade-in">
             {/* Playlist Header */}
             <div className="flex flex-col md:flex-row gap-8 items-end mb-8 pt-4">
                 <div className={`w-48 h-48 md:w-60 md:h-60 rounded-2xl ${playlist.cover} shadow-2xl flex items-center justify-center relative group`}>

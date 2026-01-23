@@ -124,7 +124,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                                 {t('home.seeAll')}
                             </button>
                         </div>
-                        <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+                        <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-2 -mx-2 hide-scrollbar">
                             {playlists.map((pl: Playlist) => (
                                 <PlaylistCard
                                     key={pl.id}

@@ -80,7 +80,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
 
             {/* Playlists Tab */}
             {activeTab === 'Playlists' && (
-                <div className="grid grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4">
+                <div className="grid grid-cols-3 gap-6 animate-fade-in">
                     {playlists.map((pl: Playlist) => (
                         <PlaylistCard
                             key={pl.id}
@@ -99,7 +99,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
 
             {/* Albums Tab */}
             {activeTab === 'Albums' && (
-                <div className="grid grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4">
+                <div className="grid grid-cols-4 gap-6 animate-fade-in">
                     {albums.map((album: Album) => (
                         <AlbumCard
                             key={album.id}
