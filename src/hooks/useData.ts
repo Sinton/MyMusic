@@ -1,139 +1,122 @@
-import { useMemo, useState, useEffect } from 'react';
-import { unifiedSongs, playlists, albums } from '../data/mockData';
-import type { Song, Playlist, Album, LoadingState } from '../types';
+import { useQuery } from '@tanstack/react-query';
+import { MusicService } from '../services/MusicService';
 
-/**
- * Simulates async data fetching with loading states
- * In production, replace with actual API calls using React Query or SWR
- */
-const simulateFetch = <T,>(data: T, delay = 0): Promise<T> => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(data), delay);
-    });
+
+// ================== QUERY KEYS ==================
+export const QueryKeys = {
+    Songs: ['songs'] as const,
+    Song: (id: number) => ['song', id] as const,
+    Playlists: ['playlists'] as const,
+    Playlist: (id: number) => ['playlist', id] as const,
+    Albums: ['albums'] as const,
+    Album: (id: number) => ['album', id] as const,
+    Lyrics: (id: number) => ['lyrics', id] as const,
+    Comments: (id: number) => ['comments', id] as const,
 };
 
-// ================== useSongs ==================
-export const useSongs = (): LoadingState<Song[]> & { songs: Song[] } => {
-    const [state, setState] = useState<LoadingState<Song[]>>({
-        data: unifiedSongs, // Use sync data for immediate display
-        isLoading: false,
-        error: null,
-    });
+// ================== HOOKS ==================
 
-    // In production, this would be an actual API call
-    // useEffect(() => {
-    //     setState(prev => ({ ...prev, isLoading: true }));
-    //     simulateFetch(unifiedSongs, 500)
-    //         .then(data => setState({ data, isLoading: false, error: null }))
-    //         .catch(err => setState({ data: null, isLoading: false, error: err.message }));
-    // }, []);
-
-    return {
-        ...state,
-        songs: state.data || [],
-    };
-};
-
-// ================== usePlaylists ==================
-export const usePlaylists = (): LoadingState<Playlist[]> & { playlists: Playlist[] } => {
-    const [state, setState] = useState<LoadingState<Playlist[]>>({
-        data: playlists,
-        isLoading: false,
-        error: null,
+export const useSongs = () => {
+    const query = useQuery({
+        queryKey: QueryKeys.Songs,
+        queryFn: MusicService.getSongs,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     return {
-        ...state,
-        playlists: state.data || [],
+        ...query,
+        songs: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
     };
 };
 
-// ================== useAlbums ==================
-export const useAlbums = (): LoadingState<Album[]> & { albums: Album[] } => {
-    const [state, setState] = useState<LoadingState<Album[]>>({
-        data: albums,
-        isLoading: false,
-        error: null,
+export const usePlaylists = () => {
+    const query = useQuery({
+        queryKey: QueryKeys.Playlists,
+        queryFn: MusicService.getPlaylists,
+        staleTime: 1000 * 60 * 5,
     });
 
     return {
-        ...state,
-        albums: state.data || [],
+        ...query,
+        playlists: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
     };
 };
 
-// ================== useSongById ==================
-export const useSongById = (id: number): LoadingState<Song> & { song: Song | undefined } => {
-    const song = useMemo(() => unifiedSongs.find((s) => s.id === id), [id]);
-
-    return {
-        data: song || null,
-        isLoading: false,
-        error: song ? null : `Song with id ${id} not found`,
-        song,
-    };
-};
-
-// ================== usePlaylistById ==================
-export const usePlaylistById = (id: number): LoadingState<Playlist> & { playlist: Playlist | undefined } => {
-    const playlist = useMemo(() => playlists.find((pl) => pl.id === id), [id]);
-
-    return {
-        data: playlist || null,
-        isLoading: false,
-        error: playlist ? null : `Playlist with id ${id} not found`,
-        playlist,
-    };
-};
-
-// ================== useAlbumById ==================
-export const useAlbumById = (id: number): LoadingState<Album> & { album: Album | undefined } => {
-    const album = useMemo(() => albums.find((a) => a.id === id), [id]);
-
-    return {
-        data: album || null,
-        isLoading: false,
-        error: album ? null : `Album with id ${id} not found`,
-        album,
-    };
-};
-
-// ================== useAsyncData (Generic) ==================
-/**
- * Generic hook for async data fetching with loading states
- * Use this pattern when integrating with real APIs
- */
-export const useAsyncData = <T,>(
-    fetchFn: () => Promise<T>,
-    dependencies: unknown[] = []
-): LoadingState<T> => {
-    const [state, setState] = useState<LoadingState<T>>({
-        data: null,
-        isLoading: true,
-        error: null,
+export const useAlbums = () => {
+    const query = useQuery({
+        queryKey: QueryKeys.Albums,
+        queryFn: MusicService.getAlbums,
+        staleTime: 1000 * 60 * 10, // 10 minutes
     });
 
-    useEffect(() => {
-        let cancelled = false;
+    return {
+        ...query,
+        albums: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
 
-        setState(prev => ({ ...prev, isLoading: true, error: null }));
+export const useSongById = (id: number) => {
+    const query = useQuery({
+        queryKey: QueryKeys.Song(id),
+        queryFn: () => MusicService.getSongById(id),
+        enabled: !!id,
+    });
 
-        fetchFn()
-            .then(data => {
-                if (!cancelled) {
-                    setState({ data, isLoading: false, error: null });
-                }
-            })
-            .catch(err => {
-                if (!cancelled) {
-                    setState({ data: null, isLoading: false, error: err.message || 'An error occurred' });
-                }
-            });
+    return {
+        ...query,
+        song: query.data,
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
 
-        return () => {
-            cancelled = true;
-        };
-    }, dependencies);
+export const usePlaylistById = (id: number) => {
+    const query = useQuery({
+        queryKey: QueryKeys.Playlist(id),
+        queryFn: () => MusicService.getPlaylistById(id),
+        enabled: !!id,
+    });
 
-    return state;
+    return {
+        ...query,
+        playlist: query.data,
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+export const useAlbumById = (id: number) => {
+    const query = useQuery({
+        queryKey: QueryKeys.Album(id),
+        queryFn: () => MusicService.getAlbumById(id),
+        enabled: !!id,
+    });
+
+    return {
+        ...query,
+        album: query.data,
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+export const useLyrics = (songId: number) => {
+    const query = useQuery({
+        queryKey: QueryKeys.Lyrics(songId),
+        queryFn: () => MusicService.getLyrics(songId),
+        enabled: !!songId,
+    });
+
+    return {
+        ...query,
+        lyrics: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
 };
