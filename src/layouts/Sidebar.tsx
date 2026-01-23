@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, Music, Disc, Settings, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { PlatformBadge, Modal } from '../components';
@@ -12,20 +13,29 @@ interface SidebarProps {
 }
 
 interface MenuItem {
-    name: string;
+    id: string;
+    translationKey: string;
     icon: React.FC<{ className?: string }>;
 }
 
+const getPlatformKey = (name: string): string => {
+    if (name.includes('NetEase')) return 'netease';
+    if (name.includes('QQ')) return 'qq';
+    if (name.includes('Soda')) return 'soda';
+    return name;
+};
+
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth }) => {
+    const { t } = useTranslation();
     const platforms = usePlatformStore((state) => state.platforms);
     const { userPlaylists, createPlaylist } = usePlaylistStore();
     const [showCreateModal, setShowCreateModal] = React.useState(false);
     const [newPlaylistName, setNewPlaylistName] = React.useState('');
 
     const menuItems: MenuItem[] = [
-        { name: 'Home', icon: Home },
-        { name: 'Explore', icon: Disc },
-        { name: 'Library', icon: Music },
+        { id: 'Home', translationKey: 'sidebar.home', icon: Home },
+        { id: 'Explore', translationKey: 'sidebar.explore', icon: Disc },
+        { id: 'Library', translationKey: 'sidebar.library', icon: Music },
     ];
 
     const handleCreatePlaylist = () => {
@@ -49,22 +59,22 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
             <nav className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar">
                 {menuItems.map((item) => (
                     <button
-                        key={item.name}
-                        onClick={() => onNavigate(item.name)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeView === item.name
+                        key={item.id}
+                        onClick={() => onNavigate(item.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeView === item.id
                             ? 'bg-[var(--glass-border)] text-[var(--text-main)] font-medium'
                             : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--glass-highlight)]'
                             }`}
                     >
                         <item.icon className="w-4 h-4" />
-                        {item.name}
+                        {t(item.translationKey)}
                     </button>
                 ))}
 
                 {/* Playlist Section */}
                 <div className="pt-4 pb-2">
                     <div className="flex items-center justify-between px-3 mb-2">
-                        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">My Playlists</span>
+                        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t('sidebar.myPlaylists')}</span>
                         <button
                             onClick={() => setShowCreateModal(true)}
                             className="p-1 hover:bg-[var(--glass-highlight)] rounded-full transition-colors group"
@@ -90,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
 
             {/* Linked Accounts */}
             <div className="p-4 border-t border-[var(--glass-border)]">
-                <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">Linked</h3>
+                <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">{t('sidebar.linked')}</h3>
                 <div className="space-y-3">
                     {platforms.map((platform: Platform) => (
                         <div
@@ -107,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                     <span className={`text-xs font-medium ${platform.connected ? 'text-[var(--text-main)]' : 'text-[var(--text-muted)]'}`}>
-                                        {platform.name}
+                                        {t(`platforms.${getPlatformKey(platform.name)}`)}
                                     </span>
                                 </div>
                             </div>
@@ -126,18 +136,18 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                         }`}
                 >
                     <Settings className="w-4 h-4" />
-                    Settings
+                    {t('sidebar.settings')}
                 </button>
             </div>
 
             <Modal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
-                title="Create New Playlist"
+                title={t('sidebar.createPlaylist')}
             >
                 <div className="space-y-4">
                     <div className="space-y-2 animate-stagger-1">
-                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Playlist Name</label>
+                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{t('sidebar.playlistName')}</label>
                         <input
                             autoFocus
                             type="text"
@@ -153,13 +163,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                         disabled={!newPlaylistName.trim()}
                         className="w-full py-3 bg-[var(--accent-color)] text-white rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[var(--accent-color)]/20 disabled:opacity-50 disabled:hover:scale-100 animate-stagger-2"
                     >
-                        Create Playlist
+                        {t('sidebar.createPlaylist')}
                     </button>
                     <button
                         onClick={() => setShowCreateModal(false)}
                         className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors animate-stagger-3"
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </button>
                 </div>
             </Modal>

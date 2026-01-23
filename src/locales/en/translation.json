@@ -1,0 +1,159 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+    },
+    "sidebar": {
+        "home": "Home",
+        "explore": "Explore",
+        "library": "Library",
+        "likes": "Liked Songs",
+        "settings": "Settings",
+        "playlists": "Playlists",
+        "myPlaylists": "My Playlists",
+        "newPlaylist": "New Playlist",
+        "createPlaylist": "Create Playlist",
+        "playlistName": "Playlist Name",
+        "linked": "Linked"
+    },
+    "home": {
+        "searchPlaceholder": "Search for songs, artists, or albums...",
+        "searchResultsFor": "Search Results for",
+        "resultsFound": "results found",
+        "noResults": "No songs found matching your search.",
+        "greeting": "Good Morning",
+        "recentlyPlayed": "Recently Played",
+        "jumpBackIn": "Jump Back In",
+        "seeAll": "See All"
+    },
+    "settings": {
+        "title": "Settings",
+        "appearance": {
+            "title": "Appearance",
+            "theme": "Theme",
+            "themeDesc": "Choose your preferred interface style",
+            "themes": {
+                "light": "Light",
+                "system": "System",
+                "dark": "Dark"
+            },
+            "accent": "Accent Color",
+            "accentDesc": "Personalize your Vibe",
+            "visualizer": "Audio Visualizer",
+            "visualizerDesc": "Show dynamic effects in full screen"
+        },
+        "general": {
+            "title": "General",
+            "language": "Language",
+            "launchOnLogin": "Launch on login",
+            "launchOnLoginDesc": "Launch on login"
+        },
+        "audio": {
+            "title": "Audio",
+            "output": "Output Device",
+            "outputDesc": "Select active audio output",
+            "outputs": {
+                "default": "System Default",
+                "defaultDesc": "Use system sound settings",
+                "speakers": "MacBook Pro Speakers",
+                "speakersDesc": "Built-in Output",
+                "airpods": "AirPods Pro",
+                "airpodsDesc": "Bluetooth",
+                "dac": "External DAC (USB)",
+                "dacDesc": "FiiO K5 Pro"
+            },
+            "quality": "Streaming Quality",
+            "qualityDesc": "Wi-Fi streaming preference",
+            "qualities": {
+                "master": "Master",
+                "masterDesc": "Hi-Res Lossless • Up to 9216kbps",
+                "hifi": "Hi-Fi",
+                "hifiDesc": "Lossless • 1411kbps",
+                "high": "High",
+                "highDesc": "AAC • 320kbps",
+                "normal": "Normal",
+                "normalDesc": "AAC • 128kbps"
+            },
+            "exclusive": "Exclusive Mode",
+            "exclusiveDesc": "Bypass system audio mixer"
+        },
+        "about": {
+            "title": "About",
+            "version": "Version",
+            "checkUpdates": "Check for Updates",
+            "appName": "Vibe Music",
+            "appDesc": "Version 1.0.0 (Beta)",
+            "terms": "Terms of Service",
+            "privacy": "Privacy Policy",
+            "licenses": "Open Source Licenses",
+            "github": "GitHub Repository"
+        },
+        "dangerZone": {
+            "title": "Danger Zone",
+            "desc": "Disconnect all linked services and clear local cache.",
+            "button": "Disconnect All"
+        }
+    },
+    "library": {
+        "title": "Library",
+        "subtitle": "Aggregated from all services",
+        "tabs": {
+            "songs": "Songs",
+            "playlists": "Playlists",
+            "albums": "Albums"
+        }
+    },
+    "playlist": {
+        "label": "Playlist",
+        "playAll": "Play All",
+        "linkCopied": "Link Copied",
+        "songs": "songs",
+        "titleCol": "Title",
+        "albumCol": "Album",
+        "timeCol": "Time",
+        "empty": "This playlist is empty",
+        "emptyDesc": "Add some songs to get started",
+        "delete": "Delete Playlist",
+        "deleteConfirmTitle": "Are you sure?",
+        "deleteConfirmDesc": "This will permanently delete \"{{title}}\". This action cannot be undone.",
+        "yesDelete": "Yes, Delete Playlist"
+    },
+    "explore": {
+        "back": "Back to Explore",
+        "topSongsIn": "Top songs in {{genre}} category",
+        "noSongs": "No songs available in this genre yet.",
+        "browseGenres": "Browse by Genre",
+        "charts": "Charts",
+        "featured": {
+            "top50": "Top 50 Global",
+            "trending": "Trending",
+            "newReleases": "New Releases",
+            "new": "New"
+        },
+        "chartNames": {
+            "chinaTop": "China Top 100",
+            "globalViral": "Global Viral",
+            "kpopHot": "K-Pop Hot",
+            "indiePicks": "Indie Picks"
+        }
+    },
+    "auth": {
+        "connect": "Connect {{platform}}",
+        "scanDesc": "Open <b>{{platform}} App</b> on your phone and scan the QR code to authorize.",
+        "clickToSimulate": "Click to Simulate Scan",
+        "waiting": "Waiting for scan...",
+        "authorizing": "Authorizing...",
+        "success": "Successfully Connected!",
+        "syncing": "Syncing your library now...",
+        "privacy": "Privacy Encrypted",
+        "passwordLogin": "Login with Password"
+    },
+    "platforms": {
+        "netease": "NetEase Cloud",
+        "qq": "QQ Music",
+        "soda": "Soda Music"
+    }
+}

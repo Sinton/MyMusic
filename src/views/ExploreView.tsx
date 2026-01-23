@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, Flame } from 'lucide-react';
+import { TrendingUp, Flame, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { FeatureCard, GenreCard, SongRow } from '../components';
 import { genres } from '../data/mockData';
 import { useSongs } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 
-import { ArrowLeft } from 'lucide-react';
-
 const ExploreView: React.FC = () => {
+    const { t } = useTranslation();
     const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
     const { songs } = useSongs();
     const { setTrack, play } = usePlayerStore();
@@ -35,6 +35,14 @@ const ExploreView: React.FC = () => {
         }
     };
 
+    // Map chart names to translation keys
+    const chartMapping: Record<string, string> = {
+        'China Top 100': 'chinaTop',
+        'Global Viral': 'globalViral',
+        'K-Pop Hot': 'kpopHot',
+        'Indie Picks': 'indiePicks'
+    };
+
     if (selectedGenre) {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -43,12 +51,12 @@ const ExploreView: React.FC = () => {
                     className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors mb-4 group"
                 >
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-medium text-sm">Back to Explore</span>
+                    <span className="font-medium text-sm">{t('explore.back')}</span>
                 </button>
 
                 <header className="mb-8">
                     <h1 className="text-4xl font-bold mb-2">{selectedGenre}</h1>
-                    <p className="text-[var(--text-muted)]">Top songs in {selectedGenre} category</p>
+                    <p className="text-[var(--text-muted)]">{t('explore.topSongsIn', { genre: selectedGenre })}</p>
                 </header>
 
                 <div className="space-y-2">
@@ -58,7 +66,7 @@ const ExploreView: React.FC = () => {
                         ))
                     ) : (
                         <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
-                            No songs available in this genre yet.
+                            {t('explore.noSongs')}
                         </div>
                     )}
                 </div>
@@ -71,16 +79,16 @@ const ExploreView: React.FC = () => {
             {/* Featured Cards */}
             <div className="grid grid-cols-2 gap-4">
                 <FeatureCard
-                    title="Top 50 Global"
-                    subtitle="Trending"
+                    title={t('explore.featured.top50')}
+                    subtitle={t('explore.featured.trending')}
                     gradient="bg-gradient-to-r from-pink-600 to-rose-500"
                     icon={TrendingUp}
                     size="lg"
                     onClick={handleQuickPlay}
                 />
                 <FeatureCard
-                    title="New Releases"
-                    subtitle="New"
+                    title={t('explore.featured.newReleases')}
+                    subtitle={t('explore.featured.new')}
                     gradient="bg-gradient-to-r from-violet-600 to-indigo-500"
                     icon={Flame}
                     size="lg"
@@ -90,7 +98,7 @@ const ExploreView: React.FC = () => {
 
             {/* Browse by Genre */}
             <section>
-                <h2 className="text-xl font-bold mb-4">Browse by Genre</h2>
+                <h2 className="text-xl font-bold mb-4">{t('explore.browseGenres')}</h2>
                 <div className="grid grid-cols-4 gap-4">
                     {genres.map((genre: string) => (
                         <GenreCard
@@ -104,15 +112,17 @@ const ExploreView: React.FC = () => {
 
             {/* Charts */}
             <section>
-                <h2 className="text-xl font-bold mb-4 text-[var(--text-secondary)]">Charts</h2>
+                <h2 className="text-xl font-bold mb-4 text-[var(--text-secondary)]">{t('explore.charts')}</h2>
                 <div className="grid grid-cols-4 gap-4">
-                    {['China Top 100', 'Global Viral', 'K-Pop Hot', 'Indie Picks'].map((chart) => (
+                    {Object.keys(chartMapping).map((chart) => (
                         <div
                             key={chart}
                             onClick={() => setSelectedGenre(chart)}
                             className="h-32 rounded-xl bg-[var(--glass-highlight)] p-4 flex items-end cursor-pointer hover:bg-[var(--glass-border)] hover:scale-[1.02] active:scale-95 transition-all group"
                         >
-                            <span className="font-semibold group-hover:text-[var(--accent-color)] transition-colors">{chart}</span>
+                            <span className="font-semibold group-hover:text-[var(--accent-color)] transition-colors">
+                                {t(`explore.chartNames.${chartMapping[chart]}`)}
+                            </span>
                         </div>
                     ))}
                 </div>

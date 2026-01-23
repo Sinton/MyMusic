@@ -1,0 +1,159 @@
+{
+    "common": {
+        "loading": "加载中...",
+        "error": "错误",
+        "save": "保存",
+        "cancel": "取消",
+        "confirm": "确认"
+    },
+    "sidebar": {
+        "home": "首页",
+        "explore": "发现",
+        "library": "音乐库",
+        "likes": "我喜欢的音乐",
+        "settings": "设置",
+        "playlists": "创建的歌单",
+        "myPlaylists": "我的歌单",
+        "newPlaylist": "新建歌单",
+        "createPlaylist": "创建歌单",
+        "playlistName": "歌单名称",
+        "linked": "已连接账户"
+    },
+    "home": {
+        "searchPlaceholder": "搜索歌曲、艺术家或专辑...",
+        "searchResultsFor": "搜索结果",
+        "resultsFound": "条结果",
+        "noResults": "没有找到匹配的歌曲。",
+        "greeting": "早上好",
+        "recentlyPlayed": "最近播放",
+        "jumpBackIn": "继续播放",
+        "seeAll": "查看全部"
+    },
+    "settings": {
+        "title": "设置",
+        "appearance": {
+            "title": "外观",
+            "theme": "主题模式",
+            "themeDesc": "选择你喜欢的界面风格",
+            "themes": {
+                "light": "浅色",
+                "system": "跟随系统",
+                "dark": "深色"
+            },
+            "accent": "强调色",
+            "accentDesc": "个性化你的 Vibe",
+            "visualizer": "音频可视化",
+            "visualizerDesc": "在全屏播放器中显示动态效果"
+        },
+        "general": {
+            "title": "常规",
+            "language": "语言",
+            "launchOnLogin": "开机自启",
+            "launchOnLoginDesc": "登录时自动启动"
+        },
+        "audio": {
+            "title": "音频",
+            "output": "输出设备",
+            "outputDesc": "选择活动的音频输出设备",
+            "outputs": {
+                "default": "系统默认",
+                "defaultDesc": "使用系统声音设置",
+                "speakers": "MacBook Pro 扬声器",
+                "speakersDesc": "内置输出",
+                "airpods": "AirPods Pro",
+                "airpodsDesc": "蓝牙设备",
+                "dac": "外部 DAC (USB)",
+                "dacDesc": "FiiO K5 Pro"
+            },
+            "quality": "流媒体音质",
+            "qualityDesc": "Wi-Fi 环境下的音质偏好",
+            "qualities": {
+                "master": "母带级 (Master)",
+                "masterDesc": "Hi-Res 无损 • 最高 9216kbps",
+                "hifi": "Hi-Fi 无损",
+                "hifiDesc": "CD 音质 • 1411kbps",
+                "high": "高品质",
+                "highDesc": "AAC • 320kbps",
+                "normal": "标准",
+                "normalDesc": "AAC • 128kbps"
+            },
+            "exclusive": "独占模式",
+            "exclusiveDesc": "绕过系统音频混合器"
+        },
+        "about": {
+            "title": "关于",
+            "version": "版本",
+            "checkUpdates": "检查更新",
+            "appName": "Vibe Music",
+            "appDesc": "版本 1.0.0 (Beta)",
+            "terms": "服务条款",
+            "privacy": "隐私政策",
+            "licenses": "开源许可",
+            "github": "GitHub 仓库"
+        },
+        "dangerZone": {
+            "title": "危险区域",
+            "desc": "断开所有连接的服务并清除本地缓存。",
+            "button": "断开所有连接"
+        }
+    },
+    "library": {
+        "title": "音乐库",
+        "subtitle": "聚合自所有服务",
+        "tabs": {
+            "songs": "歌曲",
+            "playlists": "歌单",
+            "albums": "专辑"
+        }
+    },
+    "playlist": {
+        "label": "歌单",
+        "playAll": "播放全部",
+        "linkCopied": "链接已复制",
+        "songs": "首歌曲",
+        "titleCol": "标题",
+        "albumCol": "专辑",
+        "timeCol": "时长",
+        "empty": "歌单为空",
+        "emptyDesc": "添加一些歌曲开始",
+        "delete": "删除歌单",
+        "deleteConfirmTitle": "确定要删除吗？",
+        "deleteConfirmDesc": "这将永久删除 \"{{title}}\"。此操作无法撤销。",
+        "yesDelete": "确认，删除歌单"
+    },
+    "explore": {
+        "back": "返回发现",
+        "topSongsIn": "{{genre}} 分类的热门歌曲",
+        "noSongs": "该分类暂无歌曲。",
+        "browseGenres": "浏览分类",
+        "charts": "排行榜",
+        "featured": {
+            "top50": "全球 Top 50",
+            "trending": "飙升",
+            "newReleases": "新歌速递",
+            "new": "最新"
+        },
+        "chartNames": {
+            "chinaTop": "中国 Top 100",
+            "globalViral": "全球热播",
+            "kpopHot": "K-Pop 热歌",
+            "indiePicks": "独立音乐精选"
+        }
+    },
+    "auth": {
+        "connect": "连接 {{platform}}",
+        "scanDesc": "打开手机上的 <b>{{platform}} App</b> 扫一扫授权。",
+        "clickToSimulate": "点击模拟扫码",
+        "waiting": "等待扫码...",
+        "authorizing": "正在授权...",
+        "success": "连接成功！",
+        "syncing": "正在同步您的音乐库...",
+        "privacy": "隐私加密",
+        "passwordLogin": "使用密码登录"
+    },
+    "platforms": {
+        "netease": "网易云音乐",
+        "qq": "QQ音乐",
+        "soda": "汽水音乐"
+    }
+}

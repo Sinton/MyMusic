@@ -17,7 +17,12 @@ export const useSettingsStore = create<SettingsStore>()(
             setThemeMode: (mode) => set({ themeMode: mode }),
             setAccentColor: (color) => set({ accentColor: color }),
 
-            setLanguage: (lang) => set({ language: lang }),
+            setLanguage: (lang) => {
+                set({ language: lang });
+                import('../locales/i18n').then(({ default: i18n }) => {
+                    i18n.changeLanguage(lang);
+                });
+            },
             toggleLaunchOnLogin: () => set((state) => ({ launchOnLogin: !state.launchOnLogin })),
 
             setOutputDevice: (device) => set({ outputDevice: device }),

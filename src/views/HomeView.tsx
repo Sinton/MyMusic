@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { FeatureCard, PlaylistCard, SongRow } from '../components';
 import { homeCards } from '../data/mockData';
 import { usePlaylists, useSongs } from '../hooks/useData';
@@ -11,6 +12,7 @@ interface HomeViewProps {
 }
 
 const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
     const { playlists } = usePlaylists();
     const { songs } = useSongs();
@@ -55,7 +57,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search for songs, artists, or albums..."
+                        placeholder={t('home.searchPlaceholder')}
                         className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] text-[var(--text-main)] rounded-2xl py-4 pl-12 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 focus:bg-[var(--glass-bg)] placeholder-[var(--text-muted)] transition-all shadow-2xl"
                     />
                     {searchQuery && (
@@ -74,9 +76,9 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                 <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold italic">
-                            Search Results for "{searchQuery}"
+                            {t('home.searchResultsFor')} "{searchQuery}"
                         </h2>
-                        <span className="text-sm text-[var(--text-muted)]">{searchResults.length} results found</span>
+                        <span className="text-sm text-[var(--text-muted)]">{searchResults.length} {t('home.resultsFound')}</span>
                     </div>
 
                     {searchResults.length > 0 ? (
@@ -88,7 +90,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                     ) : (
                         <div className="h-64 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
                             <Search className="w-16 h-16 opacity-20" />
-                            <p className="text-lg">No songs found matching your search.</p>
+                            <p className="text-lg">{t('home.noResults')}</p>
                         </div>
                     )}
                 </section>
@@ -97,7 +99,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                 <>
                     {/* Hero Section */}
                     <section>
-                        <h2 className="text-3xl font-bold mb-6 text-[var(--text-main)]">Good Morning</h2>
+                        <h2 className="text-3xl font-bold mb-6 text-[var(--text-main)]">{t('home.greeting')}</h2>
                         <div className="grid grid-cols-3 gap-6">
                             {homeCards.map((card: HomeCard, i: number) => (
                                 <FeatureCard
@@ -114,12 +116,12 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                     {/* Recently Played */}
                     <section>
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-[var(--text-secondary)]">Recently Played</h2>
+                            <h2 className="text-xl font-bold text-[var(--text-secondary)]">{t('home.recentlyPlayed')}</h2>
                             <button
                                 onClick={() => onNavigate?.('Playlists')}
                                 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
                             >
-                                See All
+                                {t('home.seeAll')}
                             </button>
                         </div>
                         <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
@@ -136,7 +138,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
 
                     {/* Jump Back In */}
                     <section>
-                        <h2 className="text-xl font-bold mb-6 text-[var(--text-secondary)]">Jump Back In</h2>
+                        <h2 className="text-xl font-bold mb-6 text-[var(--text-secondary)]">{t('home.jumpBackIn')}</h2>
                         <div className="grid grid-cols-6 gap-6">
                             {playlists.slice(0, 6).map((pl: Playlist) => (
                                 <div
@@ -146,7 +148,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                                 >
                                     <div className={`w-full aspect-square ${pl.cover} rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`}></div>
                                     <div className="font-medium text-sm truncate text-[var(--text-main)]">{pl.title}</div>
-                                    <div className="text-xs text-[var(--text-muted)]">Playlist</div>
+                                    <div className="text-xs text-[var(--text-muted)]">{t('sidebar.playlists')}</div>
                                 </div>
                             ))}
                         </div>

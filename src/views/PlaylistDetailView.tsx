@@ -1,5 +1,6 @@
 import React from 'react';
 import { Play, Share2, Trash2, Music, AlertTriangle, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { SongRow, Modal } from '../components';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -11,6 +12,7 @@ interface PlaylistDetailViewProps {
 }
 
 const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBack }) => {
+    const { t } = useTranslation();
     const { removeSongFromPlaylist, removePlaylist } = usePlaylistStore();
     const { setTrack, play } = usePlayerStore();
     const [showDeleteModal, setShowDeleteModal] = React.useState(false);
@@ -56,14 +58,14 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                 </div>
 
                 <div className="flex-1">
-                    <div className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">Playlist</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">{t('playlist.label')}</div>
                     <h1 className="text-5xl md:text-7xl font-black mb-6 text-[var(--text-main)] tracking-tight leading-none uppercase">
                         {playlist.title}
                     </h1>
                     <div className="flex items-center gap-2 text-sm font-medium">
                         <span className="text-[var(--text-main)]">{playlist.creator}</span>
                         <span className="text-[var(--text-muted)]">•</span>
-                        <span className="text-[var(--text-secondary)]">{playlist.songs?.length || 0} songs</span>
+                        <span className="text-[var(--text-secondary)]">{playlist.songs?.length || 0} {t('playlist.songs')}</span>
                     </div>
                 </div>
             </div>
@@ -76,7 +78,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                     className="flex items-center gap-2 px-8 py-3 bg-[var(--accent-color)] text-white rounded-full font-bold hover:scale-105 transition-all shadow-lg shadow-[var(--accent-color)]/20 disabled:opacity-50 disabled:hover:scale-100"
                 >
                     <Play className="w-5 h-5 fill-current" />
-                    Play All
+                    {t('playlist.playAll')}
                 </button>
 
                 <button
@@ -89,7 +91,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                     {isShared ? (
                         <>
                             <Check className="w-5 h-5" />
-                            <span className="text-xs font-bold pr-1">Link Copied</span>
+                            <span className="text-xs font-bold pr-1">{t('playlist.linkCopied')}</span>
                         </>
                     ) : (
                         <Share2 className="w-5 h-5" />
@@ -108,16 +110,16 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
             <div className="space-y-3 pb-20">
                 <div className="flex items-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--glass-border)] mb-2">
                     <div className="w-8">#</div>
-                    <div className="flex-1">Title</div>
-                    <div className="w-32 hidden md:block">Album</div>
-                    <div className="w-20 text-right">Time</div>
+                    <div className="flex-1">{t('playlist.titleCol')}</div>
+                    <div className="w-32 hidden md:block">{t('playlist.albumCol')}</div>
+                    <div className="w-20 text-right">{t('playlist.timeCol')}</div>
                 </div>
 
                 {!playlist.songs || playlist.songs.length === 0 ? (
                     <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] border-2 border-dashed border-[var(--glass-border)] rounded-3xl">
                         <Music className="w-12 h-12 mb-4 opacity-20" />
-                        <p className="font-medium">This playlist is empty</p>
-                        <p className="text-xs opacity-50">Add some songs to get started</p>
+                        <p className="font-medium">{t('playlist.empty')}</p>
+                        <p className="text-xs opacity-50">{t('playlist.emptyDesc')}</p>
                     </div>
                 ) : (
                     playlist.songs.map((song) => (
@@ -144,16 +146,16 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
             <Modal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
-                title="Delete Playlist"
+                title={t('playlist.delete')}
             >
                 <div className="flex flex-col items-center text-center space-y-6">
                     <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center animate-stagger-1">
                         <AlertTriangle className="w-8 h-8 text-red-500" />
                     </div>
                     <div className="space-y-2 animate-stagger-2">
-                        <h3 className="text-lg font-bold text-[var(--text-main)]">Are you sure?</h3>
+                        <h3 className="text-lg font-bold text-[var(--text-main)]">{t('playlist.deleteConfirmTitle')}</h3>
                         <p className="text-sm text-[var(--text-secondary)]">
-                            This will permanently delete <span className="text-[var(--text-main)] font-bold">"{playlist.title}"</span>. This action cannot be undone.
+                            {t('playlist.deleteConfirmDesc', { title: playlist.title })}
                         </p>
                     </div>
                     <div className="w-full space-y-3 pt-2 animate-stagger-3">
@@ -161,13 +163,13 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                             onClick={handleDelete}
                             className="w-full py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
                         >
-                            Yes, Delete Playlist
+                            {t('playlist.yesDelete')}
                         </button>
                         <button
                             onClick={() => setShowDeleteModal(false)}
                             className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                 </div>

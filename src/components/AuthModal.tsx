@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation, Trans } from 'react-i18next';
 import { X, QrCode, Smartphone, CheckCircle, Loader2 } from 'lucide-react';
 import { PlatformBadge } from './index';
 import type { Platform } from '../types';
@@ -13,7 +14,15 @@ interface AuthModalProps {
 
 type AuthStep = 'qrcode' | 'scanning' | 'success';
 
+const getPlatformKey = (name: string): string => {
+    if (name.includes('NetEase')) return 'netease';
+    if (name.includes('QQ')) return 'qq';
+    if (name.includes('Soda')) return 'soda';
+    return name;
+};
+
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConnect }) => {
+    const { t } = useTranslation();
     const [step, setStep] = useState<AuthStep>('qrcode');
     const [loading, setLoading] = useState(false);
 
@@ -50,6 +59,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     };
 
     const accentColor = platformColors[platform.name] || '#fff';
+    const platformNameTranslated = t(`platforms.${getPlatformKey(platform.name)}`);
 
     return createPortal(
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 antialiased overflow-hidden">
@@ -83,7 +93,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                                 <QrCode className="w-3 h-3 text-black" />
                             </div>
                         </div>
-                        <h2 className="text-xl font-bold text-[var(--text-main)]">Connect {platform.name}</h2>
+                        <h2 className="text-xl font-bold text-[var(--text-main)]">{t('auth.connect', { platform: platformNameTranslated })}</h2>
                     </div>
                 </div>
 
@@ -92,7 +102,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     {step === 'qrcode' && !loading && (
                         <div className="flex flex-col items-center space-y-6">
                             <div className="text-sm text-[var(--text-secondary)] text-center px-4">
-                                Open <b>{platform.name} App</b> on your phone and scan the QR code to authorize.
+                                <Trans
+                                    i18nKey="auth.scanDesc"
+                                    values={{ platform: platformNameTranslated }}
+                                    components={{ b: <b /> }}
+                                />
                             </div>
 
                             {/* QR Code Placeholder */}
@@ -107,13 +121,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                                 {/* Hover Overlay for clicking to test */}
                                 <div className="absolute inset-0 bg-black/80 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
                                     <Smartphone className="w-8 h-8 mb-2 animate-bounce" />
-                                    <span className="text-xs font-bold">Click to Simulate Scan</span>
+                                    <span className="text-xs font-bold">{t('auth.clickToSimulate')}</span>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                Waiting for scan...
+                                {t('auth.waiting')}
                             </div>
                         </div>
                     )}
@@ -121,7 +135,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     {loading && (
                         <div className="py-12 flex flex-col items-center justify-center space-y-4">
                             <Loader2 className="w-12 h-12 text-[var(--text-main)] animate-spin" />
-                            <p className="text-sm text-[var(--text-secondary)]">Authorizing...</p>
+                            <p className="text-sm text-[var(--text-secondary)]">{t('auth.authorizing')}</p>
                         </div>
                     )}
 
@@ -130,9 +144,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
                                 <CheckCircle className="w-8 h-8 text-green-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-[var(--text-main)]">Successfully Connected!</h3>
+                            <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.success')}</h3>
                             <p className="text-sm text-[var(--text-secondary)] text-center">
-                                Syncing your library now...
+                                {t('auth.syncing')}
                             </p>
                         </div>
                     )}
@@ -140,8 +154,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
 
                 {/* Footer */}
                 <div className="px-6 py-4 bg-[var(--glass-highlight)] border-t border-[var(--glass-border)] flex justify-between items-center text-xs text-[var(--text-secondary)]">
-                    <span>Privacy Encrypted</span>
-                    <span className="hover:text-[var(--text-main)] cursor-pointer">Login with Password</span>
+                    <span>{t('auth.privacy')}</span>
+                    <span className="hover:text-[var(--text-main)] cursor-pointer">{t('auth.passwordLogin')}</span>
                 </div>
             </div>
         </div>,

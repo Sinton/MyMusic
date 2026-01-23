@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SongRow, PlaylistCard, AlbumCard } from '../components';
 import { useSongs, usePlaylists, useAlbums } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -11,6 +12,7 @@ interface LibraryViewProps {
 }
 
 const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavigate }) => {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'Songs' | 'Playlists' | 'Albums'>(initialTab);
 
     const { songs } = useSongs();
@@ -44,9 +46,9 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
             {/* Header Title (Scrolls away) */}
             <div className="mb-4 pt-4">
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--text-secondary)]">
-                    Library
+                    {t('library.title')}
                 </h1>
-                <p className="text-[var(--text-secondary)] text-sm mt-1">Aggregated from all services</p>
+                <p className="text-[var(--text-secondary)] text-sm mt-1">{t('library.subtitle')}</p>
             </div>
 
             {/* Tabs Navigation */}
@@ -61,7 +63,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                                 : 'bg-[var(--glass-highlight)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-main)]'
                                 }`}
                         >
-                            {tab}
+                            {t(`library.tabs.${tab.toLowerCase()}`)}
                         </button>
                     ))}
                 </div>
