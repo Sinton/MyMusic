@@ -56,12 +56,12 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search for songs, artists, or albums..."
-                        className="w-full bg-[rgba(255,255,255,0.05)] border border-[var(--glass-border)] text-white rounded-2xl py-4 pl-12 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 focus:bg-[rgba(255,255,255,0.08)] placeholder-[var(--text-muted)] transition-all shadow-2xl"
+                        className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] text-[var(--text-main)] rounded-2xl py-4 pl-12 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 focus:bg-[var(--glass-bg)] placeholder-[var(--text-muted)] transition-all shadow-2xl"
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -97,7 +97,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                 <>
                     {/* Hero Section */}
                     <section>
-                        <h2 className="text-3xl font-bold mb-6">Good Morning</h2>
+                        <h2 className="text-3xl font-bold mb-6 text-[var(--text-main)]">Good Morning</h2>
                         <div className="grid grid-cols-3 gap-6">
                             {homeCards.map((card: HomeCard, i: number) => (
                                 <FeatureCard
@@ -117,7 +117,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                             <h2 className="text-xl font-bold text-[var(--text-secondary)]">Recently Played</h2>
                             <button
                                 onClick={() => onNavigate?.('Playlists')}
-                                className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] hover:text-white transition-colors"
+                                className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
                             >
                                 See All
                             </button>
@@ -145,7 +145,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                                     onClick={() => handlePlayPlaylist(pl)}
                                 >
                                     <div className={`w-full aspect-square ${pl.cover} rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`}></div>
-                                    <div className="font-medium text-sm truncate">{pl.title}</div>
+                                    <div className="font-medium text-sm truncate text-[var(--text-main)]">{pl.title}</div>
                                     <div className="text-xs text-[var(--text-muted)]">Playlist</div>
                                 </div>
                             ))}

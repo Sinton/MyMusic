@@ -16,21 +16,21 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 antialiased overflow-hidden">
             {/* Smooth Backdrop with Blossom Effect */}
             <div
-                className="absolute inset-0 bg-black/40 animate-modal-backdrop"
+                className="absolute inset-0 bg-black/40 animate-modal-backdrop backdrop-blur-md"
                 onClick={onClose}
             />
 
             {/* High-Performance Spring Animation Card */}
-            <div className="relative w-full max-w-sm bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_120px_-12px_rgba(0,0,0,0.9)] overflow-hidden animate-modal-content">
+            <div className="relative w-full max-w-sm glass-drawer border border-[var(--glass-border)] rounded-[2.5rem] shadow-2xl overflow-hidden animate-modal-content">
                 {/* Surface Shine Sweep */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none" />
 
                 {/* Inner Glow Header */}
                 <div className="flex items-center justify-between p-8 pb-2 relative z-10">
-                    <h2 className="text-2xl font-black text-white tracking-tighter uppercase italic drop-shadow-2xl">{title}</h2>
+                    <h2 className="text-2xl font-black text-[var(--text-main)] tracking-tighter uppercase italic drop-shadow-sm">{title}</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-white/10 rounded-full transition-all text-white/40 hover:text-white"
+                        className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -41,7 +41,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
                 </div>
 
                 {/* Bottom Accent Line */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--glass-border)] to-transparent" />
             </div>
         </div>,
         document.body

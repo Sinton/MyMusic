@@ -18,7 +18,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
                 <div className={`w-full h-[160px] ${playlist.cover} rounded-lg mb-2 shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform`}>
                     <ListMusic className="w-10 h-10 text-white/50" />
                 </div>
-                <div className="font-medium text-sm truncate">{playlist.title}</div>
+                <div className="font-medium text-sm truncate text-[var(--text-main)]">{playlist.title}</div>
                 <div className="text-xs text-[var(--text-secondary)]">{playlist.count}</div>
             </div>
         );
@@ -27,7 +27,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
     return (
         <div
             onClick={() => onClick?.(playlist)}
-            className="group p-4 rounded-xl bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] transition-colors cursor-pointer"
+            className="group p-4 rounded-xl bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-colors cursor-pointer"
         >
             {/* Cover */}
             <div className={`w-full aspect-square rounded-lg mb-4 shadow-lg ${playlist.cover} relative flex items-center justify-center`}>

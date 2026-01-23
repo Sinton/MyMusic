@@ -43,14 +43,14 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
         <div className="relative min-h-full">
             {/* Header Title (Scrolls away) */}
             <div className="mb-4 pt-4">
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-[var(--text-secondary)]">
+                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--text-secondary)]">
                     Library
                 </h1>
                 <p className="text-[var(--text-secondary)] text-sm mt-1">Aggregated from all services</p>
             </div>
 
             {/* Tabs Navigation */}
-            <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
+            <div className="flex items-center justify-between mb-6 border-b border-[var(--glass-border)] pb-4">
                 <div className="flex gap-2">
                     {(['Songs', 'Playlists', 'Albums'] as const).map((tab) => (
                         <button
@@ -58,7 +58,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${activeTab === tab
                                 ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20 scale-105'
-                                : 'bg-white/5 text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
+                                : 'bg-[var(--glass-highlight)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-main)]'
                                 }`}
                         >
                             {tab}

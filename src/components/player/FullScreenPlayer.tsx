@@ -68,7 +68,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose }) 
 
     return (
         <div
-            className={`fixed inset-0 z-[100] flex flex-col bg-[var(--bg-color)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
+            className={`fixed inset-0 z-[100] flex flex-col bg-[var(--bg-color)] overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
         >
             {/* Dynamic Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

@@ -51,15 +51,15 @@ const Dropdown: React.FC<DropdownProps> = ({
     };
 
     const getVariantClasses = () => {
-        if (disabled) return 'bg-white/5 border-white/5 text-white/30 cursor-not-allowed';
+        if (disabled) return 'bg-[var(--text-muted)]/10 border-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed';
 
         switch (variant) {
             case 'outline':
-                return `bg-[rgba(0,0,0,0.3)] border border-[var(--glass-border)] hover:border-[var(--glass-border)] hover:bg-[rgba(255,255,255,0.08)] ${isOpen ? 'border-[var(--accent-color)] ring-1 ring-[var(--accent-color)]/50' : ''}`;
+                return `bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:border-[var(--glass-border)] hover:bg-[var(--glass-highlight)] ${isOpen ? 'border-[var(--accent-color)] ring-1 ring-[var(--accent-color)]/50' : ''}`;
             case 'ghost':
-                return 'bg-transparent hover:bg-white/5 border-transparent';
+                return 'bg-transparent hover:bg-[var(--glass-highlight)] border-transparent';
             default: // default
-                return 'bg-white/10 border-transparent hover:bg-white/15';
+                return 'bg-[var(--glass-highlight)] border-transparent hover:bg-[var(--glass-border)]';
         }
     };
 
@@ -82,7 +82,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
             {/* Dropdown Menu */}
             <div
-                className={`absolute z-[200] ${width} my-2 bg-[#1a1a1c]/95 border border-[var(--glass-border)] rounded-xl shadow-2xl backdrop-blur-xl overflow-hidden transition-all duration-200 origin-top
+                className={`absolute z-[200] ${width} my-2 bg-[var(--bg-color)] border border-[var(--glass-border)] rounded-xl shadow-2xl overflow-hidden transition-all duration-200 origin-top
                 ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}
                 ${direction === 'up' ? 'bottom-full mb-2' : 'top-full'}
                 `}
@@ -95,7 +95,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                             className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between group
                                 ${option.value === value
                                     ? 'bg-[var(--accent-color)]/10 text-[var(--accent-color)]'
-                                    : 'text-[var(--text-secondary)] hover:bg-white/5 hover:text-white'
+                                    : 'text-[var(--text-secondary)] hover:bg-[var(--glass-highlight)] hover:text-[var(--text-main)]'
                                 }
                             `}
                         >

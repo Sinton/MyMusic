@@ -52,8 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                         key={item.name}
                         onClick={() => onNavigate(item.name)}
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeView === item.name
-                            ? 'bg-[rgba(255,255,255,0.1)] text-[var(--text-main)] font-medium'
-                            : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[rgba(255,255,255,0.05)]'
+                            ? 'bg-[var(--glass-border)] text-[var(--text-main)] font-medium'
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--glass-highlight)]'
                             }`}
                     >
                         <item.icon className="w-4 h-4" />
@@ -67,9 +67,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                         <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">My Playlists</span>
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="p-1 hover:bg-white/10 rounded-full transition-colors group"
+                            className="p-1 hover:bg-[var(--glass-highlight)] rounded-full transition-colors group"
                         >
-                            <Plus className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-white" />
+                            <Plus className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--text-main)]" />
                         </button>
                     </div>
                     {userPlaylists.map((pl) => (
@@ -77,8 +77,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                             key={pl.id}
                             onClick={() => onNavigate(`Playlist:${pl.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors group ${activeView === `Playlist:${pl.id}`
-                                ? 'bg-[rgba(255,255,255,0.1)] text-[var(--text-main)] font-medium'
-                                : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[rgba(255,255,255,0.05)]'
+                                ? 'bg-[var(--glass-border)] text-[var(--text-main)] font-medium'
+                                : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--glass-highlight)]'
                                 }`}
                         >
                             <div className={`w-2 h-2 rounded-full ${pl.cover} group-hover:scale-125 transition-transform ${activeView === `Playlist:${pl.id}` ? 'scale-125' : ''}`}></div>
@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                         <div
                             key={platform.name}
                             onClick={() => onOpenAuth(platform)}
-                            className="flex items-center gap-3 group cursor-pointer hover:bg-[rgba(255,255,255,0.05)] p-2 rounded-lg transition-colors"
+                            className="flex items-center gap-3 group cursor-pointer hover:bg-[var(--glass-highlight)] p-2 rounded-lg transition-colors"
                         >
                             <PlatformBadge
                                 name={platform.name}
@@ -121,8 +121,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                 <button
                     onClick={() => onNavigate('Settings')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeView === 'Settings'
-                        ? 'bg-[rgba(255,255,255,0.1)] text-[var(--text-main)] font-medium'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[rgba(255,255,255,0.05)]'
+                        ? 'bg-[var(--glass-border)] text-[var(--text-main)] font-medium'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--glass-highlight)]'
                         }`}
                 >
                     <Settings className="w-4 h-4" />
@@ -145,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleCreatePlaylist()}
                             placeholder="e.g. My Awesome Mix"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all font-medium"
+                            className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all font-medium"
                         />
                     </div>
                     <button
@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                     </button>
                     <button
                         onClick={() => setShowCreateModal(false)}
-                        className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-white transition-colors animate-stagger-3"
+                        className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors animate-stagger-3"
                     >
                         Cancel
                     </button>

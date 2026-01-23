@@ -57,12 +57,12 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
 
                 <div className="flex-1">
                     <div className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">Playlist</div>
-                    <h1 className="text-5xl md:text-7xl font-black mb-6 text-white tracking-tight leading-none uppercase">
+                    <h1 className="text-5xl md:text-7xl font-black mb-6 text-[var(--text-main)] tracking-tight leading-none uppercase">
                         {playlist.title}
                     </h1>
                     <div className="flex items-center gap-2 text-sm font-medium">
-                        <span className="text-white">{playlist.creator}</span>
-                        <span className="text-white/20">•</span>
+                        <span className="text-[var(--text-main)]">{playlist.creator}</span>
+                        <span className="text-[var(--text-muted)]">•</span>
                         <span className="text-[var(--text-secondary)]">{playlist.songs?.length || 0} songs</span>
                     </div>
                 </div>
@@ -83,7 +83,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                     onClick={handleShare}
                     className={`p-3 border rounded-full transition-all flex items-center gap-2 ${isShared
                         ? 'bg-green-500/10 border-green-500/20 text-green-500'
-                        : 'bg-white/5 border-white/10 text-[var(--text-secondary)] hover:bg-white/10 hover:text-white'
+                        : 'bg-[var(--glass-highlight)] border-[var(--glass-border)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-main)]'
                         }`}
                 >
                     {isShared ? (
@@ -106,7 +106,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
 
             {/* Songs List */}
             <div className="space-y-3 pb-20">
-                <div className="flex items-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-white/5 mb-2">
+                <div className="flex items-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--glass-border)] mb-2">
                     <div className="w-8">#</div>
                     <div className="flex-1">Title</div>
                     <div className="w-32 hidden md:block">Album</div>
@@ -114,7 +114,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                 </div>
 
                 {!playlist.songs || playlist.songs.length === 0 ? (
-                    <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] border-2 border-dashed border-white/5 rounded-3xl">
+                    <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] border-2 border-dashed border-[var(--glass-border)] rounded-3xl">
                         <Music className="w-12 h-12 mb-4 opacity-20" />
                         <p className="font-medium">This playlist is empty</p>
                         <p className="text-xs opacity-50">Add some songs to get started</p>
@@ -130,7 +130,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                                         e.stopPropagation();
                                         removeSongFromPlaylist(playlist.id, song.id);
                                     }}
-                                    className="p-2 hover:text-red-500 transition-all text-white/20"
+                                    className="p-2 hover:text-red-500 transition-all text-[var(--text-muted)]"
                                     title="Remove from playlist"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -151,9 +151,9 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                         <AlertTriangle className="w-8 h-8 text-red-500" />
                     </div>
                     <div className="space-y-2 animate-stagger-2">
-                        <h3 className="text-lg font-bold text-white">Are you sure?</h3>
+                        <h3 className="text-lg font-bold text-[var(--text-main)]">Are you sure?</h3>
                         <p className="text-sm text-[var(--text-secondary)]">
-                            This will permanently delete <span className="text-white font-bold">"{playlist.title}"</span>. This action cannot be undone.
+                            This will permanently delete <span className="text-[var(--text-main)] font-bold">"{playlist.title}"</span>. This action cannot be undone.
                         </p>
                     </div>
                     <div className="w-full space-y-3 pt-2 animate-stagger-3">
@@ -165,7 +165,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                         </button>
                         <button
                             onClick={() => setShowDeleteModal(false)}
-                            className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+                            className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors"
                         >
                             Cancel
                         </button>

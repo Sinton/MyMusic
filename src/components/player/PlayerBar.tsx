@@ -39,7 +39,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
     };
 
     return (
-        <div className="absolute bottom-6 left-6 right-6 h-[var(--player-height)] glass rounded-2xl flex items-center px-8 justify-between z-50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 hover:shadow-[0_25px_60px_rgba(0,0,0,0.6)] transition-all duration-300">
+        <div className="absolute bottom-6 left-6 right-6 h-[var(--player-height)] glass rounded-2xl flex items-center px-8 justify-between z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--glass-border)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.2)] transition-all duration-300">
             {/* Left: Track Info */}
             <div
                 onClick={onExpand}
@@ -61,7 +61,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                     {/* Mode Toggle: Shuffle -> Sequential -> Single */}
                     <button
                         onClick={toggleMode}
-                        className={`btn-icon w-8 h-8 transition-colors ${shuffle || repeat === 'one' ? 'text-[var(--accent-color)] active:scale-95' : 'hover:text-white'}`}
+                        className={`btn-icon w-8 h-8 transition-colors ${shuffle || repeat === 'one' ? 'text-[var(--accent-color)] active:scale-95' : 'hover:text-[var(--text-main)]'}`}
                         title={shuffle ? 'Shuffle On' : repeat === 'one' ? 'Single Loop' : 'Sequential'}
                     >
                         {shuffle ? (
@@ -76,20 +76,20 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                         )}
                     </button>
 
-                    <button onClick={previousTrack} className="btn-icon w-8 h-8 hover:text-white active:scale-90 transition-transform"><SkipBack className="w-5 h-5" /></button>
+                    <button onClick={previousTrack} className="btn-icon w-8 h-8 hover:text-[var(--text-main)] active:scale-90 transition-transform"><SkipBack className="w-5 h-5" /></button>
                     <button
                         onClick={togglePlay}
-                        className="w-10 h-10 rounded-full bg-[var(--text-main)] text-black flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                        className="w-10 h-10 rounded-full bg-[var(--text-main)] text-[var(--bg-color)] flex items-center justify-center hover:scale-105 transition-transform shadow-md"
                     >
                         {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                     </button>
-                    <button onClick={nextTrack} className="btn-icon w-8 h-8 hover:text-white active:scale-90 transition-transform"><SkipForward className="w-5 h-5" /></button>
+                    <button onClick={nextTrack} className="btn-icon w-8 h-8 hover:text-[var(--text-main)] active:scale-90 transition-transform"><SkipForward className="w-5 h-5" /></button>
 
                     {/* Queue Button with Popover */}
                     <div className="relative">
                         <button
                             onClick={() => setShowQueue(!showQueue)}
-                            className={`btn-icon w-8 h-8 transition-colors ${showQueue ? 'text-[var(--accent-color)]' : 'hover:text-white'}`}
+                            className={`btn-icon w-8 h-8 transition-colors ${showQueue ? 'text-[var(--accent-color)]' : 'hover:text-[var(--text-main)]'}`}
                         >
                             <ListMusic className="w-4 h-4" />
                         </button>
@@ -97,9 +97,9 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                         {/* Play Queue Popup (Positioned relative to button) */}
                         {showQueue && (
                             <div
-                                className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 max-h-[500px] glass rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200 z-[100]"
+                                className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 max-h-[500px] glass rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-[var(--glass-border)] animate-in fade-in slide-in-from-bottom-2 duration-200 z-[100]"
                             >
-                                <div className="p-4 border-b border-white/5 bg-white/5">
+                                <div className="p-4 border-b border-[var(--glass-border)] bg-[var(--glass-highlight)]">
                                     <h3 className="font-bold text-sm flex items-center gap-2">
                                         <ListMusic className="w-4 h-4 text-[var(--accent-color)]" />
                                         Next Up
@@ -117,32 +117,34 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                                                     setShowQueue(false);
                                                 }}
                                                 className={`
-                                                    flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all group
-                                                    ${isCurrent ? 'bg-[var(--accent-color)]/20 shadow-inner' : 'hover:bg-white/5'}
+                                                    flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all group relative
+                                                    ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20' : 'hover:bg-[var(--glass-highlight)]'}
                                                 `}
                                             >
+                                                {/* Active Track Indicator Bar */}
+                                                {isCurrent && (
+                                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
+                                                )}
                                                 <div className={`w-10 h-10 rounded bg-gradient-to-br ${getTrackColor(track.id)} flex-shrink-0 flex items-center justify-center`}>
                                                     {isCurrent && isPlaying ? (
                                                         <div className="flex gap-0.5 items-end h-3">
-                                                            <div className="w-0.5 bg-white animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
-                                                            <div className="w-0.5 bg-white animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
-                                                            <div className="w-0.5 bg-white animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
+                                                            <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
+                                                            <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
+                                                            <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
                                                         </div>
                                                     ) : (
-                                                        <Play className={`w-3 h-3 text-white fill-current opacity-0 group-hover:opacity-100 transition-opacity`} />
+                                                        <Play className={`w-3 h-3 text-[var(--text-main)] fill-current opacity-0 group-hover:opacity-100 transition-opacity`} />
                                                     )}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <div className={`text-xs font-medium truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-white'}`}>
+                                                    <div className={`text-xs font-medium truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>
                                                         {track.title}
                                                     </div>
                                                     <div className="text-[10px] text-[var(--text-secondary)] truncate">
                                                         {track.artist}
                                                     </div>
                                                 </div>
-                                                {isCurrent && (
-                                                    <div className="w-1 h-1 rounded-full bg-[var(--accent-color)] shadow-[0_0_8px_var(--accent-color)]"></div>
-                                                )}
+                                                {/* Dot indicator removed for vertical bar consistency */}
                                             </div>
                                         );
                                     })}
@@ -154,7 +156,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                 <div className="flex items-center gap-2 w-full">
                     <span className="text-[10px] text-[var(--text-muted)] w-8 text-right font-mono">{formatTime(currentTimeSec)}</span>
                     <div
-                        className="flex-1 h-1 bg-[rgba(255,255,255,0.1)] rounded-full overflow-hidden group cursor-pointer relative"
+                        className="flex-1 h-1 bg-[var(--glass-border)] rounded-full overflow-hidden group cursor-pointer relative"
                         onClick={handleSeek}
                     >
                         <div

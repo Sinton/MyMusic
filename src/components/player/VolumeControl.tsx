@@ -33,7 +33,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
         <div className={`relative ${className}`}>
             <button
                 onClick={() => setShowVolume(!showVolume)}
-                className={`btn-icon transition-colors ${showVolume ? 'text-[var(--accent-color)] bg-white/10' : ''}`}
+                className={`btn-icon transition-colors ${showVolume ? 'text-[var(--accent-color)] bg-[var(--glass-highlight)]' : ''}`}
             >
                 {getIcon()}
             </button>
@@ -41,7 +41,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
             {/* Volume Slider Popup */}
             {showVolume && (
                 <div className={`absolute ${popoverPositionStyles[popoverDirection]} w-10 h-40 glass rounded-full flex flex-col items-center py-5 bg-[var(--bg-color)]/95 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300 z-50`}>
-                    <div className="flex-1 w-1.5 bg-white/10 rounded-full relative group cursor-pointer">
+                    <div className="flex-1 w-1.5 bg-[var(--glass-border)] rounded-full relative group cursor-pointer">
                         <input
                             type="range"
                             min="0"
@@ -60,7 +60,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
                             className="absolute bottom-0 left-0 right-0 bg-[var(--accent-color)] rounded-full transition-all duration-150"
                             style={{ height: `${volume}%` }}
                         >
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-lg border border-white/20 z-10"></div>
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-[var(--text-main)] rounded-full shadow-lg border border-[var(--glass-border)] z-10"></div>
                         </div>
                     </div>
                     <span className="text-[10px] mt-3 font-mono font-bold text-[var(--accent-color)]">{volume}</span>

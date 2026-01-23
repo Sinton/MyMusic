@@ -55,18 +55,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 antialiased overflow-hidden">
             {/* balanced backdrop */}
             <div
-                className="absolute inset-0 bg-black/40 animate-modal-backdrop"
+                className="absolute inset-0 bg-black/40 animate-modal-backdrop backdrop-blur-md"
                 onClick={onClose}
             />
 
             {/* Modal Content - High-Fidelity Glass Card */}
-            <div className="relative w-full max-w-sm bg-white/[0.03] backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_120px_-12px_rgba(0,0,0,0.9)] overflow-hidden animate-modal-content">
+            <div className="relative w-full max-w-sm glass-drawer border border-[var(--glass-border)] rounded-[2.5rem] shadow-2xl overflow-hidden animate-modal-content">
 
                 {/* Header */}
                 <div className="relative h-32 flex items-center justify-center" style={{ background: `linear-gradient(to bottom right, ${accentColor}40, transparent)` }}>
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 rounded-full hover:bg-black/20 transition-colors text-white/70 hover:text-white"
+                        className="absolute top-4 right-4 p-2 rounded-full hover:bg-[var(--glass-highlight)] transition-colors text-white/70 hover:text-white"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -83,7 +83,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                                 <QrCode className="w-3 h-3 text-black" />
                             </div>
                         </div>
-                        <h2 className="text-xl font-bold text-white">Connect {platform.name}</h2>
+                        <h2 className="text-xl font-bold text-[var(--text-main)]">Connect {platform.name}</h2>
                     </div>
                 </div>
 
@@ -130,7 +130,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
                                 <CheckCircle className="w-8 h-8 text-green-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-white">Successfully Connected!</h3>
+                            <h3 className="text-lg font-bold text-[var(--text-main)]">Successfully Connected!</h3>
                             <p className="text-sm text-[var(--text-secondary)] text-center">
                                 Syncing your library now...
                             </p>
@@ -139,9 +139,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-black/20 border-t border-[var(--glass-border)] flex justify-between items-center text-xs text-[var(--text-muted)]">
+                <div className="px-6 py-4 bg-[var(--glass-highlight)] border-t border-[var(--glass-border)] flex justify-between items-center text-xs text-[var(--text-secondary)]">
                     <span>Privacy Encrypted</span>
-                    <span className="hover:text-white cursor-pointer">Login with Password</span>
+                    <span className="hover:text-[var(--text-main)] cursor-pointer">Login with Password</span>
                 </div>
             </div>
         </div>,

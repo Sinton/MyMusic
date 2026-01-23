@@ -40,7 +40,7 @@ const ExploreView: React.FC = () => {
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                 <button
                     onClick={() => setSelectedGenre(null)}
-                    className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-white transition-colors mb-4 group"
+                    className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors mb-4 group"
                 >
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                     <span className="font-medium text-sm">Back to Explore</span>
@@ -57,7 +57,7 @@ const ExploreView: React.FC = () => {
                             <SongRow key={song.id} song={song} />
                         ))
                     ) : (
-                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-white/10 rounded-2xl">
+                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
                             No songs available in this genre yet.
                         </div>
                     )}
@@ -110,7 +110,7 @@ const ExploreView: React.FC = () => {
                         <div
                             key={chart}
                             onClick={() => setSelectedGenre(chart)}
-                            className="h-32 rounded-xl bg-[rgba(255,255,255,0.05)] p-4 flex items-end cursor-pointer hover:bg-[rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-95 transition-all group"
+                            className="h-32 rounded-xl bg-[var(--glass-highlight)] p-4 flex items-end cursor-pointer hover:bg-[var(--glass-border)] hover:scale-[1.02] active:scale-95 transition-all group"
                         >
                             <span className="font-semibold group-hover:text-[var(--accent-color)] transition-colors">{chart}</span>
                         </div>
