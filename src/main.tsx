@@ -3,7 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { ThemeProvider } from './ThemeProvider';
-import './index.css';
+// Styles
+import './styles/variables.css';
+import './styles/animations.css';
+import './index.css'; // Tailwind directives
+import './styles/base.css';
+import './styles/components.css';
+import './styles/utilities.css';
 
 const queryClient = new QueryClient({
     defaultOptions: {
