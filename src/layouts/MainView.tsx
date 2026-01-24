@@ -8,7 +8,9 @@ const LibraryView = React.lazy(() => import('../views/LibraryView'));
 const SettingsView = React.lazy(() => import('../views/SettingsView'));
 const PlaylistDetailView = React.lazy(() => import('../views/PlaylistDetailView'));
 const AlbumDetailView = React.lazy(() => import('../views/AlbumDetailView'));
+const ArtistDetailView = React.lazy(() => import('../views/ArtistDetailView'));
 import { useAlbums } from '../hooks/useData';
+import type { Album } from '../types';
 
 interface MainViewProps {
     activeView: string;
@@ -32,7 +34,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
         // Handle Album detail view
         if (activeView.startsWith('Album:')) {
             const albumId = parseInt(activeView.split(':')[1]);
-            const album = albums.find(a => a.id === albumId);
+            const album = albums.find((a: Album) => a.id === albumId);
 
             if (album) {
                 return (
@@ -46,20 +48,16 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
             }
         }
 
-        // Handle Artist detail view (Placeholder)
+        // Handle Artist detail view
         if (activeView.startsWith('Artist:')) {
             const artistName = activeView.split(':')[1];
             return (
-                <div className="animate-fade-in p-8 text-center py-40">
-                    <h2 className="text-3xl font-bold mb-4">{artistName}</h2>
-                    <p className="text-[var(--text-secondary)] mb-8">Artist Detail Page Coming Soon</p>
-                    <button
-                        onClick={() => onNavigate('Library')}
-                        className="px-6 py-2 bg-[var(--accent-color)] text-white rounded-full font-bold"
-                    >
-                        Back to Library
-                    </button>
-                </div>
+                <ArtistDetailView
+                    key={activeView}
+                    artistName={artistName}
+                    onBack={() => onNavigate('Library')}
+                    onNavigate={onNavigate}
+                />
             );
         }
 

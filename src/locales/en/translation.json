@@ -4,7 +4,8 @@
         "error": "Error",
         "save": "Save",
         "cancel": "Cancel",
-        "confirm": "Confirm"
+        "confirm": "Confirm",
+        "viewAll": "View All"
     },
     "sidebar": {
         "home": "Home",
@@ -194,5 +195,19 @@
             "songs": "songs",
             "playingFrom": "Playing From"
         }
+    },
+    "artist": {
+        "type": "Verified Artist",
+        "followers": "Followers",
+        "monthlyListeners": "Total Works",
+        "popularTracks": "Popular Tracks",
+        "albums": "Discography",
+        "about": "About the Artist",
+        "follow": "Follow",
+        "followed": "Followed",
+        "aggregatedSources": "Aggregated Stream Sources",
+        "connected": "Aggregated",
+        "locked": "Locked",
+        "searchPlaceholder": "Search songs or albums..."
     }
 }

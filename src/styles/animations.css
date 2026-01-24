@@ -135,6 +135,10 @@
     animation: modal-content-in 0.35s var(--ease-out-smooth) forwards;
 }
 
+.animate-slide-up {
+    animation: content-slide-up 0.6s var(--ease-out-smooth) forwards;
+}
+
 /* Staggered Content */
 .animate-stagger-1 {
     animation: content-slide-up 0.4s var(--ease-out-smooth) 0.04s both;

@@ -46,7 +46,6 @@ export const mockLyrics: LyricLine[] = [
 ];
 
 // ================== SONGS ==================
-// ================== SONGS ==================
 export const unifiedSongs: Song[] = [
     {
         id: 1,
@@ -107,10 +106,51 @@ export const unifiedSongs: Song[] = [
         bestSource: 'NetEase Cloud',
         genre: 'Electronic',
     },
+    // Ed Sheeran More Songs
+    {
+        id: 501, title: 'Perfect', artist: 'Ed Sheeran', artistId: 102, album: 'Divide', albumId: 2, duration: '4:23',
+        sources: [{ platform: 'QQ Music', quality: 'SQ', qualityLabel: 'FLAC', vip: false, color: '#31c27c' }],
+        bestSource: 'QQ Music', genre: 'Pop'
+    },
+    {
+        id: 502, title: 'Bad Habits', artist: 'Ed Sheeran', artistId: 102, album: '=', albumId: 5, duration: '3:51',
+        sources: [{ platform: 'Soda Music', quality: 'HQ', qualityLabel: '320k', vip: false, color: '#ffde00' }],
+        bestSource: 'Soda Music', genre: 'Pop'
+    },
+    {
+        id: 503, title: 'Thinking Out Loud', artist: 'Ed Sheeran', artistId: 102, album: 'x', albumId: 6, duration: '4:41',
+        sources: [{ platform: 'NetEase Cloud', quality: 'SQ', qualityLabel: 'FLAC', vip: true, color: '#e60026' }],
+        bestSource: 'NetEase Cloud', genre: 'Pop'
+    },
+    {
+        id: 504, title: 'Photograph', artist: 'Ed Sheeran', artistId: 102, album: 'x', albumId: 6, duration: '4:19',
+        sources: [{ platform: 'QQ Music', quality: 'HQ', qualityLabel: '320k', vip: false, color: '#31c27c' }],
+        bestSource: 'QQ Music', genre: 'Pop'
+    },
+    // Jay Chou (C-Pop)
+    {
+        id: 601, title: '七里香 (Qi Li Xiang)', artist: 'Jay Chou', artistId: 104, album: '七里香', albumId: 7, duration: '4:59',
+        sources: [{ platform: 'NetEase Cloud', quality: 'SQ', qualityLabel: 'FLAC', vip: true, color: '#e60026' }],
+        bestSource: 'NetEase Cloud', genre: 'C-Pop'
+    },
+    {
+        id: 602, title: '青花瓷 (Qing Hua Ci)', artist: 'Jay Chou', artistId: 104, album: '我很忙', albumId: 8, duration: '3:59',
+        sources: [{ platform: 'QQ Music', quality: 'SQ', qualityLabel: 'FLAC', vip: true, color: '#31c27c' }],
+        bestSource: 'QQ Music', genre: 'C-Pop'
+    },
+    {
+        id: 603, title: '晴天 (Sunny Day)', artist: 'Jay Chou', artistId: 104, album: '叶惠美', albumId: 9, duration: '4:29',
+        sources: [{ platform: 'Soda Music', quality: 'HQ', qualityLabel: '320k', vip: false, color: '#ffde00' }],
+        bestSource: 'Soda Music', genre: 'C-Pop'
+    },
+    {
+        id: 604, title: '夜曲 (Nocturne)', artist: 'Jay Chou', artistId: 104, album: '十一月的萧邦', albumId: 10, duration: '3:46',
+        sources: [{ platform: 'NetEase Cloud', quality: 'HR', qualityLabel: 'Hi-Res', vip: true, color: '#e60026' }],
+        bestSource: 'NetEase Cloud', genre: 'C-Pop'
+    },
 ];
 
 // ================== PLAYLISTS ==================
-// Note: count is now a number type
 export const playlists: Playlist[] = [
     { id: 1, title: 'Top Hits of 2024', count: 50, creator: 'Spotify', cover: 'bg-purple-600' },
     { id: 2, title: 'Deep Focus', count: 120, creator: 'Apple Music', cover: 'bg-blue-600' },
@@ -124,6 +164,16 @@ export const albums: Album[] = [
     { id: 2, title: 'Divide', artist: 'Ed Sheeran', artistId: 102, year: '2017', cover: 'bg-cyan-600' },
     { id: 3, title: 'A Night at the Opera', artist: 'Queen', artistId: 103, year: '1975', cover: 'bg-yellow-600' },
     { id: 4, title: 'After Hours', artist: 'The Weeknd', artistId: 101, year: '2020', cover: 'bg-rose-700' },
+    // Ed Sheeran
+    { id: 5, title: '=', artist: 'Ed Sheeran', artistId: 102, year: '2021', cover: 'bg-orange-600' },
+    { id: 6, title: 'x', artist: 'Ed Sheeran', artistId: 102, year: '2014', cover: 'bg-green-600' },
+    { id: 11, title: '+', artist: 'Ed Sheeran', artistId: 102, year: '2011', cover: 'bg-amber-600' },
+    { id: 12, title: 'No.6 Collaborations Project', artist: 'Ed Sheeran', artistId: 102, year: '2019', cover: 'bg-gray-800' },
+    // Jay Chou
+    { id: 7, title: '七里香', artist: 'Jay Chou', artistId: 104, year: '2004', cover: 'bg-emerald-700' },
+    { id: 8, title: '我很忙', artist: 'Jay Chou', artistId: 104, year: '2007', cover: 'bg-blue-700' },
+    { id: 9, title: '叶惠美', artist: 'Jay Chou', artistId: 104, year: '2003', cover: 'bg-purple-700' },
+    { id: 10, title: '十一月的萧邦', artist: 'Jay Chou', artistId: 104, year: '2005', cover: 'bg-indigo-700' },
 ];
 
 // ================== HOME CARDS ==================
@@ -134,7 +184,7 @@ export const homeCards: HomeCard[] = [
 ];
 
 // ================== GENRES ==================
-export const genres: string[] = ['Pop', 'Hip-Hop', 'Rock', 'Electronic', 'Jazz', 'Classical', 'Indie', 'K-Pop'];
+export const genres: string[] = ['Pop', 'Hip-Hop', 'Rock', 'Electronic', 'Jazz', 'Classical', 'Indie', 'K-Pop', 'C-Pop'];
 
 // ================== COMMENTS ==================
 export const mockComments: Comment[] = [
@@ -154,28 +204,4 @@ export const mockComments: Comment[] = [
         time: '5 hours ago',
         likes: 89
     },
-    {
-        id: 3,
-        user: 'Bass Head',
-        avatar: 'bg-gradient-to-tr from-blue-500 to-cyan-500',
-        content: 'That drop at 2:15... my speakers are vibrating! 🔊',
-        time: '1 day ago',
-        likes: 256
-    },
-    {
-        id: 4,
-        user: 'Retro Soul',
-        avatar: 'bg-gradient-to-tr from-amber-500 to-orange-500',
-        content: 'Reminds me of the classics. Great mix of modern and vintage vibes.',
-        time: '2 days ago',
-        likes: 45
-    },
-    {
-        id: 5,
-        user: 'Quiet Listener',
-        avatar: 'bg-gradient-to-tr from-emerald-500 to-teal-500',
-        content: 'Perfect for a late night drive. Simply beautiful.',
-        time: '3 days ago',
-        likes: 67
-    }
 ];

@@ -4,7 +4,8 @@
         "error": "错误",
         "save": "保存",
         "cancel": "取消",
-        "confirm": "确认"
+        "confirm": "确认",
+        "viewAll": "查看全部"
     },
     "sidebar": {
         "home": "首页",
@@ -194,5 +195,19 @@
             "songs": "首歌曲",
             "playingFrom": "播放来源"
         }
+    },
+    "artist": {
+        "type": "认证艺人",
+        "followers": "个粉丝",
+        "monthlyListeners": "作品总数",
+        "popularTracks": "热门歌曲",
+        "albums": "所有专辑",
+        "about": "关于歌手",
+        "follow": "关注",
+        "followed": "已关注",
+        "aggregatedSources": "音源聚合概览",
+        "connected": "已聚合",
+        "locked": "未解锁",
+        "searchPlaceholder": "在这个艺人的作品中搜索..."
     }
 }
