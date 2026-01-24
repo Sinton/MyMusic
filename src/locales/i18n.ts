@@ -11,7 +11,7 @@ i18n
             en: { translation: en },
             zh: { translation: zh },
         },
-        lng: 'en', // default language
+        lng: localStorage.getItem('language') || 'zh', // default language
         fallbackLng: 'en',
         interpolation: {
             escapeValue: false, // react already safes from xss
