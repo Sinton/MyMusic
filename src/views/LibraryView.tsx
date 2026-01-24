@@ -104,7 +104,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                         <AlbumCard
                             key={album.id}
                             album={album}
-                            onClick={() => handlePlayCollection()}
+                            onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
                         />
                     ))}
                 </div>
