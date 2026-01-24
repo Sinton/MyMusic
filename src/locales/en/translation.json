@@ -5,7 +5,8 @@
         "save": "Save",
         "cancel": "Cancel",
         "confirm": "Confirm",
-        "viewAll": "View All"
+        "viewAll": "View All",
+        "min": "min"
     },
     "sidebar": {
         "home": "Home",

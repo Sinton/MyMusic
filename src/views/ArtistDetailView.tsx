@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useSongs, useAlbums } from '../hooks/useData';
+import { useSongsByArtist, useAlbumsByArtist } from '../hooks/useData';
 import type { Artist, Track, Album } from '../types';
 
 interface ArtistDetailViewProps {
@@ -16,16 +16,16 @@ interface ArtistDetailViewProps {
 const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavigate }) => {
     const { t } = useTranslation();
     const { setTrack, play, pause, isPlaying, currentTrack } = usePlayerStore();
-    const { songs: allSongs } = useSongs();
-    const { albums: allAlbums } = useAlbums();
+
+    // Efficiently fetch only relevant data
+    const { songs: artistSongs } = useSongsByArtist(artistName);
+    const { albums: artistAlbums } = useAlbumsByArtist(artistName);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'about'>('all');
 
-    // Filter artist data from mock stores
+    // Construct artist object
     const artistData: Artist = useMemo(() => {
-        const artistSongs = allSongs.filter(s => s.artist.includes(artistName));
-        const artistAlbums = allAlbums.filter(a => a.artist === artistName);
-
         return {
             id: artistSongs[0]?.artistId || 999,
             name: artistName,
@@ -35,7 +35,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
             popularSongs: artistSongs,
             albums: artistAlbums
         };
-    }, [artistName, allSongs, allAlbums]);
+    }, [artistName, artistSongs, artistAlbums]);
 
     // Filtering logic
     const filteredSongs = useMemo(() => {
@@ -201,7 +201,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
                                                 <img src={album.cover} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={album.title} />
                                             )}
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                                <div className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center scale-90 group-hover:scale-100 transition-transform">
+                                                <div className="w-14 h-14 rounded-full bg-[var(--text-main)] text-[var(--bg-color)] flex items-center justify-center scale-90 group-hover:scale-100 transition-transform">
                                                     <Play className="w-7 h-7 fill-current" />
                                                 </div>
                                             </div>

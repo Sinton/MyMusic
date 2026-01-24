@@ -50,6 +50,22 @@ export const MusicService = {
         return albums.find(a => a.id === id);
     },
 
+    getSongsByAlbumId: async (albumId: number): Promise<Song[]> => {
+        await delay(300);
+        return unifiedSongs.filter(s => s.albumId === albumId);
+    },
+
+    // Artists (Derived)
+    getSongsByArtist: async (artistName: string): Promise<Song[]> => {
+        await delay(400);
+        return unifiedSongs.filter(s => s.artist.includes(artistName));
+    },
+
+    getAlbumsByArtist: async (artistName: string): Promise<Album[]> => {
+        await delay(400);
+        return albums.filter(a => a.artist === artistName);
+    },
+
     // Lyrics
     getLyrics: async (_songId: number): Promise<LyricLine[]> => {
         await delay(100); // Fast response for lyrics

@@ -4,7 +4,7 @@ import { SongRow, PlaylistCard, AlbumCard } from '../components';
 import { useSongs, usePlaylists, useAlbums } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
-import type { Playlist, Album } from '../types';
+import type { Playlist, Album, Track } from '../types';
 
 interface LibraryViewProps {
     initialTab?: 'Songs' | 'Playlists' | 'Albums';
@@ -26,11 +26,13 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
     const handlePlayCollection = () => {
         if (songs.length > 0) {
             const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            const track: any = {
+            const track: Track = {
                 id: randomSong.id,
                 title: randomSong.title,
                 artist: randomSong.artist,
+                artistId: randomSong.artistId,
                 album: randomSong.album,
+                albumId: randomSong.albumId,
                 duration: randomSong.duration,
                 currentTime: '0:00',
                 source: randomSong.bestSource,

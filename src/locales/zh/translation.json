@@ -5,7 +5,8 @@
         "save": "保存",
         "cancel": "取消",
         "confirm": "确认",
-        "viewAll": "查看全部"
+        "viewAll": "查看全部",
+        "min": "分钟"
     },
     "sidebar": {
         "home": "首页",

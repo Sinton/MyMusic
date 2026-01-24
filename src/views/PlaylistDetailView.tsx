@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { SongRow, Modal } from '../components';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Playlist } from '../types';
+import type { Playlist, Track } from '../types';
 
 interface PlaylistDetailViewProps {
     playlist: Playlist;
@@ -33,7 +33,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
     const handlePlayAll = () => {
         if (playlist.songs && playlist.songs.length > 0) {
             const firstSong = playlist.songs[0];
-            const track: any = {
+            const track: Track = {
                 id: firstSong.id,
                 title: firstSong.title,
                 artist: firstSong.artist,

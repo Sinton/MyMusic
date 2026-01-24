@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useSongs } from '../hooks/useData';
-import type { Album, Song } from '../types';
+import { useSongsByAlbumId } from '../hooks/useData';
+import type { Album, Track } from '../types';
 
 interface AlbumDetailViewProps {
     album: Album;
@@ -16,14 +16,11 @@ interface AlbumDetailViewProps {
 const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) => {
     const { t } = useTranslation();
     const { setTrack, play, isPlaying, currentTrack } = usePlayerStore();
-    const { songs: allSongs } = useSongs();
+    const { songs: albumSongs } = useSongsByAlbumId(album.id);
     const [isShared, setIsShared] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;
-
-    // Dynamic song fetching: filter songs that belong to this album
-    const albumSongs: Song[] = allSongs.filter((s: Song) => s.album === album.title);
 
     const handleShare = () => {
         navigator.clipboard.writeText(window.location.href);
@@ -35,7 +32,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
     const handlePlayAll = () => {
         if (albumSongs.length > 0) {
             const firstSong = albumSongs[0];
-            const track: any = {
+            const track: Track = {
                 id: firstSong.id,
                 title: firstSong.title,
                 artist: firstSong.artist,
@@ -60,7 +57,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
             totalSeconds += (mins * 60) + (secs || 0);
         });
         const totalMins = Math.floor(totalSeconds / 60);
-        return `${totalMins} min`;
+        return `${totalMins} ${t('common.min')}`;
     };
 
     const getAlbumTypeLabel = () => {

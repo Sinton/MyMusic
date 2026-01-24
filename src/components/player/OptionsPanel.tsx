@@ -34,6 +34,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     const [menuView, setMenuView] = useState<'main' | 'playlist' | 'sleep'>('main');
     const [sleepTimer, setSleepTimer] = useState<number | null>(null);
+    const [isCopied, setIsCopied] = useState(false);
 
     const handleAddToPlaylist = (playlistId: number) => {
         const songToStore: Song = {
@@ -59,24 +60,21 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
         return 'netease';
     };
 
-    const handleComingSoon = (feature: string) => {
-        // In a real app, this would trigger a toast
-        alert(`${feature} - ${t('common.comingSoon', 'Coming Soon')}`);
+    const handleComingSoon = (_feature: string) => {
+        // Placeholder for future implementation
+        // console.log(`Coming soon: ${_feature}`);
     };
 
     const handleShare = () => {
         navigator.clipboard.writeText(`https://music.app/track/${currentTrack.id}`);
-        alert('Link copied to clipboard!');
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
     };
 
     const handleViewArtist = () => {
         if (onNavigate && currentTrack.artist) {
             onNavigate(`Artist:${currentTrack.artist}`);
             onClose();
-        } else if (onNavigate) {
-            onNavigate('Library');
-            onClose();
-            alert(`Navigating to artist: ${currentTrack.artist}`);
         } else {
             handleComingSoon(t('fullPlayer.options.viewArtist'));
         }
@@ -87,9 +85,9 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
             onNavigate(`Album:${currentTrack.albumId}`);
             onClose();
         } else if (onNavigate) {
+            // Fallback for missing albumId
             onNavigate('Library');
             onClose();
-            alert(`Navigating to album: ${currentTrack.album}`);
         } else {
             handleComingSoon(t('fullPlayer.options.viewAlbum'));
         }
@@ -97,12 +95,8 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     const handleSetSleepTimer = (minutes: number | null) => {
         setSleepTimer(minutes);
-        if (minutes) {
-            alert(`Sleep timer set for ${minutes} minutes`);
-        } else {
-            alert('Sleep timer turned off');
-        }
-        setMenuView('main');
+        // In real app, implement timer logic
+        setTimeout(() => setMenuView('main'), 200);
     };
 
     return (
@@ -138,8 +132,17 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
                             </button>
                             <div className="my-4 h-px bg-[var(--glass-border)] mx-2"></div>
                             <button onClick={handleShare} className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-[var(--glass-highlight)] transition-colors group">
-                                <Share2 className="w-5 h-5 text-[var(--text-muted)] group-hover:text-rose-400 transition-colors" />
-                                <span className="font-medium text-[var(--text-main)]">{t('fullPlayer.options.share')}</span>
+                                {isCopied ? (
+                                    <>
+                                        <Check className="w-5 h-5 text-green-500" />
+                                        <span className="font-medium text-green-500">{t('playlist.linkCopied')}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Share2 className="w-5 h-5 text-[var(--text-muted)] group-hover:text-rose-400 transition-colors" />
+                                        <span className="font-medium text-[var(--text-main)]">{t('fullPlayer.options.share')}</span>
+                                    </>
+                                )}
                             </button>
                             <button onClick={() => setMenuView('sleep')} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[var(--glass-highlight)] transition-colors group">
                                 <div className="flex items-center gap-4">
