@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Play, Pause, Star, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
+import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSongs, useAlbums } from '../hooks/useData';
 import type { Artist, Track, Album } from '../types';
@@ -84,31 +85,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
 
     return (
         <div className="animate-fade-in pb-40 relative">
-            <svg className="fixed pointer-events-none opacity-0 h-0 w-0">
-                <filter id="grainy-noise-artist">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-                    <feColorMatrix type="saturate" values="0" />
-                </filter>
-            </svg>
-
-            {/* 1. Artist Header - System-Consistent Immersive Style */}
-            <div className="relative w-full h-[520px] mb-16 group -mt-20">
-                <div className="absolute inset-0 rounded-b-[4rem] shadow-[0_30px_60px_rgba(0,0,0,0.12)] border-b border-white/10 overflow-hidden">
-                    <div
-                        className="absolute inset-0 bg-cover bg-center blur-[100px] scale-150 opacity-100 dark:opacity-60 transition-all duration-1000 group-hover:scale-125"
-                        style={{ backgroundImage: artistData.albums?.[0] ? `url(${artistData.albums[0].cover})` : 'none' }}
-                    />
-                    <div className="absolute inset-0 bg-white/10 dark:bg-transparent backdrop-blur-[80px]" />
-
-                    <div className="absolute inset-0 overflow-hidden opacity-60 dark:opacity-40 mix-blend-overlay dark:mix-blend-soft-light">
-                        <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,var(--accent-color)_0%,transparent_60%)] animate-[halo-rotate_20s_linear_infinite] opacity-50" />
-                        <div className="absolute bottom-[-30%] right-[-20%] w-[100%] h-[100%] bg-[radial-gradient(circle_at_center,#4f46e5_0%,transparent_60%)] animate-[halo-rotate_25s_linear_infinite_reverse] opacity-40" />
-                    </div>
-
-                    <div className="absolute inset-0 opacity-[0.08] dark:opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ filter: 'url(#grainy-noise-artist)' }} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] via-transparent to-transparent" />
-                </div>
-
+            <ImmersiveHeader backgroundImage={artistData.albums?.[0]?.cover}>
                 <div className="absolute bottom-24 left-16 md:left-24 right-16 flex flex-col md:flex-row items-end gap-16 z-10">
                     <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 z-20">
                         <div className="relative w-full h-full rounded-full overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] border-4 border-white/20 transition-transform duration-700 group-hover:scale-105">
@@ -151,7 +128,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
                         </div>
                     </div>
                 </div>
-            </div>
+            </ImmersiveHeader>
 
             <main className="w-full px-8">
                 {/* Search & Navigation Bar */}

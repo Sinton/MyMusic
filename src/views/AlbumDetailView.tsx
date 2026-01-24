@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Play, Share2, Check, Disc, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
+import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSongs } from '../hooks/useData';
 import type { Album, Song } from '../types';
@@ -70,50 +71,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
 
     return (
         <div className="animate-fade-in pb-20 relative">
-            {/* SVG Noise Filter Component (Local to this view for texture) */}
-            <svg className="fixed pointer-events-none opacity-0 h-0 w-0">
-                <filter id="grainy-noise">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-                    <feColorMatrix type="saturate" values="0" />
-                </filter>
-            </svg>
-
-            {/* Album Header - Immersive Style */}
-            <div className="relative w-full h-[520px] mb-12 group -mt-20">
-                {/* 
-                  Background Effects Container:
-                  - Handles clipping for the blur/orbs.
-                  - Added a distinct border and shadow that isn't clipped.
-                */}
-                <div className="absolute inset-0 rounded-b-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.12)] dark:shadow-none border-b border-black/10 dark:border-white/10 overflow-hidden">
-
-                    {/* 1. Base Layer: High-Saturation Color Field */}
-                    <div
-                        className="absolute inset-0 bg-cover bg-center blur-[100px] scale-150 opacity-100 dark:opacity-60 transition-all duration-1000 group-hover:scale-125"
-                        style={{ backgroundImage: `url(${album.cover})` }}
-                    />
-
-                    {/* 2. Glassmorphism Layer: Heavy backdrop blur */}
-                    <div className="absolute inset-0 bg-white/10 dark:bg-transparent backdrop-blur-[80px]" />
-
-                    {/* 3. Middle Layer: High-Contrast Animated Orbs */}
-                    <div className="absolute inset-0 overflow-hidden opacity-60 dark:opacity-40 mix-blend-overlay dark:mix-blend-soft-light">
-                        <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,var(--accent-color)_0%,transparent_60%)] animate-[halo-rotate_20s_linear_infinite] opacity-50" />
-                        <div className="absolute bottom-[-30%] right-[-20%] w-[100%] h-[100%] bg-[radial-gradient(circle_at_center,#4f46e5_0%,transparent_60%)] animate-[halo-rotate_25s_linear_infinite_reverse] opacity-40" />
-                    </div>
-
-                    {/* 4. Texture Layer */}
-                    <div className="absolute inset-0 opacity-[0.08] dark:opacity-[0.03] pointer-events-none mix-blend-overlay"
-                        style={{ filter: 'url(#grainy-noise)' }} />
-
-                    {/* 5. Finishing Gradients: Smoother transitions */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/[0.03] dark:to-[var(--bg-color)]/20 shadow-inner" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-color)]/10 via-transparent to-[var(--bg-color)]/10" />
-
-                    {/* Interior Border Highlight */}
-                    <div className="absolute inset-0 ring-1 ring-inset ring-white/30 dark:ring-white/10 rounded-b-[3rem]" />
-                </div>
-
+            <ImmersiveHeader backgroundImage={album.cover}>
                 <div className="absolute bottom-24 left-12 right-12 flex flex-col md:flex-row gap-16 items-end">
                     {/* Cover Art - Premium Vinyl Design */}
                     <div className="relative w-64 h-64 md:w-72 md:h-72 flex-shrink-0 z-20">
@@ -194,7 +152,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
                         </div>
                     </div>
                 </div>
-            </div>
+            </ImmersiveHeader>
 
             {/* Action Buttons Row */}
             <div className="flex items-center gap-4 px-8 mb-10">
