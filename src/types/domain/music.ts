@@ -1,4 +1,6 @@
 // ================== AUDIO SOURCE ==================
+export type RepeatMode = 'off' | 'all' | 'one';
+
 export interface AudioSource {
     platform: string;
     quality: string;

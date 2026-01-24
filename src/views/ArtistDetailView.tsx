@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Play, Pause, Star, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
+import AlbumCard from '../components/AlbumCard';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSongsByArtist, useAlbumsByArtist } from '../hooks/useData';
@@ -15,7 +16,7 @@ interface ArtistDetailViewProps {
 
 const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavigate }) => {
     const { t } = useTranslation();
-    const { setTrack, play, pause, isPlaying, currentTrack } = usePlayerStore();
+    const { setTrack, play, pause, isPlaying, currentTrack, setQueue } = usePlayerStore();
 
     // Efficiently fetch only relevant data
     const { songs: artistSongs } = useSongsByArtist(artistName);
@@ -57,20 +58,21 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
 
     const handlePlayAll = () => {
         if (filteredSongs.length > 0) {
-            const firstSong = filteredSongs[0];
-            const track: Track = {
-                id: firstSong.id,
-                title: firstSong.title,
-                artist: firstSong.artist,
-                artistId: firstSong.artistId,
-                album: firstSong.album,
-                albumId: firstSong.albumId,
-                duration: firstSong.duration,
+            const tracks: Track[] = filteredSongs.map(song => ({
+                id: song.id,
+                title: song.title,
+                artist: song.artist,
+                artistId: song.artistId,
+                album: song.album,
+                albumId: song.albumId,
+                duration: song.duration,
                 currentTime: '0:00',
-                source: firstSong.bestSource,
-                quality: firstSong.sources[0]?.qualityLabel || 'Standard',
-            };
-            setTrack(track);
+                source: song.bestSource,
+                quality: song.sources[0]?.qualityLabel || 'Standard',
+            }));
+
+            setQueue(tracks);
+            setTrack(tracks[0]);
             play();
         }
     };
@@ -187,30 +189,11 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
                             </h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-16">
                                 {filteredAlbums.map((album: Album) => (
-                                    <button
+                                    <AlbumCard
                                         key={album.id}
+                                        album={album}
                                         onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
-                                        className="group relative flex flex-col items-start transition-all"
-                                    >
-                                        <div className="relative aspect-square w-full mb-6 rounded-[2rem] overflow-hidden shadow-2xl bg-[var(--glass-bg)] group-hover:-translate-y-2 transition-transform duration-500">
-                                            {album.cover.startsWith('bg-') ? (
-                                                <div className={`w-full h-full ${album.cover} flex items-center justify-center`}>
-                                                    <Music className="w-16 h-16 text-white/40" />
-                                                </div>
-                                            ) : (
-                                                <img src={album.cover} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={album.title} />
-                                            )}
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                                <div className="w-14 h-14 rounded-full bg-[var(--text-main)] text-[var(--bg-color)] flex items-center justify-center scale-90 group-hover:scale-100 transition-transform">
-                                                    <Play className="w-7 h-7 fill-current" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <h3 className="font-black text-lg text-[var(--text-main)] truncate w-full text-left group-hover:text-[var(--accent-color)] transition-colors">{album.title}</h3>
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] opacity-60 mt-1">
-                                            {album.year} • {Math.floor(Math.random() * 5) + 8} {t('library.tabs.songs')}
-                                        </div>
-                                    </button>
+                                    />
                                 ))}
                             </div>
                         </section>

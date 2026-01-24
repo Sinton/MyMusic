@@ -125,7 +125,8 @@
     },
     "album": {
         "label": "专辑",
-        "playAll": "播放整张",
+        "playAll": "播放全部",
+        "playAlbum": "播放整张",
         "songs": "首歌曲",
         "ep": "EP",
         "single": "单曲",

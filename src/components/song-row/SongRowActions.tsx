@@ -3,6 +3,8 @@ import { Plus, Check, MoreHorizontal } from 'lucide-react';
 import { useSongActions } from '../../hooks/useSongActions';
 import type { Song } from '../../types';
 
+import { useTranslation } from 'react-i18next';
+
 interface SongRowActionsProps {
     song: Song;
     isLiked: boolean;
@@ -10,6 +12,7 @@ interface SongRowActionsProps {
 }
 
 export const SongRowActions: React.FC<SongRowActionsProps> = ({ song, isLiked, onToggleLike }) => {
+    const { t } = useTranslation();
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const { userPlaylists, handleAddToPlaylist, isInPlaylist } = useSongActions(song);
@@ -61,7 +64,7 @@ export const SongRowActions: React.FC<SongRowActionsProps> = ({ song, isLiked, o
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-2 py-1 mb-1">
-                            Add to Playlist
+                            {t('fullPlayer.options.addToPlaylist')}
                         </div>
                         <div className="max-h-48 overflow-y-auto custom-scrollbar">
                             {userPlaylists.map(pl => (

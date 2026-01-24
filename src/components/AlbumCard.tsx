@@ -1,5 +1,6 @@
 import React from 'react';
 import { Play, Disc } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Album } from '../types';
 
 interface AlbumCardProps {
@@ -8,10 +9,12 @@ interface AlbumCardProps {
 }
 
 const AlbumCard: React.FC<AlbumCardProps> = ({ album, onClick }) => {
+    const { t } = useTranslation();
+
     return (
         <div
             onClick={() => onClick?.(album)}
-            className="group p-4 rounded-xl bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] transition-colors cursor-pointer"
+            className="group p-4 rounded-xl bg-[rgba(255,255,255,0.05)] hover:bg-[var(--glass-highlight)] transition-colors cursor-pointer border border-transparent hover:border-[var(--glass-border)]"
         >
             {/* Cover */}
             <div className={`w-full aspect-square rounded-xl mb-4 shadow-xl ${album.cover} relative flex items-center justify-center overflow-hidden`}>
@@ -31,11 +34,13 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ album, onClick }) => {
 
             {/* Info */}
             <h3 className="font-medium text-[var(--text-main)] truncate text-base">{album.title}</h3>
-            <div className="flex items-center justify-between mt-1">
+            <div className="mt-1">
                 <p className="text-sm text-[var(--text-secondary)] truncate">{album.artist}</p>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[var(--text-muted)]">
-                    {album.year}
-                </span>
+                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] mt-1">
+                    <span>{album.year}</span>
+                    <span className="opacity-50">•</span>
+                    <span>{album.songs?.length || 0} {t('album.songs')}</span>
+                </div>
             </div>
         </div>
     );

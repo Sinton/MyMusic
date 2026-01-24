@@ -125,7 +125,8 @@
     },
     "album": {
         "label": "Album",
-        "playAll": "Play Album",
+        "playAll": "Play All",
+        "playAlbum": "Play Album",
         "songs": "songs",
         "ep": "EP",
         "single": "Single",

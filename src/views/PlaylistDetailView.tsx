@@ -1,7 +1,9 @@
 import React from 'react';
-import { Play, Share2, Trash2, Music, AlertTriangle, Check } from 'lucide-react';
+import { Play, Trash2, Music, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { SongRow, Modal } from '../components';
+import { Modal } from '../components';
+import ShareButton from '../components/common/ShareButton';
+import SongList from '../components/SongList';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import type { Playlist, Track } from '../types';
@@ -14,15 +16,8 @@ interface PlaylistDetailViewProps {
 const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBack }) => {
     const { t } = useTranslation();
     const { removeSongFromPlaylist, removePlaylist } = usePlaylistStore();
-    const { setTrack, play } = usePlayerStore();
+    const { setTrack, play, setQueue } = usePlayerStore();
     const [showDeleteModal, setShowDeleteModal] = React.useState(false);
-    const [isShared, setIsShared] = React.useState(false);
-
-    const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        setIsShared(true);
-        setTimeout(() => setIsShared(false), 2000);
-    };
 
     const handleDelete = () => {
         removePlaylist(playlist.id);
@@ -32,20 +27,21 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
 
     const handlePlayAll = () => {
         if (playlist.songs && playlist.songs.length > 0) {
-            const firstSong = playlist.songs[0];
-            const track: Track = {
-                id: firstSong.id,
-                title: firstSong.title,
-                artist: firstSong.artist,
-                artistId: firstSong.artistId,
-                album: firstSong.album,
-                albumId: firstSong.albumId,
-                duration: firstSong.duration,
+            const tracks: Track[] = playlist.songs.map(song => ({
+                id: song.id,
+                title: song.title,
+                artist: song.artist,
+                artistId: song.artistId,
+                album: song.album,
+                albumId: song.albumId,
+                duration: song.duration,
                 currentTime: '0:00',
-                source: firstSong.bestSource,
-                quality: firstSong.sources[0]?.qualityLabel || 'Standard',
-            };
-            setTrack(track);
+                source: song.bestSource,
+                quality: song.sources[0]?.qualityLabel || 'Standard',
+            }));
+
+            setQueue(tracks);
+            setTrack(tracks[0]);
             play();
         }
     };
@@ -83,22 +79,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
                     {t('playlist.playAll')}
                 </button>
 
-                <button
-                    onClick={handleShare}
-                    className={`p-3 border rounded-full transition-all flex items-center gap-2 ${isShared
-                        ? 'bg-green-500/10 border-green-500/20 text-green-500'
-                        : 'bg-[var(--glass-highlight)] border-[var(--glass-border)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-main)]'
-                        }`}
-                >
-                    {isShared ? (
-                        <>
-                            <Check className="w-5 h-5" />
-                            <span className="text-xs font-bold pr-1">{t('playlist.linkCopied')}</span>
-                        </>
-                    ) : (
-                        <Share2 className="w-5 h-5" />
-                    )}
-                </button>
+                <ShareButton text={t('fullPlayer.options.share')} />
 
                 <button
                     onClick={() => setShowDeleteModal(true)}
@@ -109,41 +90,21 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
             </div>
 
             {/* Songs List */}
-            <div className="space-y-3 pb-20">
-                <div className="flex items-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--glass-border)] mb-2">
-                    <div className="w-8">#</div>
-                    <div className="flex-1">{t('playlist.titleCol')}</div>
-                    <div className="w-32 hidden md:block">{t('playlist.albumCol')}</div>
-                    <div className="w-20 text-right">{t('playlist.timeCol')}</div>
-                </div>
-
-                {!playlist.songs || playlist.songs.length === 0 ? (
-                    <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] border-2 border-dashed border-[var(--glass-border)] rounded-3xl">
-                        <Music className="w-12 h-12 mb-4 opacity-20" />
-                        <p className="font-medium">{t('playlist.empty')}</p>
-                        <p className="text-xs opacity-50">{t('playlist.emptyDesc')}</p>
-                    </div>
-                ) : (
-                    playlist.songs.map((song) => (
-                        <SongRow
-                            key={song.id}
-                            song={song}
-                            extraAction={
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeSongFromPlaylist(playlist.id, song.id);
-                                    }}
-                                    className="p-2 hover:text-red-500 transition-all text-[var(--text-muted)]"
-                                    title="Remove from playlist"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            }
-                        />
-                    ))
+            <SongList
+                songs={playlist.songs || []}
+                renderExtraAction={(song) => (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            removeSongFromPlaylist(playlist.id, song.id);
+                        }}
+                        className="p-2 hover:text-red-500 transition-all text-[var(--text-muted)]"
+                        title="Remove from playlist"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
                 )}
-            </div>
+            />
 
             <Modal
                 isOpen={showDeleteModal}

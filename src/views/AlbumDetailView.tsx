@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Play, Share2, Check, Disc, Heart } from 'lucide-react';
+import { Play, Disc, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
+import ShareButton from '../components/common/ShareButton';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSongsByAlbumId } from '../hooks/useData';
 import type { Album, Track } from '../types';
@@ -15,36 +16,29 @@ interface AlbumDetailViewProps {
 
 const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) => {
     const { t } = useTranslation();
-    const { setTrack, play, isPlaying, currentTrack } = usePlayerStore();
+    const { setTrack, play, isPlaying, currentTrack, setQueue } = usePlayerStore();
     const { songs: albumSongs } = useSongsByAlbumId(album.id);
-    const [isShared, setIsShared] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;
 
-    const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        setIsShared(true);
-        // Reset after 3 seconds
-        setTimeout(() => setIsShared(false), 3000);
-    };
-
     const handlePlayAll = () => {
         if (albumSongs.length > 0) {
-            const firstSong = albumSongs[0];
-            const track: Track = {
-                id: firstSong.id,
-                title: firstSong.title,
-                artist: firstSong.artist,
-                artistId: firstSong.artistId,
-                album: firstSong.album,
-                albumId: firstSong.albumId,
-                duration: firstSong.duration,
+            const tracks: Track[] = albumSongs.map(song => ({
+                id: song.id,
+                title: song.title,
+                artist: song.artist,
+                artistId: song.artistId,
+                album: song.album,
+                albumId: song.albumId,
+                duration: song.duration,
                 currentTime: '0:00',
-                source: firstSong.bestSource,
-                quality: firstSong.sources[0]?.qualityLabel || 'Standard',
-            };
-            setTrack(track);
+                source: song.bestSource,
+                quality: song.sources[0]?.qualityLabel || 'Standard',
+            }));
+
+            setQueue(tracks);
+            setTrack(tracks[0]);
             play();
         }
     };
@@ -159,7 +153,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
                     className="flex items-center gap-2 px-8 py-3 bg-[var(--accent-color)] text-white rounded-full font-bold hover:scale-105 transition-all shadow-lg shadow-[var(--accent-color)]/20 disabled:opacity-50 disabled:hover:scale-100"
                 >
                     <Play className="w-5 h-5 fill-current" />
-                    {t('album.playAll')}
+                    {t('album.playAlbum')}
                 </button>
 
                 <button
@@ -172,34 +166,12 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
                     <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                 </button>
 
-                <button
-                    onClick={handleShare}
-                    className={`px-5 py-3 border rounded-full transition-all flex items-center gap-3 ${isShared
-                        ? 'bg-green-500 text-white border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]'
-                        : 'bg-[var(--glass-highlight)] border-[var(--glass-border)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-main)] hover:scale-105'
-                        }`}
-                >
-                    {isShared ? (
-                        <>
-                            <Check className="w-5 h-5 animate-[modal-content-in_0.3s_ease-out]" />
-                            <span className="text-sm font-bold animate-[content-slide-up_0.3s_ease-out]">{t('playlist.linkCopied')}</span>
-                        </>
-                    ) : (
-                        <>
-                            <Share2 className="w-5 h-5" />
-                            <span className="text-sm font-bold">{t('fullPlayer.options.share')}</span>
-                        </>
-                    )}
-                </button>
+                <ShareButton text={t('fullPlayer.options.share')} />
             </div>
 
             {/* Tracklist */}
             <div className="space-y-1 px-4 md:px-8">
-                <div className="flex items-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--glass-border)] mb-2 opacity-50">
-                    <div className="w-8">#</div>
-                    <div className="flex-1">{t('playlist.titleCol')}</div>
-                    <div className="w-20 text-right">{t('playlist.timeCol')}</div>
-                </div>
+
 
                 {!albumSongs || albumSongs.length === 0 ? (
                     <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] opacity-50">

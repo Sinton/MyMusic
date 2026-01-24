@@ -29,6 +29,7 @@ export interface PlayerActions {
     nextTrack: () => void;
     previousTrack: () => void;
     setProgress: (time: number) => void;
+    setQueue: (queue: Track[]) => void;
 }
 
 export type PlayerStore = PlayerState & PlayerActions;
