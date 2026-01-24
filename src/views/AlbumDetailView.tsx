@@ -257,9 +257,6 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
                             <SongRow
                                 song={song}
                             />
-                            <div className="absolute left-[8px] top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-muted)] font-bold w-4 text-center pointer-events-none z-0 group-hover:opacity-0 transition-opacity">
-                                {idx + 1}
-                            </div>
                         </div>
                     ))
                 )}
