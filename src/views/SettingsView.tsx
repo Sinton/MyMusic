@@ -6,6 +6,9 @@ import { useSettingsStore } from '../stores/useSettingsStore'; // Import setting
 import { useUIStore } from '../stores/useUIStore';
 import { Dropdown } from '../components';
 
+import logoImg from '../assets/logo.png';
+import logoBgImg from '../assets/logo_bg.png';
+
 const SettingsView: React.FC = () => {
     const { t, i18n } = useTranslation();
     const disconnectAll = usePlatformStore((state) => state.disconnectAll);
@@ -211,9 +214,10 @@ const SettingsView: React.FC = () => {
                         </h3>
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg flex items-center justify-center text-2xl">
-                                    🎵
-                                </div>
+                                {/* <div className="w-14 h-14 bg-black rounded-2xl shadow-lg flex items-center justify-center text-2xl overflow-hidden">
+                                    <img src={logoImg} className="w-full h-full p-0.5 object-contain invert dark:invert-0" alt="Vibe Music" />
+                                </div> */}
+                                <img src={logoBgImg} className="w-14 h-14 rounded-2xl shadow-lg object-cover" alt="Vibe Music" />
                                 <div>
                                     <div className="font-bold text-lg text-[var(--text-main)]">{t('settings.about.appName')}</div>
                                     <div className="text-sm text-[var(--text-secondary)]">{t('settings.about.appDesc')}</div>
