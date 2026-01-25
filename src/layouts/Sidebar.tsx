@@ -3,7 +3,8 @@ import { Home, Music, Disc, Settings, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
-import { PlatformBadge, Modal } from '../components';
+import { PlatformBadge } from '../components';
+import CreatePlaylistModal from '../components/CreatePlaylistModal';
 import type { Platform } from '../types';
 
 interface SidebarProps {
@@ -28,23 +29,14 @@ const getPlatformKey = (name: string): string => {
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth }) => {
     const { t } = useTranslation();
     const platforms = usePlatformStore((state) => state.platforms);
-    const { userPlaylists, createPlaylist } = usePlaylistStore();
+    const { userPlaylists } = usePlaylistStore();
     const [showCreateModal, setShowCreateModal] = React.useState(false);
-    const [newPlaylistName, setNewPlaylistName] = React.useState('');
 
     const menuItems: MenuItem[] = [
         { id: 'Home', translationKey: 'sidebar.home', icon: Home },
         { id: 'Explore', translationKey: 'sidebar.explore', icon: Disc },
         { id: 'Library', translationKey: 'sidebar.library', icon: Music },
     ];
-
-    const handleCreatePlaylist = () => {
-        if (newPlaylistName.trim()) {
-            createPlaylist(newPlaylistName.trim());
-            setNewPlaylistName('');
-            setShowCreateModal(false);
-        }
-    };
 
     return (
         <div className="glass-panel h-full flex flex-col" style={{ width: 'var(--sidebar-width)', flexShrink: 0 }}>
@@ -133,39 +125,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                 </button>
             </div>
 
-            <Modal
+            <CreatePlaylistModal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
-                title={t('sidebar.createPlaylist')}
-            >
-                <div className="space-y-4">
-                    <div className="space-y-2 animate-stagger-1">
-                        <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">{t('sidebar.playlistName')}</label>
-                        <input
-                            autoFocus
-                            type="text"
-                            value={newPlaylistName}
-                            onChange={(e) => setNewPlaylistName(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleCreatePlaylist()}
-                            placeholder="e.g. My Awesome Mix"
-                            className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all font-medium"
-                        />
-                    </div>
-                    <button
-                        onClick={handleCreatePlaylist}
-                        disabled={!newPlaylistName.trim()}
-                        className="w-full py-3 bg-[var(--accent-color)] text-white rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[var(--accent-color)]/20 disabled:opacity-50 disabled:hover:scale-100 animate-stagger-2"
-                    >
-                        {t('sidebar.createPlaylist')}
-                    </button>
-                    <button
-                        onClick={() => setShowCreateModal(false)}
-                        className="w-full py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors animate-stagger-3"
-                    >
-                        {t('common.cancel')}
-                    </button>
-                </div>
-            </Modal>
+            />
         </div>
     );
 };

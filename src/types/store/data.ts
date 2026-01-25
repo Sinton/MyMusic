@@ -8,10 +8,12 @@ export interface PlaylistState {
 }
 
 export interface PlaylistActions {
-    createPlaylist: (title: string) => void;
+    createPlaylist: (title: string, cover?: string) => void;
     addSongToPlaylist: (playlistId: number, song: Song) => void;
     removeSongFromPlaylist: (playlistId: number, songId: number) => void;
     removePlaylist: (id: number) => void;
+    updatePlaylistTitle: (id: number, title: string) => void;
+    updatePlaylistCover: (id: number, cover: string) => void;
     toggleLike: (song: Song) => void;
 }
 

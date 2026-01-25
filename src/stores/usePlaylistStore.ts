@@ -25,13 +25,26 @@ export const usePlaylistStore = create<PlaylistStore>((set) => ({
     likedSongs: [unifiedSongs[0]],
 
     // ================== ACTIONS ==================
-    createPlaylist: (title: string) => set((state) => {
+    createPlaylist: (title: string, cover?: string) => set((state) => {
+        const gradients = [
+            'bg-gradient-to-br from-indigo-500 to-purple-600',
+            'bg-gradient-to-br from-rose-500 to-orange-500',
+            'bg-gradient-to-br from-emerald-500 to-teal-500',
+            'bg-gradient-to-br from-blue-500 to-cyan-500',
+            'bg-gradient-to-br from-amber-500 to-yellow-500',
+            'bg-gradient-to-br from-pink-500 to-rose-500',
+            'bg-gradient-to-br from-fuchsia-500 to-pink-600',
+            'bg-gradient-to-br from-violet-500 to-fuchsia-500'
+        ];
+        // Use provided cover, or pick a random one if not provided
+        const selectedCover = cover || gradients[Math.floor(Math.random() * gradients.length)];
+
         const newPlaylist: Playlist = {
             id: Date.now(),
             title,
             count: 0,
             creator: 'Yan',
-            cover: `bg-gradient-to-br from-indigo-500 to-purple-600`,
+            cover: selectedCover,
             songs: []
         };
         return { userPlaylists: [...state.userPlaylists, newPlaylist] };
@@ -63,6 +76,18 @@ export const usePlaylistStore = create<PlaylistStore>((set) => ({
 
     removePlaylist: (id: number) => set((state) => ({
         userPlaylists: state.userPlaylists.filter(pl => pl.id !== id)
+    })),
+
+    updatePlaylistTitle: (id: number, title: string) => set((state) => ({
+        userPlaylists: state.userPlaylists.map(pl =>
+            pl.id === id ? { ...pl, title } : pl
+        )
+    })),
+
+    updatePlaylistCover: (id: number, cover: string) => set((state) => ({
+        userPlaylists: state.userPlaylists.map(pl =>
+            pl.id === id ? { ...pl, cover } : pl
+        )
     })),
 
     toggleLike: (song: Song) => set((state) => {

@@ -19,6 +19,7 @@
         "newPlaylist": "新建歌单",
         "createPlaylist": "创建歌单",
         "playlistName": "歌单名称",
+        "coverStyle": "封面风格",
         "linked": "已连接账户"
     },
     "home": {

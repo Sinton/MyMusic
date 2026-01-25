@@ -98,20 +98,6 @@ const ExploreView: React.FC = () => {
                 />
             </div>
 
-            {/* Browse by Genre */}
-            <section>
-                <h2 className="text-xl font-bold mb-4">{t('explore.browseGenres')}</h2>
-                <div className="grid grid-cols-4 gap-4">
-                    {genres.map((genre: string) => (
-                        <GenreCard
-                            key={genre}
-                            genre={genre}
-                            onClick={(g) => setSelectedGenre(g)}
-                        />
-                    ))}
-                </div>
-            </section>
-
             {/* Charts */}
             <section>
                 <h2 className="text-xl font-bold mb-4 text-[var(--text-secondary)]">{t('explore.charts')}</h2>
@@ -126,6 +112,20 @@ const ExploreView: React.FC = () => {
                                 {t(`explore.chartNames.${chartMapping[chart]}`)}
                             </span>
                         </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Browse by Genre */}
+            <section>
+                <h2 className="text-xl font-bold mb-4">{t('explore.browseGenres')}</h2>
+                <div className="grid grid-cols-4 gap-4">
+                    {genres.map((genre: string) => (
+                        <GenreCard
+                            key={genre}
+                            genre={genre}
+                            onClick={(g) => setSelectedGenre(g)}
+                        />
                     ))}
                 </div>
             </section>
