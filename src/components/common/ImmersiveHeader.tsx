@@ -15,7 +15,10 @@ export const ImmersiveHeader: React.FC<ImmersiveHeaderProps> = ({
     return (
         <div className={`relative w-full mb-16 group -mt-20`} style={{ height }}>
             <GrainyNoise />
-            <div className="absolute inset-0 rounded-b-[4rem] shadow-[0_30px_60px_rgba(0,0,0,0.12)] border-b border-white/10 overflow-hidden">
+            <div
+                className="absolute inset-0 rounded-b-[4rem] shadow-[0_30px_60px_rgba(0,0,0,0.12)] border-b border-white/10 overflow-hidden isolate transform-gpu"
+                style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
+            >
                 <div
                     className="absolute inset-0 bg-cover bg-center blur-[100px] scale-150 opacity-100 dark:opacity-60 transition-all duration-1000 group-hover:scale-125"
                     style={{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none' }}
