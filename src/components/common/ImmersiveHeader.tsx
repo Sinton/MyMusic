@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { GrainyNoise } from './GrainyNoise';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 
 interface ImmersiveHeaderProps {
     backgroundImage?: string;
@@ -12,6 +13,8 @@ export const ImmersiveHeader: React.FC<ImmersiveHeaderProps> = ({
     children,
     height = '520px'
 }) => {
+    const { immersiveHeader } = useSettingsStore();
+
     return (
         <div className={`relative w-full mb-16 group -mt-20`} style={{ height }}>
             <GrainyNoise />
@@ -21,7 +24,7 @@ export const ImmersiveHeader: React.FC<ImmersiveHeaderProps> = ({
             >
                 <div
                     className="absolute inset-0 bg-cover bg-center blur-[100px] scale-150 opacity-100 dark:opacity-60 transition-all duration-1000 group-hover:scale-125"
-                    style={{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none' }}
+                    style={{ backgroundImage: (immersiveHeader && backgroundImage) ? `url(${backgroundImage})` : 'none' }}
                 />
                 <div className="absolute inset-0 bg-white/10 dark:bg-transparent backdrop-blur-[80px]" />
 

@@ -13,6 +13,7 @@ export const useSettingsStore = create<SettingsStore>()(
             outputDevice: 'default',
             streamingQuality: 'master',
             exclusiveMode: false,
+            immersiveHeader: true,
 
             setThemeMode: (mode) => set({ themeMode: mode }),
             setAccentColor: (color) => set({ accentColor: color }),
@@ -28,6 +29,7 @@ export const useSettingsStore = create<SettingsStore>()(
             setOutputDevice: (device) => set({ outputDevice: device }),
             setStreamingQuality: (quality) => set({ streamingQuality: quality }),
             toggleExclusiveMode: () => set((state) => ({ exclusiveMode: !state.exclusiveMode })),
+            toggleImmersiveHeader: () => set((state) => ({ immersiveHeader: !state.immersiveHeader })),
         }),
         {
             name: 'settings-storage',

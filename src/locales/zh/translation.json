@@ -51,7 +51,9 @@
             "accent": "强调色",
             "accentDesc": "个性化你的 Vibe",
             "visualizer": "音频可视化",
-            "visualizerDesc": "在全屏播放器中显示动态效果"
+            "visualizerDesc": "在全屏播放器中显示动态效果",
+            "immersiveHeader": "沉浸式头部背景",
+            "immersiveHeaderDesc": "在专辑和艺术家页面启用基于封面的动态背景色"
         },
         "general": {
             "title": "常规",

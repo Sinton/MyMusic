@@ -12,6 +12,7 @@ export interface SettingsState {
     outputDevice: string;
     streamingQuality: string;
     exclusiveMode: boolean;
+    immersiveHeader: boolean;
 }
 
 export interface SettingsActions {
@@ -22,6 +23,7 @@ export interface SettingsActions {
     setOutputDevice: (device: string) => void;
     setStreamingQuality: (quality: string) => void;
     toggleExclusiveMode: () => void;
+    toggleImmersiveHeader: () => void;
 }
 
 export type SettingsStore = SettingsState & SettingsActions;

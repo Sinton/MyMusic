@@ -51,7 +51,9 @@
             "accent": "Accent Color",
             "accentDesc": "Personalize your Vibe",
             "visualizer": "Audio Visualizer",
-            "visualizerDesc": "Show dynamic effects in full screen"
+            "visualizerDesc": "Show dynamic effects in full screen",
+            "immersiveHeader": "Immersive Header Background",
+            "immersiveHeaderDesc": "Enable dynamic background colors based on cover art in album and artist pages"
         },
         "general": {
             "title": "General",
