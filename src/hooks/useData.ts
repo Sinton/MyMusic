@@ -15,6 +15,8 @@ export const QueryKeys = {
     Album: (id: number) => ['album', id] as const,
     Lyrics: (id: number) => ['lyrics', id] as const,
     Comments: (id: number) => ['comments', id] as const,
+    HomeSections: ['homeSections'] as const,
+    Genres: ['genres'] as const,
 };
 
 // ================== HOOKS ==================
@@ -164,6 +166,36 @@ export const useLyrics = (songId: number) => {
     return {
         ...query,
         lyrics: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+export const useHomeSections = () => {
+    const query = useQuery({
+        queryKey: QueryKeys.HomeSections,
+        queryFn: MusicService.getHomeSections,
+        staleTime: 1000 * 60 * 60, // 1 hour
+    });
+
+    return {
+        ...query,
+        sections: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+export const useGenres = () => {
+    const query = useQuery({
+        queryKey: QueryKeys.Genres,
+        queryFn: MusicService.getGenres,
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    });
+
+    return {
+        ...query,
+        genres: query.data || [],
         isLoading: query.isLoading,
         error: query.error?.message || null,
     };

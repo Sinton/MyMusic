@@ -21,6 +21,7 @@ export interface Song {
     sources: AudioSource[];
     bestSource: string;
     genre?: string;
+    cover?: string;
 }
 
 // ================== PLAYLIST ==================
@@ -39,7 +40,7 @@ export interface Album {
     title: string;
     artist: string;
     artistId?: number;
-    year: string;
+    year: number;
     cover: string;
     songs?: Song[];
     genre?: string;
@@ -69,4 +70,5 @@ export interface Track {
     currentTime: string;
     source: string;
     quality: string;
+    cover?: string;
 }

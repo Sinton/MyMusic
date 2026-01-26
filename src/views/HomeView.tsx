@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { FeatureCard, PlaylistCard, SongRow } from '../components';
-import { homeCards } from '../data/mockData';
-import { usePlaylists, useSongs } from '../hooks/useData';
+import { PlaylistCard, SongRow } from '../components';
+import { Skeleton } from '../components/common/Skeleton';
+import { usePlaylists, useSongs, useHomeSections } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import type { HomeCard, Playlist, Track } from '../types';
 
@@ -16,6 +16,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const { playlists } = usePlaylists();
     const { songs } = useSongs();
+    const { sections: homeSections, isLoading: isSectionsLoading } = useHomeSections();
     const { setTrack, play } = usePlayerStore();
 
     const searchResults = useMemo(() => {
@@ -99,23 +100,59 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             ) : (
                 /* Default Home View */
                 <>
-                    {/* Hero Section */}
-                    <section>
-                        <h2 className="text-3xl font-bold mb-6 text-[var(--text-main)]">{t('home.greeting')}</h2>
-                        <div className="grid grid-cols-3 gap-6">
-                            {homeCards.map((card: HomeCard, i: number) => (
-                                <FeatureCard
-                                    key={i}
-                                    title={card.title}
-                                    description={card.description}
-                                    gradient={card.color}
-                                    size="sm"
-                                />
+                    {/* Skeleton Loading State */}
+                    {isSectionsLoading && (
+                        <div className="space-y-12">
+                            {[1, 2, 3].map((i) => (
+                                <section key={`skeleton-${i}`}>
+                                    <Skeleton className="h-8 w-48 mb-6 bg-white/5" />
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        {[1, 2, 3, 4].map((j) => (
+                                            <div key={j} className="space-y-3">
+                                                <Skeleton className="w-full aspect-square rounded-2xl bg-white/5" />
+                                                <div className="space-y-2">
+                                                    <Skeleton className="h-4 w-3/4 bg-white/5 rounded" />
+                                                    <Skeleton className="h-3 w-1/2 bg-white/5 rounded" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
                             ))}
                         </div>
-                    </section>
+                    )}
 
-                    {/* Recently Played */}
+                    {/* Dynamic Home Sections */}
+                    {homeSections.map((section) => (
+                        <section key={section.title} className="mb-12">
+                            <h2 className="text-xl font-bold mb-6 text-[var(--text-main)]">{t(section.title)}</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {section.cards.map((card) => (
+                                    <div
+                                        key={`${card.type}-${card.id}`}
+                                        onClick={() => {
+                                            if (card.type === 'playlist') onNavigate?.(`Playlist:${card.id}`);
+                                            else if (card.type === 'album') onNavigate?.(`Album:${card.id}`);
+                                            // Handle song click if needed
+                                        }}
+                                        className="group p-4 rounded-2xl bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-all cursor-pointer"
+                                    >
+                                        <div className="w-full aspect-square rounded-xl shadow-lg mb-4 overflow-hidden relative">
+                                            {(card.cover.includes('/') || card.cover.includes('.')) ? (
+                                                <img src={card.cover} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            ) : (
+                                                <div className={`w-full h-full ${card.cover} group-hover:scale-105 transition-transform duration-500`}></div>
+                                            )}
+                                        </div>
+                                        <h3 className="font-bold text-[var(--text-main)] truncate">{card.title}</h3>
+                                        <p className="text-sm text-[var(--text-secondary)] truncate">{card.subtitle}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    ))}
+
+                    {/* Quick Access to Library */}
                     <section>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold text-[var(--text-secondary)]">{t('home.recentlyPlayed')}</h2>

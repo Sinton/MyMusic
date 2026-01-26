@@ -30,7 +30,12 @@
         "greeting": "Good Morning",
         "recentlyPlayed": "Recently Played",
         "jumpBackIn": "Jump Back In",
-        "seeAll": "See All"
+        "seeAll": "See All",
+        "sections": {
+            "madeForYou": "Made For You",
+            "newReleases": "New Releases",
+            "chartToppers": "Chart Toppers"
+        }
     },
     "settings": {
         "title": "Settings",

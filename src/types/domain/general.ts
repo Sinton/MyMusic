@@ -8,9 +8,11 @@ export interface Platform {
 
 // ================== HOME CARD ==================
 export interface HomeCard {
+    id: number;
     title: string;
-    description: string;
-    color: string;
+    subtitle: string;
+    type: 'playlist' | 'album' | 'song';
+    cover: string;
 }
 
 // ================== COMMENT ==================
@@ -21,6 +23,7 @@ export interface Comment {
     content: string;
     time: string;
     likes: number;
+    liked: boolean;
 }
 
 // ================== LYRIC LINE ==================

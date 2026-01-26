@@ -1,27 +1,10 @@
 import { create } from 'zustand';
 import type { Playlist, Song, PlaylistStore } from '../types';
-import { unifiedSongs } from '../data/mockData';
+import { unifiedSongs, mockPlaylists } from '../data/mockData';
 
 export const usePlaylistStore = create<PlaylistStore>((set) => ({
     // ================== STATE ==================
-    userPlaylists: [
-        {
-            id: 100,
-            title: 'My Favorites',
-            count: 4,
-            creator: 'Yan',
-            cover: 'bg-rose-500',
-            songs: [...unifiedSongs]
-        },
-        {
-            id: 101,
-            title: 'Chill Vibe',
-            count: 2,
-            creator: 'Yan',
-            cover: 'bg-indigo-500',
-            songs: [unifiedSongs[0], unifiedSongs[3]]
-        },
-    ],
+    userPlaylists: mockPlaylists,
     likedSongs: [unifiedSongs[0]],
 
     // ================== ACTIONS ==================

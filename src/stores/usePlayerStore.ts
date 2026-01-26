@@ -1,18 +1,28 @@
 import { create } from 'zustand';
 import type { PlayerStore, Track } from '../types';
-import { defaultTrack, initialQueue } from '../data/initialPlayerData';
 import { getNextIndex, getPreviousIndex } from '../lib/playerUtils';
+
+const EMPTY_TRACK: Track = {
+    id: 0,
+    title: 'Loading...',
+    artist: '...',
+    album: '',
+    duration: '0:00',
+    currentTime: '0:00',
+    source: '',
+    quality: ''
+};
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
     // ================== STATE ==================
-    currentTrack: defaultTrack,
+    currentTrack: EMPTY_TRACK,
     isPlaying: false,
     volume: 80,
     repeat: 'off',
     shuffle: false,
-    currentTimeSec: 84, // 1:24
-    durationSec: 243,   // 4:03
-    queue: initialQueue,
+    currentTimeSec: 0,
+    durationSec: 0,
+    queue: [],
 
     // ================== PLAYBACK ACTIONS ==================
     play: () => set({ isPlaying: true }),

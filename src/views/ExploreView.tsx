@@ -2,14 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { TrendingUp, Flame, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FeatureCard, GenreCard, SongRow } from '../components';
-import { genres } from '../data/mockData';
-import { useSongs } from '../hooks/useData';
+import { useSongs, useGenres } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 
 const ExploreView: React.FC = () => {
     const { t } = useTranslation();
     const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
     const { songs } = useSongs();
+    const { genres } = useGenres();
     const { setTrack, play } = usePlayerStore();
 
     const filteredSongs = useMemo(() => {

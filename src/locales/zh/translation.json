@@ -30,7 +30,12 @@
         "greeting": "早上好",
         "recentlyPlayed": "最近播放",
         "jumpBackIn": "继续播放",
-        "seeAll": "查看全部"
+        "seeAll": "查看全部",
+        "sections": {
+            "madeForYou": "为你推荐",
+            "newReleases": "新歌首发",
+            "chartToppers": "榜单热歌"
+        }
     },
     "settings": {
         "title": "设置",

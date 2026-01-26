@@ -3,14 +3,20 @@ import type {
     Playlist,
     Album,
     LyricLine,
-    Comment
+    Comment,
+    HomeCard,
+    Track
 } from '../types';
 import {
     unifiedSongs,
-    playlists,
-    albums,
+    mockPlaylists as playlists,
+    mockAlbums as albums,
     mockLyrics,
-    mockComments
+    mockComments,
+    homeSections,
+    genres,
+    defaultTrack,
+    initialQueue
 } from '../data/mockData';
 
 // Simulated delay helper
@@ -77,5 +83,26 @@ export const MusicService = {
     getComments: async (_songId: number): Promise<Comment[]> => {
         await delay(800);
         return mockComments;
+    },
+
+    // Home Sections
+    getHomeSections: async (): Promise<{ title: string; cards: HomeCard[] }[]> => {
+        await delay(600);
+        return homeSections;
+    },
+
+    // Genres
+    getGenres: async (): Promise<string[]> => {
+        await delay(300);
+        return genres;
+    },
+
+    // Initial Data
+    getInitialData: async (): Promise<{ currentTrack: Track; queue: Track[] }> => {
+        await delay(200);
+        return {
+            currentTrack: defaultTrack,
+            queue: initialQueue
+        };
     }
 };
