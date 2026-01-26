@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useSettingsStore } from './stores/useSettingsStore';
+import { useSettingsStore } from '../stores/useSettingsStore';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { themeMode, accentColor } = useSettingsStore();

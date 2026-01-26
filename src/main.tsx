@@ -3,7 +3,7 @@ import './locales/i18n';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
-import { ThemeProvider } from './ThemeProvider';
+import { ThemeProvider } from './providers/ThemeProvider';
 // Styles
 import './styles/variables.css';
 import './styles/animations.css';
