@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, Trash2, Music, AlertTriangle, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../components';
+import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import ShareButton from '../components/common/ShareButton';
 import SongList from '../components/SongList';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
@@ -17,12 +18,19 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
     const { t } = useTranslation();
     const { removeSongFromPlaylist, removePlaylist, updatePlaylistTitle, updatePlaylistCover } = usePlaylistStore();
     const { setTrack, play, setQueue } = usePlayerStore();
-    const [showDeleteModal, setShowDeleteModal] = React.useState(false);
-    const [isEditing, setIsEditing] = React.useState(false);
-    const [editTitle, setEditTitle] = React.useState(playlist.title);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editTitle, setEditTitle] = useState(playlist.title);
+    const [isLoading, setIsLoading] = useState(true);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
+        // Simulate network delay for consistency
+        const timer = setTimeout(() => setIsLoading(false), 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus();
         }
@@ -88,6 +96,26 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
             play();
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="animate-fade-in pt-4">
+                <div className="flex flex-col md:flex-row gap-8 items-end mb-8">
+                    <Skeleton className="w-48 h-48 md:w-60 md:h-60 rounded-2xl shrink-0" />
+                    <div className="flex-1 w-full space-y-4">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-16 w-3/4 md:w-1/2 rounded-lg" />
+                        <Skeleton className="h-4 w-40" />
+                    </div>
+                </div>
+                <div className="flex gap-4 mb-8">
+                    <Skeleton className="h-12 w-32 rounded-full" />
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                </div>
+                <ListSkeleton rows={8} />
+            </div>
+        );
+    }
 
     return (
         <div className="animate-fade-in">

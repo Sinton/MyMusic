@@ -2,13 +2,14 @@ import React, { Suspense } from 'react';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { LoadingFallback } from '../components/common/LoadingFallback';
 
-const HomeView = React.lazy(() => import('../views/HomeView'));
-const ExploreView = React.lazy(() => import('../views/ExploreView'));
-const LibraryView = React.lazy(() => import('../views/LibraryView'));
-const SettingsView = React.lazy(() => import('../views/SettingsView'));
-const PlaylistDetailView = React.lazy(() => import('../views/PlaylistDetailView'));
-const AlbumDetailView = React.lazy(() => import('../views/AlbumDetailView'));
-const ArtistDetailView = React.lazy(() => import('../views/ArtistDetailView'));
+import HomeView from '../views/HomeView';
+import ExploreView from '../views/ExploreView';
+import LibraryView from '../views/LibraryView';
+
+import SettingsView from '../views/SettingsView';
+import PlaylistDetailView from '../views/PlaylistDetailView';
+import AlbumDetailView from '../views/AlbumDetailView';
+import ArtistDetailView from '../views/ArtistDetailView';
 import { useAlbums } from '../hooks/useData';
 import type { Album } from '../types';
 

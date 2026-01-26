@@ -21,11 +21,12 @@ export const QueryKeys = {
 
 // ================== HOOKS ==================
 
-export const useSongs = () => {
+export const useSongs = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: QueryKeys.Songs,
         queryFn: MusicService.getSongs,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 0, // 0 for testing loading state
+        enabled: options?.enabled,
     });
 
     return {
@@ -36,11 +37,12 @@ export const useSongs = () => {
     };
 };
 
-export const usePlaylists = () => {
+export const usePlaylists = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: QueryKeys.Playlists,
         queryFn: MusicService.getPlaylists,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 0,
+        enabled: options?.enabled,
     });
 
     return {
@@ -51,11 +53,12 @@ export const usePlaylists = () => {
     };
 };
 
-export const useAlbums = () => {
+export const useAlbums = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: QueryKeys.Albums,
         queryFn: MusicService.getAlbums,
-        staleTime: 1000 * 60 * 10, // 10 minutes
+        staleTime: 0,
+        enabled: options?.enabled,
     });
 
     return {
@@ -175,7 +178,7 @@ export const useHomeSections = () => {
     const query = useQuery({
         queryKey: QueryKeys.HomeSections,
         queryFn: MusicService.getHomeSections,
-        staleTime: 1000 * 60 * 60, // 1 hour
+        staleTime: 0,
     });
 
     return {
@@ -190,7 +193,7 @@ export const useGenres = () => {
     const query = useQuery({
         queryKey: QueryKeys.Genres,
         queryFn: MusicService.getGenres,
-        staleTime: 1000 * 60 * 60 * 24, // 24 hours
+        staleTime: 0,
     });
 
     return {

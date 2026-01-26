@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Play, Disc, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
+import { ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import ShareButton from '../components/common/ShareButton';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -17,7 +18,7 @@ interface AlbumDetailViewProps {
 const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) => {
     const { t } = useTranslation();
     const { setTrack, play, isPlaying, currentTrack, setQueue } = usePlayerStore();
-    const { songs: albumSongs } = useSongsByAlbumId(album.id);
+    const { songs: albumSongs, isLoading } = useSongsByAlbumId(album.id);
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;
@@ -173,19 +174,23 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) 
             <div className="space-y-1 px-4 md:px-8">
 
 
-                {!albumSongs || albumSongs.length === 0 ? (
-                    <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] opacity-50">
-                        <Disc className="w-12 h-12 mb-4 opacity-20" />
-                        <p className="font-medium text-sm">No tracks available</p>
-                    </div>
+                {isLoading ? (
+                    <ListSkeleton rows={8} />
                 ) : (
-                    albumSongs.map((song, idx) => (
-                        <div key={song.id} className="group relative">
-                            <SongRow
-                                song={song}
-                            />
+                    !albumSongs || albumSongs.length === 0 ? (
+                        <div className="py-20 flex flex-col items-center justify-center text-[var(--text-secondary)] opacity-50">
+                            <Disc className="w-12 h-12 mb-4 opacity-20" />
+                            <p className="font-medium text-sm">{t('album.noTracks')}</p>
                         </div>
-                    ))
+                    ) : (
+                        albumSongs.map((song, idx) => (
+                            <div key={song.id} className="group relative">
+                                <SongRow
+                                    song={song}
+                                />
+                            </div>
+                        ))
+                    )
                 )}
             </div>
 

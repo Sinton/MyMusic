@@ -32,3 +32,17 @@ export const Skeleton: React.FC<SkeletonProps> = ({
         />
     );
 };
+
+export const ListSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => (
+    <div className="space-y-4">
+        {Array.from({ length: rows }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+                <Skeleton width={48} height={48} variant="rectangular" className="rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <Skeleton width="40%" height={20} className="rounded" />
+                    <Skeleton width="25%" height={16} className="rounded" />
+                </div>
+            </div>
+        ))}
+    </div>
+);

@@ -136,7 +136,8 @@
         "songs": "首歌曲",
         "ep": "EP",
         "single": "单曲",
-        "released": "发行于"
+        "released": "发行于",
+        "noTracks": "暂无歌曲"
     },
     "explore": {
         "back": "返回发现",

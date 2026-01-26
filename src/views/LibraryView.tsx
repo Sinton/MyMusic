@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SongRow, PlaylistCard, AlbumCard } from '../components';
+import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import { useSongs, usePlaylists, useAlbums } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
@@ -15,10 +16,10 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'Songs' | 'Playlists' | 'Albums'>(initialTab);
 
-    const { songs } = useSongs();
-    const { playlists: mockPlaylists } = usePlaylists();
+    const { songs, isLoading: isSongsLoading } = useSongs({ enabled: activeTab === 'Songs' });
+    const { playlists: mockPlaylists, isLoading: isPlaylistsLoading } = usePlaylists({ enabled: activeTab === 'Playlists' });
     const { userPlaylists } = usePlaylistStore();
-    const { albums } = useAlbums();
+    const { albums, isLoading: isAlbumsLoading } = useAlbums({ enabled: activeTab === 'Albums' });
     const { setTrack, play } = usePlayerStore();
 
     const playlists: Playlist[] = [...userPlaylists, ...mockPlaylists.filter(mp => !userPlaylists.some((up: Playlist) => up.id === mp.id))];
@@ -74,41 +75,65 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
             {/* Songs Tab */}
             {activeTab === 'Songs' && (
                 <div className="space-y-4 animate-fade-in">
-                    {songs.map((song) => (
-                        <SongRow key={song.id} song={song} />
-                    ))}
+                    {isSongsLoading ? (
+                        <ListSkeleton rows={8} />
+                    ) : (
+                        songs.map((song) => (
+                            <SongRow key={song.id} song={song} />
+                        ))
+                    )}
                 </div>
             )}
 
             {/* Playlists Tab */}
             {activeTab === 'Playlists' && (
                 <div className="grid grid-cols-3 gap-6 animate-fade-in">
-                    {playlists.map((pl: Playlist) => (
-                        <PlaylistCard
-                            key={pl.id}
-                            playlist={pl}
-                            onClick={() => {
-                                if (pl.id >= 100 && onNavigate) {
-                                    onNavigate(`Playlist:${pl.id}`);
-                                } else {
-                                    handlePlayCollection();
-                                }
-                            }}
-                        />
-                    ))}
+                    {isPlaylistsLoading ? (
+                        Array.from({ length: 9 }).map((_, i) => (
+                            <div key={i} className="space-y-3">
+                                <Skeleton className="w-full aspect-square rounded-2xl" />
+                                <Skeleton className="w-3/4 h-4 rounded" />
+                                <Skeleton className="w-1/2 h-3 rounded" />
+                            </div>
+                        ))
+                    ) : (
+                        playlists.map((pl: Playlist) => (
+                            <PlaylistCard
+                                key={pl.id}
+                                playlist={pl}
+                                onClick={() => {
+                                    if (pl.id >= 100 && onNavigate) {
+                                        onNavigate(`Playlist:${pl.id}`);
+                                    } else {
+                                        handlePlayCollection();
+                                    }
+                                }}
+                            />
+                        ))
+                    )}
                 </div>
             )}
 
             {/* Albums Tab */}
             {activeTab === 'Albums' && (
                 <div className="grid grid-cols-4 gap-6 animate-fade-in">
-                    {albums.map((album: Album) => (
-                        <AlbumCard
-                            key={album.id}
-                            album={album}
-                            onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
-                        />
-                    ))}
+                    {isAlbumsLoading ? (
+                        Array.from({ length: 8 }).map((_, i) => (
+                            <div key={i} className="space-y-3">
+                                <Skeleton className="w-full aspect-square rounded-2xl" />
+                                <Skeleton className="w-3/4 h-4 rounded" />
+                                <Skeleton className="w-1/2 h-3 rounded" />
+                            </div>
+                        ))
+                    ) : (
+                        albums.map((album: Album) => (
+                            <AlbumCard
+                                key={album.id}
+                                album={album}
+                                onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
+                            />
+                        ))
+                    )}
                 </div>
             )}
         </div>

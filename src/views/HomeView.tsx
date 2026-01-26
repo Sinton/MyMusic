@@ -14,7 +14,7 @@ interface HomeViewProps {
 const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
-    const { playlists } = usePlaylists();
+    const { playlists, isLoading: isPlaylistsLoading } = usePlaylists();
     const { songs } = useSongs();
     const { sections: homeSections, isLoading: isSectionsLoading } = useHomeSections();
     const { setTrack, play } = usePlayerStore();
@@ -164,14 +164,20 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                             </button>
                         </div>
                         <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-2 -mx-2 hide-scrollbar">
-                            {playlists.map((pl: Playlist) => (
-                                <PlaylistCard
-                                    key={pl.id}
-                                    playlist={pl}
-                                    variant="compact"
-                                    onClick={() => handlePlayPlaylist(pl)}
-                                />
-                            ))}
+                            {isPlaylistsLoading ? (
+                                Array.from({ length: 6 }).map((_, i) => (
+                                    <Skeleton key={i} className="shrink-0 w-48 h-16 rounded-xl" />
+                                ))
+                            ) : (
+                                playlists.map((pl: Playlist) => (
+                                    <PlaylistCard
+                                        key={pl.id}
+                                        playlist={pl}
+                                        variant="compact"
+                                        onClick={() => handlePlayPlaylist(pl)}
+                                    />
+                                ))
+                            )}
                         </div>
                     </section>
 
@@ -179,17 +185,26 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                     <section>
                         <h2 className="text-xl font-bold mb-6 text-[var(--text-secondary)]">{t('home.jumpBackIn')}</h2>
                         <div className="grid grid-cols-6 gap-6">
-                            {playlists.slice(0, 6).map((pl: Playlist) => (
-                                <div
-                                    key={pl.id}
-                                    className="group cursor-pointer"
-                                    onClick={() => handlePlayPlaylist(pl)}
-                                >
-                                    <div className={`w-full aspect-square ${pl.cover} rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`}></div>
-                                    <div className="font-medium text-sm truncate text-[var(--text-main)]">{pl.title}</div>
-                                    <div className="text-xs text-[var(--text-muted)]">{t('sidebar.playlists')}</div>
-                                </div>
-                            ))}
+                            {isPlaylistsLoading ? (
+                                Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="space-y-2">
+                                        <Skeleton className="w-full aspect-square rounded-xl" />
+                                        <Skeleton className="w-3/4 h-3 rounded" />
+                                    </div>
+                                ))
+                            ) : (
+                                playlists.slice(0, 6).map((pl: Playlist) => (
+                                    <div
+                                        key={pl.id}
+                                        className="group cursor-pointer"
+                                        onClick={() => handlePlayPlaylist(pl)}
+                                    >
+                                        <div className={`w-full aspect-square ${pl.cover} rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`}></div>
+                                        <div className="font-medium text-sm truncate text-[var(--text-main)]">{pl.title}</div>
+                                        <div className="text-xs text-[var(--text-muted)]">{t('sidebar.playlists')}</div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </section>
                 </>

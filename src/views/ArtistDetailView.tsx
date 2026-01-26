@@ -3,6 +3,7 @@ import { Play, Pause, Star, Info, Search, Music, LayoutGrid, ListMusic } from 'l
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
 import AlbumCard from '../components/AlbumCard';
+import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSongsByArtist, useAlbumsByArtist } from '../hooks/useData';
@@ -19,8 +20,8 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
     const { setTrack, play, pause, isPlaying, currentTrack, setQueue } = usePlayerStore();
 
     // Efficiently fetch only relevant data
-    const { songs: artistSongs } = useSongsByArtist(artistName);
-    const { albums: artistAlbums } = useAlbumsByArtist(artistName);
+    const { songs: artistSongs, isLoading: isSongsLoading } = useSongsByArtist(artistName);
+    const { albums: artistAlbums, isLoading: isAlbumsLoading } = useAlbumsByArtist(artistName);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'about'>('all');
@@ -171,11 +172,15 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
                                 {searchQuery ? t('home.searchResultsFor') : t('artist.popularTracks')}
                             </h2>
                             <div className="space-y-4">
-                                {filteredSongs.map((song) => (
-                                    <div key={song.id} className="group relative">
-                                        <SongRow song={song} />
-                                    </div>
-                                ))}
+                                {isSongsLoading ? (
+                                    <ListSkeleton rows={5} />
+                                ) : (
+                                    filteredSongs.map((song) => (
+                                        <div key={song.id} className="group relative">
+                                            <SongRow song={song} />
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </section>
                     )}
@@ -188,13 +193,23 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
                                 {t('artist.albums')}
                             </h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-16">
-                                {filteredAlbums.map((album: Album) => (
-                                    <AlbumCard
-                                        key={album.id}
-                                        album={album}
-                                        onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
-                                    />
-                                ))}
+                                {isAlbumsLoading ? (
+                                    Array.from({ length: 4 }).map((_, i) => (
+                                        <div key={i} className="space-y-3">
+                                            <Skeleton className="w-full aspect-square rounded-2xl" />
+                                            <Skeleton className="w-3/4 h-4 rounded" />
+                                            <Skeleton className="w-1/2 h-3 rounded" />
+                                        </div>
+                                    ))
+                                ) : (
+                                    filteredAlbums.map((album: Album) => (
+                                        <AlbumCard
+                                            key={album.id}
+                                            album={album}
+                                            onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
+                                        />
+                                    ))
+                                )}
                             </div>
                         </section>
                     )}

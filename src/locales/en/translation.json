@@ -136,7 +136,8 @@
         "songs": "songs",
         "ep": "EP",
         "single": "Single",
-        "released": "Released"
+        "released": "Released",
+        "noTracks": "No tracks available"
     },
     "explore": {
         "back": "Back to Explore",

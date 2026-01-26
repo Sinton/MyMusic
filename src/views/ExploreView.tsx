@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { TrendingUp, Flame, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FeatureCard, GenreCard, SongRow } from '../components';
+import { Skeleton } from '../components/common/Skeleton';
 import { useSongs, useGenres } from '../hooks/useData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 
@@ -9,7 +10,7 @@ const ExploreView: React.FC = () => {
     const { t } = useTranslation();
     const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
     const { songs } = useSongs();
-    const { genres } = useGenres();
+    const { genres, isLoading: isGenresLoading } = useGenres();
     const { setTrack, play } = usePlayerStore();
 
     const filteredSongs = useMemo(() => {
@@ -120,13 +121,19 @@ const ExploreView: React.FC = () => {
             <section>
                 <h2 className="text-xl font-bold mb-4">{t('explore.browseGenres')}</h2>
                 <div className="grid grid-cols-4 gap-4">
-                    {genres.map((genre: string) => (
-                        <GenreCard
-                            key={genre}
-                            genre={genre}
-                            onClick={(g) => setSelectedGenre(g)}
-                        />
-                    ))}
+                    {isGenresLoading ? (
+                        Array.from({ length: 8 }).map((_, i) => (
+                            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                        ))
+                    ) : (
+                        genres.map((genre: string) => (
+                            <GenreCard
+                                key={genre}
+                                genre={genre}
+                                onClick={(g) => setSelectedGenre(g)}
+                            />
+                        ))
+                    )}
                 </div>
             </section>
         </div>
