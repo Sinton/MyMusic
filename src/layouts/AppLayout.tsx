@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TitleBar } from '../components/common/TitleBar';
 import Sidebar from './Sidebar';
 import MainView from './MainView';
 import { PlayerBar, FullScreenPlayer } from '../components/player';
@@ -49,6 +50,7 @@ const AppLayout: React.FC = () => {
 
     return (
         <div className="flex w-screen h-screen overflow-hidden text-[var(--text-main)] font-sans antialiased selection:bg-[var(--accent-color)] selection:text-white">
+            <TitleBar />
             <Sidebar
                 activeView={activeView}
                 onNavigate={setActiveView}
