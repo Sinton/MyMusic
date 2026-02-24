@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { LoadingFallback } from '../components/common/LoadingFallback';
 
@@ -49,6 +49,39 @@ const NeteaseAlbumWrapper: React.FC<{ albumId: number; onBack: () => void; onNav
 const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     const { userPlaylists } = usePlaylistStore();
     const { albums } = useAlbums();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Custom friction-based smooth scroll
+    const scrollToTopSlowly = (element: HTMLElement, duration: number) => {
+        const startY = element.scrollTop;
+        if (startY === 0) return; // Already at top
+
+        const startTime = performance.now();
+
+        const animateScroll = (currentTime: number) => {
+            const timeElapsed = currentTime - startTime;
+            let progress = timeElapsed / duration;
+            if (progress > 1) progress = 1;
+
+            // Ease-Out Quart curve for a luxurious, slow-stopping feel
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            element.scrollTop = startY * (1 - easeOutQuart);
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(animateScroll);
+            }
+        };
+
+        requestAnimationFrame(animateScroll);
+    };
+
+    // Smoothly scroll to top whenever the activeView changes
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            // 700ms duration for a very elegant, deliberate slide
+            scrollToTopSlowly(scrollContainerRef.current, 400);
+        }
+    }, [activeView]);
 
     const renderContent = () => {
         // Handle playlist detail view
@@ -134,7 +167,10 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
             {/* Gradient shadow spans the entire width, covering the scrollbar as well */}
             <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[var(--bg-color)] to-transparent pointer-events-none z-20" />
 
-            <div className="w-full h-full overflow-y-auto pt-16 pb-32 px-8 relative scroll-smooth main-scroller">
+            <div
+                ref={scrollContainerRef}
+                className="w-full h-full overflow-y-auto pt-16 pb-32 px-8 relative scroll-smooth main-scroller"
+            >
                 <Suspense fallback={<LoadingFallback />}>
                     {renderContent()}
                 </Suspense>
