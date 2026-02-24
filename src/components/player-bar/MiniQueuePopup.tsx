@@ -75,16 +75,21 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                             {isCurrent && (
                                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
                             )}
-                            <div className={`w-10 h-10 rounded bg-gradient-to-br ${getTrackColor(track.id)} flex-shrink-0 flex items-center justify-center`}>
-                                {isCurrent && isPlaying ? (
-                                    <div className="flex gap-0.5 items-end h-3">
-                                        <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
-                                        <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
-                                        <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
-                                    </div>
-                                ) : (
-                                    <Play className={`w-3 h-3 text-[var(--text-main)] fill-current opacity-0 group-hover:opacity-100 transition-opacity`} />
+                            <div className={`w-10 h-10 rounded bg-gradient-to-br ${getTrackColor(track.id)} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
+                                {track.cover && (
+                                    <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                                 )}
+                                <div className={`absolute inset-0 flex items-center justify-center ${isCurrent && isPlaying ? 'bg-black/40' : 'bg-black/0 group-hover:bg-black/30'} transition-colors`}>
+                                    {isCurrent && isPlaying ? (
+                                        <div className="flex gap-0.5 items-end h-3">
+                                            <div className="w-0.5 bg-white animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
+                                            <div className="w-0.5 bg-white animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
+                                            <div className="w-0.5 bg-white animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
+                                        </div>
+                                    ) : (
+                                        <Play className="w-3 h-3 text-white fill-current opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    )}
+                                </div>
                             </div>
                             <div className="min-w-0 flex-1">
                                 <div className={`text-xs font-medium truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>

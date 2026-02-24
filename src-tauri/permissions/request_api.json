@@ -1,0 +1,7 @@
+{
+    "identifier": "allow-request-api",
+    "description": "Allows calling the request_api command",
+    "commands": [
+        "request_api"
+    ]
+}

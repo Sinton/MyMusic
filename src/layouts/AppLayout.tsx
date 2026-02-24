@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { TitleBar } from '../components/common/TitleBar';
 import Sidebar from './Sidebar';
 import MainView from './MainView';
 import { PlayerBar, FullScreenPlayer } from '../components/player';
+import { AudioEngine } from '../components/AudioEngine';
 import { AuthModal } from '../components';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -22,21 +24,36 @@ const AppLayout: React.FC = () => {
         closeAuthModal
     } = useUIStore();
 
-    const [activeView, setActiveView] = useState('Home');
+    const [history, setHistory] = useState<string[]>(['Home']);
+    const activeView = history[history.length - 1] || 'Home';
 
-    const { isPlaying, currentTimeSec, durationSec, setProgress } = usePlayerStore();
+    const handleNavigate = (view: string) => {
+        const rootViews = ['Home', 'Explore', 'Library', 'Settings'];
+        if (rootViews.includes(view)) {
+            // Treat these as "root" tabs: replace the stack
+            setHistory([view]);
+        } else {
+            // Detail views (NeteasePlaylist, Album, Artist etc) push to stack
+            setHistory(prev => {
+                if (prev[prev.length - 1] === view) return prev;
+                return [...prev, view];
+            });
+        }
+    };
+
+    const handleBack = () => {
+        setHistory(prev => prev.length > 1 ? prev.slice(0, -1) : prev);
+    };
+
+    const { currentTrack } = usePlayerStore();
 
     React.useEffect(() => {
-        let interval: any;
-        if (isPlaying) {
-            interval = setInterval(() => {
-                if (currentTimeSec < durationSec) {
-                    setProgress(currentTimeSec + 1);
-                }
-            }, 1000);
+        if (currentTrack) {
+            invoke('log_info', { message: `[AppLayout] Current Track: ${JSON.stringify(currentTrack)}` }).catch(() => { });
         }
-        return () => clearInterval(interval);
-    }, [isPlaying, currentTimeSec, durationSec, setProgress]);
+    }, [currentTrack.id]);
+
+
 
     const connectPlatform = usePlatformStore((state) => state.connectPlatform);
 
@@ -50,19 +67,23 @@ const AppLayout: React.FC = () => {
 
     return (
         <div className="flex w-screen h-screen overflow-hidden text-[var(--text-main)] font-sans antialiased selection:bg-[var(--accent-color)] selection:text-white">
-            <TitleBar />
             <Sidebar
                 activeView={activeView}
-                onNavigate={setActiveView}
+                onNavigate={handleNavigate}
                 onOpenAuth={openAuthModal}
             />
             <main className="flex-1 relative flex flex-col min-w-0">
-                <MainView activeView={activeView} onNavigate={setActiveView} />
+                <TitleBar canGoBack={history.length > 1} onBack={handleBack} />
+                <MainView
+                    activeView={activeView}
+                    onNavigate={handleNavigate}
+                />
+                <AudioEngine />
                 <PlayerBar onExpand={openFullScreenPlayer} />
                 <FullScreenPlayer
                     isOpen={isFullScreenPlayerOpen}
                     onClose={closeFullScreenPlayer}
-                    onNavigate={setActiveView}
+                    onNavigate={handleNavigate}
                 />
 
                 <AuthModal

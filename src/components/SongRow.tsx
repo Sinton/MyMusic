@@ -108,17 +108,32 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                             handleSourceClick(bestSource);
                         }
                     }}
-                    className="w-12 h-12 rounded-lg bg-[var(--glass-border)] shadow-inner flex items-center justify-center text-xs text-[var(--text-muted)] group-hover:bg-[var(--glass-highlight)] transition-colors relative cursor-pointer z-10 hidden-play-button"
+                    className="w-12 h-12 rounded-lg bg-[var(--glass-border)] shadow-inner flex items-center justify-center text-xs text-[var(--text-muted)] hover:bg-[var(--glass-highlight)] transition-colors relative cursor-pointer z-10 hidden-play-button overflow-hidden group/cover"
                 >
-                    {isCurrent && isPlaying ? (
-                        <div className="flex gap-0.5 items-end h-4">
-                            <div className="w-1 bg-[var(--accent-color)] animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
-                            <div className="w-1 bg-[var(--accent-color)] animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
-                            <div className="w-1 bg-[var(--accent-color)] animate-[music-bar_0.5s_ease-in-out_infinite] h-1/2"></div>
-                        </div>
-                    ) : (
-                        <Play className={`w-5 h-5 fill-current ${isCurrent ? 'opacity-100 text-[var(--accent-color)]' : 'opacity-0 group-hover:opacity-100 transition-opacity'}`} />
-                    )}
+                    {/* Cover Art */}
+                    {song.cover ? (
+                        <img
+                            src={song.cover}
+                            alt={song.title}
+                            className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity"
+                        />
+                    ) : null}
+
+                    {/* Overlay & Play Icon */}
+                    <div className={`absolute inset-0 flex items-center justify-center transition-all duration-200 ${(isCurrent && isPlaying) ? 'bg-black/50 opacity-100' :
+                            isCurrent ? 'bg-black/30 opacity-100' :
+                                'bg-black/0 opacity-0 group-hover:bg-black/40 group-hover:opacity-100'
+                        }`}>
+                        {isCurrent && isPlaying ? (
+                            <div className="flex gap-0.5 items-end h-4">
+                                <div className="w-1 bg-[var(--accent-color)] animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
+                                <div className="w-1 bg-[var(--accent-color)] animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
+                                <div className="w-1 bg-[var(--accent-color)] animate-[music-bar_0.5s_ease-in-out_infinite] h-1/2"></div>
+                            </div>
+                        ) : (
+                            <Play className={`w-5 h-5 fill-current text-[var(--accent-color)] ${(isCurrent || !song.cover) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 transition-opacity'}`} />
+                        )}
+                    </div>
                 </div>
 
                 {/* Clickable Area for Expansion */}

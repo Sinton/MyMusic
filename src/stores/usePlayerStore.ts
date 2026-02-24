@@ -29,7 +29,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     pause: () => set({ isPlaying: false }),
     togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
 
-    setTrack: (track: Track) => set({ currentTrack: track, currentTimeSec: 0 }),
+    setTrack: (track: Track) => set({ currentTrack: track, currentTimeSec: 0, isPlaying: true }),
     setVolume: (volume: number) => set({ volume }),
     setProgress: (time: number) => set({ currentTimeSec: time }),
     setQueue: (queue: Track[]) => set({ queue }),

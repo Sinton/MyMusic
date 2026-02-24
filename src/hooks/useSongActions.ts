@@ -32,7 +32,8 @@ export const useSongActions = (song: Song) => {
             duration: song.duration,
             currentTime: '0:00',
             source: source.platform,
-            quality: source.qualityLabel
+            quality: source.qualityLabel,
+            cover: song.cover,
         };
         setTrack(track);
         play();

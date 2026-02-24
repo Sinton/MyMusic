@@ -5,3 +5,4 @@ export * from './mock/albums';
 export * from './mock/comments';
 export * from './mock/home';
 export * from './mock/player';
+export * from './mock/artists';

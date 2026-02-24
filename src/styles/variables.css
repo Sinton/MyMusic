@@ -27,9 +27,10 @@
     --text-muted: #94a3b8;
 
     /* Accent Colors */
-    --accent-color: #ec4899;
-    --accent-hover: #db2777;
-    --accent-glow: rgba(236, 72, 153, 0.3);
+    --accent-color: #ec4141;
+    /* Netease Red */
+    --accent-hover: #d73535;
+    --accent-glow: rgba(236, 65, 65, 0.3);
 
     /* Quality Badge Colors */
     --quality-hq: #60a5fa;
@@ -45,10 +46,10 @@
 /* --- Dark Mode Overrides --- */
 .dark {
     /* Background & Glass */
-    --bg-color: #0d1117;
-    --bg-gradient: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-        radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+    --bg-color: #0f0f11;
+    --bg-gradient: radial-gradient(at 0% 0%, hsla(0, 0%, 15%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(355, 30%, 20%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(0, 49%, 15%, 1) 0, transparent 50%);
 
     --glass-bg: rgba(20, 20, 25, 0.6);
     --glass-border: rgba(255, 255, 255, 0.1);

@@ -41,7 +41,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     onToggleQueue
 }) => {
     const { t } = useTranslation();
-    const progressPercent = (currentTimeSec / durationSec) * 100;
+    const progressPercent = durationSec > 0 ? (currentTimeSec / durationSec) * 100 : 0;
 
     const getPlatformKey = (name: string) => {
         if (!name) return 'netease';

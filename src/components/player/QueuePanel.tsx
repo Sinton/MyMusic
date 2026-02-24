@@ -61,16 +61,21 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                                 )}
 
                                 <div className="text-sm font-mono text-[var(--text-muted)] w-4 pl-1">{index + 1}</div>
-                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${trackColor} flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform`}>
-                                    {isCurrent && isPlaying ? (
-                                        <div className="flex gap-0.5 items-end h-4">
-                                            <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
-                                            <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
-                                            <div className="w-0.5 bg-[var(--text-main)] animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
-                                        </div>
-                                    ) : (
-                                        <Play className="w-4 h-4 text-[var(--text-main)] fill-current opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${trackColor} flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform relative overflow-hidden`}>
+                                    {track.cover && (
+                                        <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                                     )}
+                                    <div className={`absolute inset-0 flex items-center justify-center ${isCurrent && isPlaying ? 'bg-black/40' : 'bg-black/20 opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                                        {isCurrent && isPlaying ? (
+                                            <div className="flex gap-0.5 items-end h-4">
+                                                <div className="w-0.5 bg-white animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
+                                                <div className="w-0.5 bg-white animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
+                                                <div className="w-0.5 bg-white animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
+                                            </div>
+                                        ) : (
+                                            <Play className="w-4 h-4 text-white fill-current" />
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <div className={`font-bold truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>{track.title}</div>

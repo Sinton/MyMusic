@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Heart, Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Maximize2, ListMusic } from 'lucide-react';
+import { Heart, Play, Pause, SkipBack, SkipForward, Maximize2, Repeat, Shuffle, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import VolumeControl from '../player/VolumeControl';
 import { MiniQueuePopup } from '../player-bar/MiniQueuePopup';
@@ -33,13 +34,15 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
         toggleMode
     } = usePlayerStore();
 
+
+
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const progressPercent = (currentTimeSec / durationSec) * 100;
+    const progressPercent = durationSec > 0 ? (currentTimeSec / durationSec) * 100 : 0;
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -75,7 +78,17 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                 onClick={onExpand}
                 className="flex items-center gap-4 w-[300px] cursor-pointer group"
             >
-                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${getTrackColor(currentTrack.id)} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform`}></div>
+                <div
+                    className={`w-12 h-12 rounded-lg bg-gradient-to-br ${getTrackColor(currentTrack.id)} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
+                >
+                    {currentTrack.cover ? (
+                        <img
+                            src={currentTrack.cover}
+                            alt={currentTrack.title}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : null}
+                </div>
                 <div className="min-w-0">
                     <div className="text-sm font-medium text-[var(--text-main)] truncate">{currentTrack.title}</div>
                     <div className="text-xs text-[var(--text-secondary)] truncate">{currentTrack.artist}</div>

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { usePlaylistStore } from '../../stores/usePlaylistStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useNeteaseLyric } from '../../hooks/useNeteaseData';
 import { mockComments, mockLyrics } from '../../data/mockData';
 
 // Sub-components
@@ -53,6 +54,12 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     } = usePlayerStore();
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
+
+    // Use real lyrics for NetEase tracks, fallback to mockLyrics
+    const trackSource = currentTrack.source?.toLowerCase() || '';
+    const isNetease = trackSource.includes('netease') || trackSource.includes('网易');
+    const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack.id, { enabled: isNetease && !!currentTrack.id });
+    const activeLyrics = (isNetease && neteaseLyrics.length > 0) ? neteaseLyrics : mockLyrics;
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -120,7 +127,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                         <h2 className="text-2xl text-[var(--accent-color)] mb-8">{currentTrack.artist} - {currentTrack.album}</h2>
 
                         <LyricsPanel
-                            lyrics={mockLyrics}
+                            lyrics={activeLyrics}
                             currentTimeSec={currentTimeSec}
                             onSeek={setProgress}
                         />

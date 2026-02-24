@@ -6,14 +6,33 @@ authors = ["Vibe Coding"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "window-all", "http-request", "shell-open"] }
+tauri = { version = "2", features = [] }
+reqwest = { version = "0.12", features = ["json", "blocking", "cookies", "native-tls"] }
+tokio = { version = "1", features = ["full"] }
+tauri-plugin-shell = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+aes = "0.8"
+cbc = { version = "0.1", features = ["alloc"] }
+ecb = { version = "0.1", features = ["alloc"] }
+md-5 = "0.10"
+num-bigint = "0.4"
+base64 = "0.21"
+hex = "0.4"
+rand = "0.8"
+lazy_static = "1.4"
+regex = "1"
+thiserror = "1"
+reqwest_cookie_store = "0.8"
+cookie_store = "0.21"
+log = "0.4"
+env_logger = "0.10"
+url = "2.5.8"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
-custom-protocol = ["tauri/custom-protocol"]
+custom-protocol = []

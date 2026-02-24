@@ -7,18 +7,23 @@ import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import ShareButton from '../components/common/ShareButton';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useSongsByAlbumId } from '../hooks/useData';
-import type { Album, Track } from '../types';
+import type { Album, Song, Track } from '../types';
 
 interface AlbumDetailViewProps {
     album: Album;
     onBack: () => void;
     onNavigate?: (view: string) => void;
+    /** If provided, use these songs instead of fetching from local mock data */
+    externalSongs?: Song[];
+    externalLoading?: boolean;
 }
 
-const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate }) => {
+const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, externalSongs, externalLoading }) => {
     const { t } = useTranslation();
     const { setTrack, play, isPlaying, currentTrack, setQueue } = usePlayerStore();
-    const { songs: albumSongs, isLoading } = useSongsByAlbumId(album.id);
+    const { songs: localSongs, isLoading: localLoading } = useSongsByAlbumId(album.id);
+    const albumSongs = externalSongs ?? localSongs;
+    const isLoading = externalLoading ?? localLoading;
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;

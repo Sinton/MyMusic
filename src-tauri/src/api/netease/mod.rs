@@ -1,0 +1,169 @@
+use crate::http::{HttpClient, HttpResult, HttpResponse};
+use crate::error::AppError;
+use serde_json::{json, Value};
+use self::crypto::Crypto;
+use crate::Options;
+use std::collections::HashMap;
+
+pub mod login;
+pub mod song;
+pub mod playlist;
+pub mod discover;
+pub mod search;
+pub mod user;
+pub mod dto;
+pub mod crypto;
+
+/// Parse a query-string-style params string into a HashMap
+pub(crate) fn parse_params(params: &str) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    if params.is_empty() {
+        return map;
+    }
+    for pair in params.split('&') {
+        if let Some((k, v)) = pair.split_once('=') {
+            map.insert(k.to_string(), v.to_string());
+        }
+    }
+    map
+}
+
+pub(crate) fn get_cookie_string(cookie: &str) -> String {
+    let mut base_cookie = if cookie.is_empty() {
+        format!("NMTID={};", Crypto::hex_random_bytes(16))
+    } else {
+        cookie.to_owned()
+    };
+    if !base_cookie.contains("os=") {
+        base_cookie = format!("os=pc; {}", base_cookie);
+    }
+    base_cookie
+}
+
+pub(crate) struct RequestData {
+    pub url: String,
+    pub method: String,
+    pub headers: Vec<(String, String)>,
+    pub body: String,
+}
+
+pub(crate) fn prepare_request(
+    url: &str,
+    method: &str,
+    crypto: &str,
+    query_params: Value,
+    cookies: &str,
+    request_params: Value,
+) -> RequestData {
+    let mut headers: Vec<(String, String)> = Vec::new();
+
+    let ua = if crypto == "linuxapi" {
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    } else {
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    };
+    headers.push(("user-agent".to_string(), ua.to_string()));
+
+    if method.to_uppercase() == "POST" {
+        headers.push(("content-type".to_string(), "application/x-www-form-urlencoded".to_string()));
+    }
+
+    if url.contains("music.163.com") {
+        headers.push(("referer".to_string(), "https://music.163.com".to_string()));
+        headers.push(("origin".to_string(), "https://music.163.com".to_string()));
+        headers.push(("host".to_string(), "music.163.com".to_string()));
+    }
+
+    if !cookies.is_empty() {
+        headers.push(("cookie".to_string(), cookies.to_string()));
+    }
+
+    let (final_url, body) = match crypto {
+        "weapi" => (url.to_string(), Crypto::weapi(&query_params.to_string())),
+        "eapi" => {
+            let eapi_url = request_params["url"].as_str().unwrap_or("");
+            (url.to_string(), Crypto::eapi(eapi_url, &query_params.to_string()))
+        }
+        "linuxapi" => {
+             let data = json!({
+                "method": method,
+                "url": url.replace("weapi", "api"),
+                "params": query_params
+            });
+            ("https://music.163.com/api/linux/forward".to_string(), Crypto::linuxapi(&data.to_string()))
+        }
+         _ => (url.to_string(), "".to_string()),
+    };
+
+    RequestData {
+        url: final_url,
+        method: method.to_string(),
+        headers,
+        body,
+    }
+}
+
+pub(crate) async fn request_handler(
+    client: &HttpClient,
+    url: &str,
+    crypto: &str,
+    query_params: Value,
+    cookies: &str,
+    extra_params: Value,
+) -> HttpResult<HttpResponse> {
+     let req_data = prepare_request(url, "POST", crypto, query_params, cookies, extra_params);
+     client.request(&req_data.method, &req_data.url, req_data.headers, req_data.body).await
+}
+
+pub(crate) async fn weapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
+    let cookies = get_cookie_string(&options.cookie);
+    request_handler(client, url, "weapi", params, &cookies, json!({})).await
+}
+
+pub(crate) async fn eapi(client: &HttpClient, url: &str, params: Value, eapi_path: &str, options: &Options) -> HttpResult<HttpResponse> {
+    let cookies = get_cookie_string(&options.cookie);
+    request_handler(client, url, "eapi", params, &cookies, json!({ "url": eapi_path })).await
+}
+
+pub(crate) async fn linuxapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
+    let cookies = get_cookie_string(&options.cookie);
+    request_handler(client, url, "linuxapi", params, &cookies, json!({})).await
+}
+
+pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<HttpResponse> {
+    match api_name {
+        // Login
+        "login_qr_key" => login::qr_key(client, options).await,
+        "login_qr_create" => login::qr_create(client, options).await,
+        "login_qr_check" => login::qr_check(client, options).await,
+        "login_status" => login::status(client, options).await,
+        "login_refresh" => login::refresh(client, options).await,
+        "logout" => login::logout(client, options).await,
+        
+        // Song
+        "song_url" => song::url(client, options).await,
+        "song_url_v1" => song::url_v1(client, options).await,
+        "song_detail" => song::detail(client, options).await,
+        "lyric" => song::lyric(client, options).await,
+        
+        // Playlist
+        "user_playlist" => playlist::user(client, options).await,
+        "playlist_detail" => playlist::detail(client, options).await,
+        
+        // Search
+        "search" => search::get(client, options).await,
+        
+        // Discover
+        "personalized" => discover::personalized(client, options).await,
+        "album_newest" => discover::album_newest(client, options).await,
+        "album_detail" => discover::album_detail(client, options).await,
+        "toplist" => discover::toplist(client, options).await,
+        "recommend_resource" => discover::recommend_resource(client, options).await,
+        "recommend_songs" => discover::recommend_songs(client, options).await,
+        
+        // User
+        "user_account" => user::account(client, options).await,
+        
+                _ => Err(AppError::Api(format!("Unknown API: {}", api_name))),
+    }
+}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { mockArtistAvatars } from '../data/mockData';
 import { Play, Pause, Star, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
@@ -31,7 +32,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
         return {
             id: artistSongs[0]?.artistId || 999,
             name: artistName,
-            avatar: artistSongs[0]?.sources[0]?.platform === 'NetEase Cloud' ? 'bg-rose-600' : 'bg-indigo-600',
+            avatar: mockArtistAvatars[artistName] || (artistSongs[0]?.sources[0]?.platform === 'NetEase Cloud' ? 'bg-rose-600' : 'bg-indigo-600'),
             bio: `${artistName} is a global music icon known for their ability to blend cross-genre influences into cohesive masterpieces. With a career spanning over a decade, they have consistently pushed the boundaries of sound design and lyrical storytelling.`,
             genres: ['Pop', 'R&B', 'Electronic', 'Acoustic'],
             popularSongs: artistSongs,
@@ -88,11 +89,13 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
 
     return (
         <div className="animate-fade-in pb-40 relative">
-            <ImmersiveHeader backgroundImage={artistData.albums?.[0]?.cover}>
+            <ImmersiveHeader backgroundImage={(artistData.avatar && artistData.avatar.startsWith('http')) ? artistData.avatar : artistData.albums?.[0]?.cover}>
                 <div className="absolute bottom-24 left-16 md:left-24 right-16 flex flex-col md:flex-row items-end gap-16 z-10">
                     <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 z-20">
                         <div className="relative w-full h-full rounded-full overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] border-4 border-white/20 transition-transform duration-700 group-hover:scale-105">
-                            {artistData.albums?.[0] ? (
+                            {artistData.avatar && artistData.avatar.startsWith('http') ? (
+                                <img src={artistData.avatar} className="w-full h-full object-cover" alt={artistName} />
+                            ) : artistData.albums?.[0] ? (
                                 <img src={artistData.albums[0].cover} className="w-full h-full object-cover" alt={artistName} />
                             ) : (
                                 <div className={`w-full h-full ${artistData.avatar} flex items-center justify-center`}>

@@ -40,8 +40,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
 
     return (
         <div className="glass-panel h-full flex flex-col" style={{ width: 'var(--sidebar-width)', flexShrink: 0 }}>
+            {/* Draggable Top Region */}
+            <div data-tauri-drag-region className="h-8 w-full flex-shrink-0" />
+
             {/* Menu */}
-            <nav className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar pt-6">
+            <nav className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar pt-2">
                 {menuItems.map((item) => (
                     <button
                         key={item.id}

@@ -44,3 +44,27 @@ body {
 .custom-scrollbar-none::-webkit-scrollbar {
     display: none;
 }
+
+/* Scrollbar tailored for MainView that starts BELOW the Absolute 32px TitleBar */
+.main-scroller::-webkit-scrollbar {
+    width: 14px; /* Slightly wider to accommodate custom padding borders */
+}
+
+.main-scroller::-webkit-scrollbar-track {
+    background: transparent;
+    margin-top: 32px; /* Skips the top 32px TitleBar completely */
+    margin-bottom: 24px;
+}
+
+.main-scroller::-webkit-scrollbar-thumb {
+    background-color: var(--glass-border);
+    border-radius: 9999px;
+    border: 4px solid transparent; /* Acts as margin from the right edge */
+    background-clip: padding-box;
+}
+
+.main-scroller::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+    border: 4px solid transparent;
+    background-clip: padding-box;
+}

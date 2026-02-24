@@ -1,14 +1,117 @@
-use tauri::Manager;
+use serde::Deserialize;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+use tauri::{Manager, State};
+
+#[macro_use]
+mod macros;
+mod api;
+mod query;
+
+mod http;
+mod error;
+mod stream;
+
+use http::{HttpClient, HttpResponse};
+
+/// Parameters passed from frontend to identify which API to call
+#[derive(Clone, Debug, Deserialize)]
+
+pub struct Options {
+    pub params: String,
+    pub cookie: String,
+}
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+async fn request_bytes(
+    client: tauri::State<'_, HttpClient>,
+    url: String,
+    referer: Option<String>,
+) -> Result<Vec<u8>, String> {
+    let mut req = client.internal
+        .get(url)
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+    if let Some(r) = referer {
+        req = req.header("Referer", r);
+    }
+
+    let resp = req.send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let bytes = resp.bytes()
+        .await
+        .map_err(|e| e.to_string())?
+        .to_vec();
+    
+    Ok(bytes)
+}
+
+#[tauri::command]
+fn log_info(message: String) {
+    use std::fs::OpenOptions;
+    use std::io::Write;
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("debug.log")
+        .unwrap();
+    writeln!(file, "[JS] {}", message).unwrap();
+    println!("[JS] {}", message);
+}
+
+#[tauri::command]
+async fn request_api(
+    client: State<'_, HttpClient>,
+    provider: String,
+    api_name: String,
+    params: String,
+    cookie: String,
+) -> Result<HttpResponse, crate::error::AppError> {
+    // log::debug!("[API] Request: {} Params: {}", api_name, params);
+    let options = Options {
+        params,
+        cookie,
+    };
+    
+    match api::dispatch(&client, &provider, &api_name, options).await {
+        Ok(res) => {
+            log::info!("[API] Success: {}", api_name);
+            Ok(res)
+        },
+        Err(e) => {
+            log::error!("[API] Failed: {} Error: {}", api_name, e);
+            Err(e)
+        }
+    }
 }
 
 fn main() {
+    // Initialize unified logging
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    log::info!("Starting Music App Backend (v2)...");
+
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+             let app_data_dir = app.path().app_data_dir()
+                .expect("Could not determine app data directory");
+            
+            // Create directory if it doesn't exist
+            if !app_data_dir.exists() {
+                std::fs::create_dir_all(&app_data_dir).expect("Failed to create app data directory");
+            }
+
+            let cookie_path = app_data_dir.join("cookies.json");
+            let client = HttpClient::new(cookie_path);
+            app.manage(client);
+
+            println!("[Main] Registering musiclocal:// protocol handler (Temporarily disabled)");
+            // let handle = app.handle();
+            // let _ = handle.register_uri_scheme_protocol("musiclocal", stream::handle_stream_protocol);
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![request_api, request_bytes, log_info])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

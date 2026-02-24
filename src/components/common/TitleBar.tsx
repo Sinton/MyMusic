@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { appWindow } from '@tauri-apps/api/window';
-import { Minus, Square, X, Copy } from 'lucide-react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { Minus, Square, X, Copy, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export const TitleBar: React.FC = () => {
+const appWindow = getCurrentWindow();
+
+interface TitleBarProps {
+    canGoBack?: boolean;
+    onBack?: () => void;
+}
+
+export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack }) => {
     const [isMaximized, setIsMaximized] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const checkMaximized = async () => {
@@ -19,13 +28,30 @@ export const TitleBar: React.FC = () => {
 
     const minimize = () => appWindow.minimize();
     const toggleMaximize = async () => {
-        await appWindow.toggleMaximize();
+        if (await appWindow.isMaximized()) {
+            await appWindow.unmaximize();
+        } else {
+            await appWindow.maximize();
+        }
         setIsMaximized(await appWindow.isMaximized());
     };
     const close = () => appWindow.close();
 
     return (
-        <div className="fixed top-0 left-0 right-0 h-8 z-[99999] flex items-stretch select-none">
+        <div className="absolute top-0 left-0 right-0 h-8 z-[99999] flex items-stretch select-none bg-black/5 backdrop-blur-sm border-b border-white/5">
+            {/* Left Controls (Back) - Aligned with Right Main Content */}
+            <div className="flex items-center z-50">
+                {canGoBack && (
+                    <button
+                        onClick={onBack}
+                        className="flex items-center justify-center w-12 h-full hover:bg-white/10 text-white/70 hover:text-white transition-colors focus:outline-none"
+                        title={t('common.back', 'Back')}
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                )}
+            </div>
+
             {/* Drag Region - Flex-1 matches remaining space */}
             <div
                 data-tauri-drag-region
