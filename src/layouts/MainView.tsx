@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useRef } from 'react';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
+import { usePlayerStore } from '../stores/usePlayerStore';
 import { LoadingFallback } from '../components/common/LoadingFallback';
 
 import HomeView from '../views/HomeView';
@@ -50,6 +51,8 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     const { userPlaylists } = usePlaylistStore();
     const { albums } = useAlbums();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const currentTrack = usePlayerStore(state => state.currentTrack);
+    const hasTrack = currentTrack && currentTrack.id !== 0;
 
     // Custom friction-based smooth scroll
     const scrollToTopSlowly = (element: HTMLElement, duration: number) => {
@@ -169,7 +172,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
 
             <div
                 ref={scrollContainerRef}
-                className="w-full h-full overflow-y-auto pt-16 pb-32 px-8 relative scroll-smooth main-scroller"
+                className={`w-full h-full overflow-y-auto pt-16 px-8 relative scroll-smooth main-scroller transition-all duration-700 ease-out ${hasTrack ? 'pb-32' : 'pb-8'}`}
             >
                 <Suspense fallback={<LoadingFallback />}>
                     {renderContent()}

@@ -2,7 +2,8 @@ import React from 'react';
 import { Music, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from './index';
-import type { Song } from '../types';
+import { usePlayerStore } from '../stores/usePlayerStore';
+import type { Song, Track, AudioSource } from '../types';
 
 interface SongListProps {
     songs: Song[];
@@ -20,6 +21,34 @@ const SongList: React.FC<SongListProps> = ({
     showHeader = true
 }) => {
     const { t } = useTranslation();
+    const { setTrack, setQueue, play } = usePlayerStore();
+
+    const handlePlaySong = (song: Song, source?: AudioSource) => {
+        if (!songs || songs.length === 0) return;
+
+        // Define the specific track that was just clicked
+        const selectedTrack: Track = {
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            artistId: song.artistId,
+            album: song.album,
+            albumId: song.albumId,
+            duration: song.duration,
+            currentTime: '0:00',
+            source: source?.platform || song.bestSource,
+            quality: source?.qualityLabel || song.sources[0]?.qualityLabel || 'Standard',
+            cover: song.cover,
+        };
+
+        const currentQueue = usePlayerStore.getState().queue;
+        if (!currentQueue.find(t => t.id === selectedTrack.id)) {
+            setQueue([...currentQueue, selectedTrack]);
+        }
+
+        setTrack(selectedTrack);
+        play();
+    };
 
     const renderHeader = () => (
         <div className="flex items-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--glass-border)] mb-2">
@@ -48,6 +77,7 @@ const SongList: React.FC<SongListProps> = ({
                     <SongRow
                         key={song.id}
                         song={song}
+                        onPlay={handlePlaySong}
                         extraAction={renderExtraAction ? renderExtraAction(song) : undefined}
                     />
                 ))

@@ -6,7 +6,7 @@ import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import SongRow from '../components/SongRow';
 import { useNeteasePlaylistDetail } from '../hooks/useNeteaseData';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Track, Song } from '../types';
+import type { Track, Song, AudioSource } from '../types';
 
 interface NeteasePlaylistDetailViewProps {
     playlistId: number;
@@ -51,6 +51,32 @@ const NeteasePlaylistDetailView: React.FC<NeteasePlaylistDetailViewProps> = ({ p
 
             setQueue(tracks);
             setTrack(tracks[0]);
+            play();
+        }
+    };
+
+    const handlePlaySong = (song: Song, source?: AudioSource) => {
+        if (songs.length > 0) {
+            const selectedTrack: Track = {
+                id: song.id,
+                title: song.title,
+                artist: song.artist,
+                artistId: song.artistId,
+                album: song.album,
+                albumId: song.albumId,
+                duration: song.duration,
+                currentTime: '0:00',
+                source: source?.platform || song.bestSource,
+                quality: source?.qualityLabel || song.sources[0]?.qualityLabel || 'Standard',
+                cover: song.cover || playlist?.cover || '',
+            };
+
+            const currentQueue = usePlayerStore.getState().queue;
+            if (!currentQueue.find(t => t.id === selectedTrack.id)) {
+                setQueue([...currentQueue, selectedTrack]);
+            }
+
+            setTrack(selectedTrack);
             play();
         }
     };
@@ -145,7 +171,7 @@ const NeteasePlaylistDetailView: React.FC<NeteasePlaylistDetailViewProps> = ({ p
                                     paddingBottom: '8px' // Acts as the former space-y-2 gap
                                 }}
                             >
-                                <SongRow song={song} />
+                                <SongRow song={song} onPlay={handlePlaySong} />
                             </div>
                         );
                     })}

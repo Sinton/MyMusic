@@ -9,17 +9,9 @@ const App: React.FC = () => {
     const { setTrack, setQueue } = usePlayerStore();
 
     useEffect(() => {
-        const init = async () => {
-            try {
-                const { currentTrack, queue } = await MusicService.getInitialData();
-                setQueue(queue);
-                setTrack(currentTrack);
-            } catch (error) {
-                console.error("Failed to load initial data", error);
-            }
-        };
-        init();
-    }, [setTrack, setQueue]);
+        // We no longer automatically load a mock song (like "七里香") on startup.
+        // The app will open in a clean state with no active song.
+    }, []);
 
     return (
         <ErrorBoundary

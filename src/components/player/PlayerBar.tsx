@@ -62,17 +62,25 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
         return colors[(id - 1) % colors.length];
     };
 
-    const getPlatformKey = (name: string) => {
-        if (!name) return 'netease';
-        const lowerName = name.toLowerCase();
+    const getPlatformKey = (source: string) => {
+        if (!source) return 'netease';
+        const lowerName = source.toLowerCase();
         if (lowerName.includes('netease') || lowerName.includes('网易')) return 'netease';
         if (lowerName.includes('qq')) return 'qq';
+        if (lowerName.includes('bili') || lowerName.includes('b站')) return 'bilibili';
         if (lowerName.includes('soda') || lowerName.includes('汽水')) return 'soda';
         return 'netease';
     };
 
+    const hasTrack = currentTrack && currentTrack.id !== 0;
+
     return (
-        <div className="absolute bottom-6 left-6 right-6 h-[var(--player-height)] glass rounded-2xl flex items-center px-8 justify-between z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--glass-border)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.2)] transition-all duration-300">
+        <div
+            className={`absolute bottom-6 left-6 right-6 h-[var(--player-height)] glass rounded-2xl flex items-center px-8 justify-between z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--glass-border)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.2)] transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${hasTrack
+                ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto'
+                : 'translate-y-[150%] opacity-0 scale-95 pointer-events-none'
+                }`}
+        >
             {/* Left: Track Info */}
             <div
                 onClick={onExpand}
