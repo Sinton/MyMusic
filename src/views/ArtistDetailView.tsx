@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { mockArtistAvatars } from '../data/mockData';
-import { Play, Pause, Star, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
+import { Play, Pause, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
 import AlbumCard from '../components/AlbumCard';

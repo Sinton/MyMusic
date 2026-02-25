@@ -3,6 +3,7 @@ import { Shuffle, SkipBack, Play, Pause, SkipForward, Repeat, ListMusic, Message
 import { useTranslation } from 'react-i18next';
 import { VolumeControl } from './index';
 import { formatTime } from '../../lib/playerUtils';
+import { getPlatformI18nKey } from '../../lib/platformUtils';
 import type { Track } from '../../types';
 
 interface PlaybackControlsProps {
@@ -43,14 +44,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     const { t } = useTranslation();
     const progressPercent = durationSec > 0 ? (currentTimeSec / durationSec) * 100 : 0;
 
-    const getPlatformKey = (name: string) => {
-        if (!name) return 'netease';
-        const lowerName = name.toLowerCase();
-        if (lowerName.includes('netease') || lowerName.includes('网易')) return 'netease';
-        if (lowerName.includes('qq')) return 'qq';
-        if (lowerName.includes('soda') || lowerName.includes('汽水')) return 'soda';
-        return 'netease';
-    };
+
 
     return (
         <div className="relative z-10 px-12 pb-12">
@@ -95,7 +89,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
 
                 <div className="flex gap-4 items-center justify-end w-[120px]">
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--glass-border)] border border-[var(--glass-border)] whitespace-nowrap">
-                        <span className="text-[10px] text-[var(--text-muted)] border-r border-[var(--glass-border)] pr-2 mr-0.5">{t(`platforms.${getPlatformKey(currentTrack.source)}`)}</span>
+                        <span className="text-[10px] text-[var(--text-muted)] border-r border-[var(--glass-border)] pr-2 mr-0.5">{t(`platforms.${getPlatformI18nKey(currentTrack.source)}`)}</span>
                         <span className="text-[10px] font-bold text-[#fbbf24]">{currentTrack.quality}</span>
                     </div>
                     <VolumeControl popoverDirection="up" />

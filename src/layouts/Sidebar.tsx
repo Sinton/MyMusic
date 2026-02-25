@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { PlatformBadge } from '../components';
+import { getPlatformI18nKey } from '../lib/platformUtils';
 import CreatePlaylistModal from '../components/CreatePlaylistModal';
 import type { Platform } from '../types';
 
@@ -19,12 +20,7 @@ interface MenuItem {
     icon: React.FC<{ className?: string }>;
 }
 
-const getPlatformKey = (name: string): string => {
-    if (name.includes('NetEase')) return 'netease';
-    if (name.includes('QQ')) return 'qq';
-    if (name.includes('Soda')) return 'soda';
-    return name;
-};
+
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth }) => {
     const { t } = useTranslation();
@@ -105,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onOpenAuth })
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                     <span className={`text-xs font-medium ${platform.connected ? 'text-[var(--text-main)]' : 'text-[var(--text-muted)]'}`}>
-                                        {t(`platforms.${getPlatformKey(platform.name)}`)}
+                                        {t(`platforms.${getPlatformI18nKey(platform.name)}`)}
                                     </span>
                                 </div>
                             </div>

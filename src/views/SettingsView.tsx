@@ -6,7 +6,7 @@ import { useSettingsStore } from '../stores/useSettingsStore'; // Import setting
 import { useUIStore } from '../stores/useUIStore';
 import { Dropdown } from '../components';
 
-import logoImg from '../assets/logo.png';
+
 import logoBgImg from '../assets/logo_bg.png';
 
 const SettingsView: React.FC = () => {

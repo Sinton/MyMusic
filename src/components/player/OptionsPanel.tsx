@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Heart, ListMusic, User, Disc, Share2, Clock, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getPlatformI18nKey } from '../../lib/platformUtils';
 import type { Track, Playlist, Song } from '../../types';
 
 interface OptionsPanelProps {
@@ -51,14 +52,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
         setMenuView('main');
     };
 
-    const getPlatformKey = (name: string) => {
-        if (!name) return 'netease';
-        const lowerName = name.toLowerCase();
-        if (lowerName.includes('netease') || lowerName.includes('网易')) return 'netease';
-        if (lowerName.includes('qq')) return 'qq';
-        if (lowerName.includes('soda') || lowerName.includes('汽水')) return 'soda';
-        return 'netease';
-    };
+
 
     const handleComingSoon = (_feature: string) => {
         // Placeholder for future implementation
@@ -204,7 +198,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
                 <div className="mt-auto pt-8">
                     <div className="p-4 rounded-2xl bg-[var(--glass-highlight)] border border-[var(--glass-border)]">
                         <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">{t('fullPlayer.options.playingFrom')}</div>
-                        <div className="text-sm font-medium text-[var(--text-secondary)]">{t(`platforms.${getPlatformKey(currentTrack.source)}`)} — {currentTrack.quality}</div>
+                        <div className="text-sm font-medium text-[var(--text-secondary)]">{t(`platforms.${getPlatformI18nKey(currentTrack.source)}`)} — {currentTrack.quality}</div>
                     </div>
                 </div>
             </div>

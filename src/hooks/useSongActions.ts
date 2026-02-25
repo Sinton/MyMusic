@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
-import type { Song, AudioSource, Track } from '../types';
+import type { Song, AudioSource } from '../types';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
+import { songToTrack } from '../lib/trackUtils';
 
 /**
  * Custom hook to encapsulate song-related actions
@@ -22,19 +23,7 @@ export const useSongActions = (song: Song) => {
     }, [song, addSongToPlaylist]);
 
     const handlePlaySource = useCallback((source: AudioSource) => {
-        const track: Track = {
-            id: song.id,
-            title: song.title,
-            artist: song.artist,
-            artistId: song.artistId,
-            album: song.album,
-            albumId: song.albumId,
-            duration: song.duration,
-            currentTime: '0:00',
-            source: source.platform,
-            quality: source.qualityLabel,
-            cover: song.cover,
-        };
+        const track = songToTrack(song, source);
         setTrack(track);
         play();
     }, [song, setTrack, play]);

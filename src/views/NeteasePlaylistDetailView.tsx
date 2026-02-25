@@ -6,7 +6,8 @@ import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import SongRow from '../components/SongRow';
 import { useNeteasePlaylistDetail } from '../hooks/useNeteaseData';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Track, Song, AudioSource } from '../types';
+import { songToTrack } from '../lib/trackUtils';
+import type { Song, AudioSource } from '../types';
 
 interface NeteasePlaylistDetailViewProps {
     playlistId: number;
@@ -33,22 +34,11 @@ const NeteasePlaylistDetailView: React.FC<NeteasePlaylistDetailViewProps> = ({ p
         overscan: 10, // Render 10 items outside of viewport to prevent white flashes
     });
 
+    const coverFallback = playlist?.cover || '';
+
     const handlePlayAll = () => {
         if (songs.length > 0) {
-            const tracks: Track[] = songs.map((song: Song) => ({
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                artistId: song.artistId,
-                album: song.album,
-                albumId: song.albumId,
-                duration: song.duration,
-                currentTime: '0:00',
-                source: song.bestSource,
-                quality: song.sources[0]?.qualityLabel || 'Standard',
-                cover: song.cover || playlist?.cover || '',
-            }));
-
+            const tracks = songs.map(song => songToTrack(song, undefined, { cover: song.cover || coverFallback }));
             setQueue(tracks);
             setTrack(tracks[0]);
             play();
@@ -57,19 +47,7 @@ const NeteasePlaylistDetailView: React.FC<NeteasePlaylistDetailViewProps> = ({ p
 
     const handlePlaySong = (song: Song, source?: AudioSource) => {
         if (songs.length > 0) {
-            const selectedTrack: Track = {
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                artistId: song.artistId,
-                album: song.album,
-                albumId: song.albumId,
-                duration: song.duration,
-                currentTime: '0:00',
-                source: source?.platform || song.bestSource,
-                quality: source?.qualityLabel || song.sources[0]?.qualityLabel || 'Standard',
-                cover: song.cover || playlist?.cover || '',
-            };
+            const selectedTrack = songToTrack(song, source, { cover: song.cover || coverFallback });
 
             const currentQueue = usePlayerStore.getState().queue;
             if (!currentQueue.find(t => t.id === selectedTrack.id)) {

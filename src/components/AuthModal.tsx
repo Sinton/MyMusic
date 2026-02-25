@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { PlatformBadge } from './index';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
+import { getPlatformI18nKey } from '../lib/platformUtils';
 import type { Platform } from '../types';
 
 interface AuthModalProps {
@@ -19,12 +20,7 @@ interface AuthModalProps {
 type AuthStep = 'qrcode' | 'phone' | 'cookie' | 'scanning' | 'success' | 'expired' | 'error' | 'verify';
 type LoginMode = 'qr' | 'phone' | 'cookie';
 
-const getPlatformKey = (name: string): string => {
-    if (name.includes('NetEase')) return 'netease';
-    if (name.includes('QQ')) return 'qq';
-    if (name.includes('Soda')) return 'soda';
-    return name;
-};
+
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConnect }) => {
     const { t } = useTranslation();
@@ -357,13 +353,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 }
 
                 // Extract profile from login response
-                const profile = data?.profile || data?.account;
+                const profile = data?.profile;
+                const account = data?.account;
                 if (profile) {
                     neteaseStore.setUser({
-                        userId: profile.userId || profile.id || 0,
+                        userId: profile.userId || 0,
                         nickname: profile.nickname || '',
                         avatarUrl: profile.avatarUrl || '',
                         vipType: profile.vipType || 0,
+                    });
+                } else if (account) {
+                    neteaseStore.setUser({
+                        userId: account.id || 0,
+                        nickname: account.userName || '',
+                        avatarUrl: '',
+                        vipType: 0,
                     });
                 }
 
@@ -408,7 +412,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     };
 
     const accentColor = platformColors[platform.name] || '#fff';
-    const platformNameTranslated = t(`platforms.${getPlatformKey(platform.name)}`);
+    const platformNameTranslated = t(`platforms.${getPlatformI18nKey(platform.name)}`);
 
     return createPortal(
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 antialiased overflow-hidden">

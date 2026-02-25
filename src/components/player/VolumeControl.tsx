@@ -10,7 +10,6 @@ interface VolumeControlProps {
 
 const VolumeControl: React.FC<VolumeControlProps> = ({
     className = '',
-    orientation = 'vertical',
     popoverDirection = 'up'
 }) => {
     const [showVolume, setShowVolume] = useState(false);

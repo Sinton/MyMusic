@@ -3,6 +3,7 @@ import { Heart, Play, Pause, SkipBack, SkipForward, Maximize2, Repeat, Shuffle, 
 import { useTranslation } from 'react-i18next';
 
 import { usePlayerStore } from '../../stores/usePlayerStore';
+import { getPlatformI18nKey } from '../../lib/platformUtils';
 import VolumeControl from '../player/VolumeControl';
 import { MiniQueuePopup } from '../player-bar/MiniQueuePopup';
 
@@ -62,15 +63,8 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
         return colors[(id - 1) % colors.length];
     };
 
-    const getPlatformKey = (source: string) => {
-        if (!source) return 'netease';
-        const lowerName = source.toLowerCase();
-        if (lowerName.includes('netease') || lowerName.includes('网易')) return 'netease';
-        if (lowerName.includes('qq')) return 'qq';
-        if (lowerName.includes('bili') || lowerName.includes('b站')) return 'bilibili';
-        if (lowerName.includes('soda') || lowerName.includes('汽水')) return 'soda';
-        return 'netease';
-    };
+
+
 
     const hasTrack = currentTrack && currentTrack.id !== 0;
 
@@ -168,7 +162,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
             {/* Right: Volume & Options */}
             <div className="flex items-center gap-3 w-[300px] justify-end">
                 <div className="text-[10px] text-[var(--text-muted)] mr-2">
-                    {t(`platforms.${getPlatformKey(currentTrack.source)}`)} | <span className="text-[#fbbf24]">{currentTrack.quality}</span>
+                    {t(`platforms.${getPlatformI18nKey(currentTrack.source)}`)} | <span className="text-[#fbbf24]">{currentTrack.quality}</span>
                 </div>
                 <VolumeControl />
                 <button onClick={onExpand} className="btn-icon"><Maximize2 className="w-4 h-4" /></button>

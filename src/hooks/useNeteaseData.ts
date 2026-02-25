@@ -1,23 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
-import type { Song, Playlist, Track, AudioSource, Album } from '../types';
+import type { Song, Playlist, Track, AudioSource, Album, NeteaseSongItem, NeteasePlaylistItem, NeteaseAlbumFull } from '../types';
 
 // ================== TYPE CONVERTERS ==================
 
 /** Convert a NetEase song object to our app's Song type */
-function neteaseToSong(item: any): Song {
+function neteaseToSong(item: NeteaseSongItem): Song {
     const artists = item.ar || item.artists || [];
-    const album = item.al || item.album || {};
-    const artistName = artists.map((a: any) => a.name).join(', ');
+    const album = item.al || item.album || {} as { name?: string; id?: number; picUrl?: string; blurPicUrl?: string };
+    const artistName = artists.map(a => a.name).join(', ');
     const durationMs = item.dt || item.duration || 0;
     const minutes = Math.floor(durationMs / 60000);
     const seconds = Math.floor((durationMs % 60000) / 1000);
 
     const source: AudioSource = {
         platform: 'NetEase Cloud',
-        quality: item.privilege?.maxbr >= 999000 ? 'lossless' : 'hq',
-        qualityLabel: item.privilege?.maxbr >= 999000 ? 'SQ' : 'HQ',
+        quality: (item.privilege?.maxbr ?? 0) >= 999000 ? 'lossless' : 'hq',
+        qualityLabel: (item.privilege?.maxbr ?? 0) >= 999000 ? 'SQ' : 'HQ',
         vip: item.fee === 1,
         color: '#e60026',
     };
@@ -39,10 +39,10 @@ function neteaseToSong(item: any): Song {
 }
 
 /** Convert a NetEase song to our app's Track type (for player) */
-function neteaseToTrack(item: any): Track {
+function neteaseToTrack(item: NeteaseSongItem): Track {
     const artists = item.ar || item.artists || [];
-    const album = item.al || item.album || {};
-    const artistName = artists.map((a: any) => a.name).join(', ');
+    const album = item.al || item.album || {} as { name?: string; id?: number; picUrl?: string; blurPicUrl?: string };
+    const artistName = artists.map(a => a.name).join(', ');
     const durationMs = item.dt || item.duration || 0;
     const minutes = Math.floor(durationMs / 60000);
     const seconds = Math.floor((durationMs % 60000) / 1000);
@@ -57,13 +57,13 @@ function neteaseToTrack(item: any): Track {
         duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
         currentTime: '0:00',
         source: 'NetEase Cloud',
-        quality: item.privilege?.maxbr >= 999000 ? 'SQ' : 'HQ',
+        quality: (item.privilege?.maxbr ?? 0) >= 999000 ? 'SQ' : 'HQ',
         cover: album.picUrl || album.blurPicUrl || undefined,
     };
 }
 
 /** Convert a NetEase playlist to our app's Playlist type */
-function neteaseToPlaylist(item: any): Playlist {
+function neteaseToPlaylist(item: NeteasePlaylistItem): Playlist {
     return {
         id: item.id,
         title: item.name,
@@ -74,7 +74,7 @@ function neteaseToPlaylist(item: any): Playlist {
 }
 
 /** Convert a NetEase album to our app's Album type */
-function neteaseToAlbum(item: any): Album {
+function neteaseToAlbum(item: NeteaseAlbumFull): Album {
     return {
         id: item.id,
         title: item.name,
@@ -113,7 +113,7 @@ export const useNeteaseSearch = (keywords: string, options?: { enabled?: boolean
     const query = useQuery({
         queryKey: NeteaseQueryKeys.Search(keywords),
         queryFn: async () => {
-            const data: any = await NeteaseService.search(keywords, cookie);
+            const data = await NeteaseService.search(keywords, cookie);
             const songs = data?.result?.songs || [];
             return songs.map(neteaseToSong);
         },
@@ -138,7 +138,7 @@ export const useNeteaseUserPlaylists = (uid: number, options?: { enabled?: boole
     const query = useQuery({
         queryKey: NeteaseQueryKeys.UserPlaylists(uid),
         queryFn: async () => {
-            const data: any = await NeteaseService.getUserPlaylists(uid, cookie);
+            const data = await NeteaseService.getUserPlaylists(uid, cookie);
             const playlists = data?.playlist || [];
             return playlists.map(neteaseToPlaylist);
         },
@@ -163,7 +163,7 @@ export const useNeteasePlaylistDetail = (id: number, options?: { enabled?: boole
     const query = useQuery({
         queryKey: NeteaseQueryKeys.PlaylistDetail(id),
         queryFn: async () => {
-            const data: any = await NeteaseService.getPlaylistDetail(id, cookie);
+            const data = await NeteaseService.getPlaylistDetail(id, cookie);
             const playlist = data?.playlist;
             if (!playlist) return null;
 
@@ -193,7 +193,7 @@ export const useNeteasePersonalized = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: NeteaseQueryKeys.Personalized,
         queryFn: async () => {
-            const data: any = await NeteaseService.getPersonalized(cookie);
+            const data = await NeteaseService.getPersonalized(cookie);
             const result = data?.result || [];
             return result.map(neteaseToPlaylist);
         },
@@ -218,7 +218,7 @@ export const useNeteaseNewestAlbums = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: NeteaseQueryKeys.AlbumNewest,
         queryFn: async () => {
-            const data: any = await NeteaseService.getAlbumNewest(cookie);
+            const data = await NeteaseService.getAlbumNewest(cookie);
             const albums = data?.albums || [];
             return albums.map(neteaseToAlbum);
         },
@@ -243,7 +243,7 @@ export const useNeteaseAlbumDetail = (id: number, options?: { enabled?: boolean 
     const query = useQuery({
         queryKey: NeteaseQueryKeys.AlbumDetail(id),
         queryFn: async () => {
-            const data: any = await NeteaseService.getAlbumDetail(id, cookie);
+            const data = await NeteaseService.getAlbumDetail(id, cookie);
             const albumInfo = data?.album;
             if (!albumInfo) return null;
 
@@ -257,7 +257,7 @@ export const useNeteaseAlbumDetail = (id: number, options?: { enabled?: boolean 
             };
 
             const albumCover = albumInfo.picUrl || albumInfo.blurPicUrl || '';
-            const songs = (data?.songs || []).map((s: any) => {
+            const songs = (data?.songs || []).map((s: NeteaseSongItem) => {
                 const song = neteaseToSong(s);
                 // Album API often omits per-song cover; fall back to album cover
                 if (!song.cover) {
@@ -288,7 +288,7 @@ export const useNeteaseToplist = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: NeteaseQueryKeys.Toplist,
         queryFn: async () => {
-            const data: any = await NeteaseService.getToplist(cookie);
+            const data = await NeteaseService.getToplist(cookie);
             const list = data?.list || [];
             return list.map(neteaseToPlaylist);
         },
@@ -314,7 +314,7 @@ export const useNeteaseRecommendSongs = (options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: NeteaseQueryKeys.RecommendSongs,
         queryFn: async () => {
-            const data: any = await NeteaseService.getRecommendSongs(cookie);
+            const data = await NeteaseService.getRecommendSongs(cookie);
             const songs = data?.data?.dailySongs || data?.recommend || [];
             return songs.map(neteaseToSong);
         },
@@ -339,8 +339,8 @@ export const useNeteaseSongUrl = (id: number, options?: { enabled?: boolean }) =
     const query = useQuery({
         queryKey: NeteaseQueryKeys.SongUrl(id),
         queryFn: async () => {
-            const data: any = await NeteaseService.getSongUrl(id, cookie);
-            const urlData = data?.data?.[0] || {};
+            const data = await NeteaseService.getSongUrl(id, cookie);
+            const urlData = data?.data?.[0] || {} as { url: string | null };
             return urlData.url as string | null;
         },
         enabled: (options?.enabled !== false) && !!id,
@@ -364,7 +364,7 @@ export const useNeteaseLyric = (id: number, options?: { enabled?: boolean }) => 
     const query = useQuery({
         queryKey: NeteaseQueryKeys.Lyric(id),
         queryFn: async () => {
-            const data: any = await NeteaseService.getLyric(id, cookie);
+            const data = await NeteaseService.getLyric(id, cookie);
             const lrcText = data?.lrc?.lyric || '';
             // Parse LRC format: [mm:ss.xx]text
             return parseLrc(lrcText);

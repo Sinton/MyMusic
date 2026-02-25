@@ -188,7 +188,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                             <p className="font-medium text-sm">{t('album.noTracks')}</p>
                         </div>
                     ) : (
-                        albumSongs.map((song, idx) => (
+                        albumSongs.map((song) => (
                             <div key={song.id} className="group relative">
                                 <SongRow
                                     song={song}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Play, Pause } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore'; // Store import
+import { getPlatformI18nKey } from '../../lib/platformUtils';
 import { PlatformBadge, QualityBadge, VipBadge } from '../index';
 import type { Song, AudioSource } from '../../types';
 
@@ -11,12 +12,7 @@ interface SongSourceListProps {
     onPlaySource: (source: AudioSource) => void;
 }
 
-const getPlatformKey = (name: string): string => {
-    if (name.includes('NetEase')) return 'netease';
-    if (name.includes('QQ')) return 'qq';
-    if (name.includes('Soda')) return 'soda';
-    return name;
-};
+
 
 export const SongSourceList: React.FC<SongSourceListProps> = ({ song, expanded, onPlaySource }) => {
     const { t } = useTranslation();
@@ -80,7 +76,7 @@ export const SongSourceList: React.FC<SongSourceListProps> = ({ song, expanded, 
                     >
                         <div className="flex items-center gap-3">
                             <PlatformBadge name={source.platform} color={source.color} size="sm" />
-                            <span className={`text-sm ${isActive ? 'text-[var(--accent-color)] font-medium' : 'text-[var(--text-main)]'}`}>{t(`platforms.${getPlatformKey(source.platform)}`)}</span>
+                            <span className={`text-sm ${isActive ? 'text-[var(--accent-color)] font-medium' : 'text-[var(--text-main)]'}`}>{t(`platforms.${getPlatformI18nKey(source.platform)}`)}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <QualityBadge label={source.qualityLabel} />

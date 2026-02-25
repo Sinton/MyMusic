@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Plus, Check, MoreHorizontal } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { useSongActions } from '../../hooks/useSongActions';
 import type { Song } from '../../types';
 

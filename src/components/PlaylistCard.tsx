@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, ListMusic } from 'lucide-react';
+import { ListMusic } from 'lucide-react';
 import type { Playlist } from '../types';
 
 interface PlaylistCardProps {

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Music, Trash2 } from 'lucide-react';
+import { Music } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from './index';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Song, Track, AudioSource } from '../types';
+import { songToTrack } from '../lib/trackUtils';
+import type { Song, AudioSource } from '../types';
 
 interface SongListProps {
     songs: Song[];
@@ -26,20 +27,7 @@ const SongList: React.FC<SongListProps> = ({
     const handlePlaySong = (song: Song, source?: AudioSource) => {
         if (!songs || songs.length === 0) return;
 
-        // Define the specific track that was just clicked
-        const selectedTrack: Track = {
-            id: song.id,
-            title: song.title,
-            artist: song.artist,
-            artistId: song.artistId,
-            album: song.album,
-            albumId: song.albumId,
-            duration: song.duration,
-            currentTime: '0:00',
-            source: source?.platform || song.bestSource,
-            quality: source?.qualityLabel || song.sources[0]?.qualityLabel || 'Standard',
-            cover: song.cover,
-        };
+        const selectedTrack = songToTrack(song, source);
 
         const currentQueue = usePlayerStore.getState().queue;
         if (!currentQueue.find(t => t.id === selectedTrack.id)) {

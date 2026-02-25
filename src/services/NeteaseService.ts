@@ -1,17 +1,39 @@
 import { invoke } from '@tauri-apps/api/core';
+import type {
+    NeteaseHttpResponse,
+    NeteaseSongUrlResponse,
+    NeteaseSongDetailResponse,
+    NeteasePlaylistDetailResponse,
+    NeteaseUserPlaylistsResponse,
+    NeteaseSearchResponse,
+    NeteaseAlbumDetailResponse,
+    NeteaseAlbumNewestResponse,
+    NeteasePersonalizedResponse,
+    NeteaseRecommendSongsResponse,
+    NeteaseToplistResponse,
+    NeteaseLyricResponse,
+    NeteaseQrKeyResponse,
+    NeteaseQrCheckResponse,
+    NeteaseUserAccountResponse,
+    LoginCellphoneResult,
+} from '../types';
 
-
-interface HttpResponse {
+/**
+ * Typed response from a Rust `request_api` call.
+ * `data` is an alias for `body` for backward compatibility.
+ */
+interface TypedResponse<T> {
     status: number;
-    body: any;
+    body: T;
     headers: Record<string, string>;
+    data: T;
 }
 
 export const NeteaseService = {
     /**
      * Internal: call Rust backend to make HTTP request
      */
-    async _request(apiName: string, params: string = '', cookie: string = ''): Promise<HttpResponse & { data: any }> {
+    async _request<T = unknown>(apiName: string, params: string = '', cookie: string = ''): Promise<TypedResponse<T>> {
         try {
             const response = await invoke('request_api', {
                 provider: 'netease',
@@ -19,13 +41,12 @@ export const NeteaseService = {
                 params,
                 cookie,
             });
-            // Map Rust HttpResponse to object with data property for compatibility
-            const anyResp = response as any;
+            const anyResp = response as NeteaseHttpResponse<T>;
             return {
                 status: anyResp.status,
                 headers: anyResp.headers,
                 body: anyResp.body,
-                data: anyResp.body
+                data: anyResp.body,
             };
         } catch (e) {
             console.error('_request error:', e);
@@ -36,28 +57,26 @@ export const NeteaseService = {
     // ========== QR Login ==========
 
     /** Step 1: Get a unique key for QR code */
-    async getQrKey(cookie: string = ''): Promise<{ code: number; unikey: string }> {
-        const resp = await this._request('login_qr_key', '', cookie);
+    async getQrKey(cookie: string = ''): Promise<NeteaseQrKeyResponse> {
+        const resp = await this._request<NeteaseQrKeyResponse>('login_qr_key', '', cookie);
         return resp.data;
     },
 
     /** Step 2: Generate QR code URL from key */
-    async createQrCode(key: string, cookie: string = ''): Promise<any> {
-        const resp = await this._request('login_qr_create', `key=${key}`, cookie);
+    async createQrCode(key: string, cookie: string = ''): Promise<{ code: number; data: { qrurl: string; qrimg?: string } }> {
+        const resp = await this._request<{ code: number; data: { qrurl: string; qrimg?: string } }>('login_qr_create', `key=${key}`, cookie);
         return resp.data;
     },
 
     /** Step 3: Poll QR scan status. Returns code: 800(expired), 801(waiting), 802(confirming), 803(success) */
     async checkQrLogin(key: string, cookie: string = ''): Promise<{ code: number; message: string; cookie?: string; nickname?: string; avatarUrl?: string }> {
-        const resp = await this._request('login_qr_check', `key=${key}`, cookie);
+        const resp = await this._request<NeteaseQrCheckResponse>('login_qr_check', `key=${key}`, cookie);
         console.log('[checkQrLogin] resp.data:', JSON.stringify(resp.data));
-        const data = resp.data || {};
+        const data = resp.data || {} as NeteaseQrCheckResponse;
 
         // Extract cookie from Set-Cookie response headers
         let responseCookie = '';
         const headers = resp.headers || {};
-        // Note: Rust side joins multiple Set-Cookie headers with ";;" if present
-        // Or specific header key might be lowercase
         const setCookie = headers['set-cookie'] || headers['Set-Cookie'] || '';
 
         if (setCookie) {
@@ -78,21 +97,21 @@ export const NeteaseService = {
     },
 
     /** Get login status with cookies */
-    async getLoginStatus(cookie: string): Promise<any> {
-        const resp = await this._request('login_status', '', cookie);
+    async getLoginStatus(cookie: string): Promise<NeteaseUserAccountResponse> {
+        const resp = await this._request<NeteaseUserAccountResponse>('login_status', '', cookie);
         return resp.data;
     },
 
     /** Send SMS captcha to phone number */
-    async sendCaptcha(phone: string, ctcode: string = '86'): Promise<any> {
-        const resp = await this._request('captcha_sent', `phone=${phone}&ctcode=${ctcode}`);
+    async sendCaptcha(phone: string, ctcode: string = '86'): Promise<{ code: number; message?: string; data?: { url?: string } }> {
+        const resp = await this._request<{ code: number; message?: string; data?: { url?: string } }>('captcha_sent', `phone=${phone}&ctcode=${ctcode}`);
         return resp.data;
     },
 
     /** Login with phone + captcha verification code */
-    async loginCellphone(phone: string, captcha: string, ctcode: string = '86'): Promise<{ data: any; cookie: string }> {
-        const resp = await this._request('login_cellphone', `phone=${phone}&captcha=${captcha}&ctcode=${ctcode}`);
-        const data = resp.data || {};
+    async loginCellphone(phone: string, captcha: string, ctcode: string = '86'): Promise<{ data: LoginCellphoneResult; cookie: string }> {
+        const resp = await this._request<LoginCellphoneResult>('login_cellphone', `phone=${phone}&captcha=${captcha}&ctcode=${ctcode}`);
+        const data = resp.data ?? {} as LoginCellphoneResult;
 
         let responseCookie = '';
         const headers = resp.headers || {};
@@ -110,97 +129,97 @@ export const NeteaseService = {
     },
 
     /** Logout */
-    async logout(cookie: string): Promise<any> {
-        const resp = await this._request('logout', '', cookie);
+    async logout(cookie: string): Promise<{ code: number }> {
+        const resp = await this._request<{ code: number }>('logout', '', cookie);
         return resp.data;
     },
 
     // ========== Song ==========
 
     /** Get song playback URL */
-    async getSongUrl(id: number | string, cookie: string = '', level: string = 'standard'): Promise<any> {
-        const resp = await this._request('song_url_v1', `id=${id}&level=${level}`, cookie);
+    async getSongUrl(id: number | string, cookie: string = '', level: string = 'standard'): Promise<NeteaseSongUrlResponse> {
+        const resp = await this._request<NeteaseSongUrlResponse>('song_url_v1', `id=${id}&level=${level}`, cookie);
         invoke('log_info', { message: `[NeteaseService] getSongUrl data: ${JSON.stringify(resp.data)}` }).catch(() => { });
         return resp.data;
     },
 
     /** Get song detail */
-    async getSongDetail(ids: string, cookie: string = ''): Promise<any> {
-        const resp = await this._request('song_detail', `ids=${ids}`, cookie);
+    async getSongDetail(ids: string, cookie: string = ''): Promise<NeteaseSongDetailResponse> {
+        const resp = await this._request<NeteaseSongDetailResponse>('song_detail', `ids=${ids}`, cookie);
         return resp.data;
     },
 
     /** Get lyrics */
-    async getLyric(id: number | string, cookie: string = ''): Promise<any> {
-        const resp = await this._request('lyric', `id=${id}`, cookie);
+    async getLyric(id: number | string, cookie: string = ''): Promise<NeteaseLyricResponse> {
+        const resp = await this._request<NeteaseLyricResponse>('lyric', `id=${id}`, cookie);
         return resp.data;
     },
 
     // ========== Playlist ==========
 
     /** Get user playlists */
-    async getUserPlaylists(uid: number | string, cookie: string = '', limit: number = 30, offset: number = 0): Promise<any> {
-        const resp = await this._request('user_playlist', `uid=${uid}&limit=${limit}&offset=${offset}`, cookie);
+    async getUserPlaylists(uid: number | string, cookie: string = '', limit: number = 30, offset: number = 0): Promise<NeteaseUserPlaylistsResponse> {
+        const resp = await this._request<NeteaseUserPlaylistsResponse>('user_playlist', `uid=${uid}&limit=${limit}&offset=${offset}`, cookie);
         return resp.data;
     },
 
     /** Get playlist detail */
-    async getPlaylistDetail(id: number | string, cookie: string = ''): Promise<any> {
-        const resp = await this._request('playlist_detail', `id=${id}`, cookie);
+    async getPlaylistDetail(id: number | string, cookie: string = ''): Promise<NeteasePlaylistDetailResponse> {
+        const resp = await this._request<NeteasePlaylistDetailResponse>('playlist_detail', `id=${id}`, cookie);
         return resp.data;
     },
 
     // ========== Search ==========
 
     /** Search songs/playlists/etc */
-    async search(keywords: string, cookie: string = '', type: number = 1, limit: number = 30, offset: number = 0): Promise<any> {
-        const resp = await this._request('search', `keywords=${keywords}&type=${type}&limit=${limit}&offset=${offset}`, cookie);
+    async search(keywords: string, cookie: string = '', type: number = 1, limit: number = 30, offset: number = 0): Promise<NeteaseSearchResponse> {
+        const resp = await this._request<NeteaseSearchResponse>('search', `keywords=${keywords}&type=${type}&limit=${limit}&offset=${offset}`, cookie);
         return resp.data;
     },
 
     // ========== User ==========
 
     /** Get user account info */
-    async getUserAccount(cookie: string): Promise<any> {
-        const resp = await this._request('user_account', '', cookie);
+    async getUserAccount(cookie: string): Promise<NeteaseUserAccountResponse> {
+        const resp = await this._request<NeteaseUserAccountResponse>('user_account', '', cookie);
         return resp.data;
     },
 
     // ========== Recommend ==========
 
     /** Get recommended playlists (requires login) */
-    async getRecommendResource(cookie: string): Promise<any> {
-        const resp = await this._request('recommend_resource', '', cookie);
+    async getRecommendResource(cookie: string): Promise<NeteasePersonalizedResponse> {
+        const resp = await this._request<NeteasePersonalizedResponse>('recommend_resource', '', cookie);
         return resp.data;
     },
 
     /** Get recommended songs (requires login) */
-    async getRecommendSongs(cookie: string): Promise<any> {
-        const resp = await this._request('recommend_songs', '', cookie);
+    async getRecommendSongs(cookie: string): Promise<NeteaseRecommendSongsResponse> {
+        const resp = await this._request<NeteaseRecommendSongsResponse>('recommend_songs', '', cookie);
         return resp.data;
     },
 
     /** Get personalized playlists (no login required) */
-    async getPersonalized(cookie: string = '', limit: number = 30): Promise<any> {
-        const resp = await this._request('personalized', `limit=${limit}`, cookie);
+    async getPersonalized(cookie: string = '', limit: number = 30): Promise<NeteasePersonalizedResponse> {
+        const resp = await this._request<NeteasePersonalizedResponse>('personalized', `limit=${limit}`, cookie);
         return resp.data;
     },
 
     /** Get newest albums */
-    async getAlbumNewest(cookie: string = ''): Promise<any> {
-        const resp = await this._request('album_newest', '', cookie);
+    async getAlbumNewest(cookie: string = ''): Promise<NeteaseAlbumNewestResponse> {
+        const resp = await this._request<NeteaseAlbumNewestResponse>('album_newest', '', cookie);
         return resp.data;
     },
 
     /** Get album detail by id */
-    async getAlbumDetail(id: number | string, cookie: string = ''): Promise<any> {
-        const resp = await this._request('album_detail', `id=${id}`, cookie);
+    async getAlbumDetail(id: number | string, cookie: string = ''): Promise<NeteaseAlbumDetailResponse> {
+        const resp = await this._request<NeteaseAlbumDetailResponse>('album_detail', `id=${id}`, cookie);
         return resp.data;
     },
 
     /** Get all toplists */
-    async getToplist(cookie: string = ''): Promise<any> {
-        const resp = await this._request('toplist', '', cookie);
+    async getToplist(cookie: string = ''): Promise<NeteaseToplistResponse> {
+        const resp = await this._request<NeteaseToplistResponse>('toplist', '', cookie);
         return resp.data;
     },
 };
