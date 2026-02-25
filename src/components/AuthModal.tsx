@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation, Trans } from 'react-i18next';
-import { X, QrCode, Smartphone, CheckCircle, Loader2, AlertTriangle, RefreshCw, Phone, Send, ShieldCheck, Cookie } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { X, Phone, QrCode, Cookie } from 'lucide-react';
 import { open as shellOpen } from '@tauri-apps/plugin-shell';
-import { QRCodeSVG } from 'qrcode.react';
-import { PlatformBadge } from './index';
+import PlatformBadge from './PlatformBadge';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { getPlatformI18nKey } from '../lib/platformUtils';
 import type { Platform } from '../types';
+
+// Sub-components
+import PhoneLoginForm from './auth/PhoneLoginForm';
+import CookieLoginForm from './auth/CookieLoginForm';
+import QrLoginPanel from './auth/QrLoginPanel';
+import AuthStatusScreen from './auth/AuthStatusScreen';
+import { PLATFORM_COLORS } from './auth/authTypes';
+import type { AuthStep, LoginMode } from './auth/authTypes';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -17,17 +24,12 @@ interface AuthModalProps {
     onConnect: (platformName: string) => void;
 }
 
-type AuthStep = 'qrcode' | 'phone' | 'cookie' | 'scanning' | 'success' | 'expired' | 'error' | 'verify';
-type LoginMode = 'qr' | 'phone' | 'cookie';
-
-
-
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConnect }) => {
     const { t } = useTranslation();
     const [step, setStep] = useState<AuthStep>('qrcode');
     const [loading, setLoading] = useState(false);
     const [qrUrl, setQrUrl] = useState('');
-    const [loginMode, setLoginMode] = useState<LoginMode>('phone'); // Default to phone login
+    const [loginMode, setLoginMode] = useState<LoginMode>('phone');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [captchaCode, setCaptchaCode] = useState('');
     const [captchaCooldown, setCaptchaCooldown] = useState(0);
@@ -60,7 +62,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             if (pollTimer.current) clearInterval(pollTimer.current);
             if (cooldownTimer.current) clearInterval(cooldownTimer.current);
 
-            // Auto-start QR generation for NetEase QR mode
             if (isNetease && loginMode === 'qr') {
                 initQrLogin();
             }
@@ -75,7 +76,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
         if (!isNetease) return;
         setLoading(true);
         try {
-            // Step 1: Get QR key
             const keyData: any = await NeteaseService.getQrKey();
             const unikey = keyData?.unikey || keyData?.data?.unikey;
             if (!unikey) {
@@ -86,13 +86,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             }
             neteaseStore.setQrKey(unikey);
 
-            // Step 2: Generate QR URL (the URL to encode as QR)
             const qrLoginUrl = `https://music.163.com/login?codekey=${unikey}`;
             setQrUrl(qrLoginUrl);
             neteaseStore.setQrUrl(qrLoginUrl);
             setLoading(false);
 
-            // Step 3: Start polling for scan status
             startPolling(unikey);
         } catch (err) {
             console.error('QR login init failed:', err);
@@ -105,59 +103,51 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const startPolling = (key: string) => {
         if (pollTimer.current) clearInterval(pollTimer.current);
 
-        // Store user info from 802 response as fallback
         let scannedUser: { nickname?: string; avatarUrl?: string } = {};
 
         pollTimer.current = setInterval(async () => {
             try {
-                const result = await NeteaseService.checkQrLogin(key);
-                console.log('[QR Poll] code:', result.code, 'cookie:', result?.cookie ? 'present' : 'missing', 'nickname:', result.nickname);
+                const result: any = await NeteaseService.checkQrLogin(key);
                 const code = result?.code;
 
-                if (code === 800) {
-                    // QR expired
-                    setStep('expired');
-                    neteaseStore.setQrStatus('expired');
-                    if (pollTimer.current) clearInterval(pollTimer.current);
-                } else if (code === 802) {
-                    // User scanned, waiting for confirmation
-                    setStep('scanning');
+                if (code === 802) {
                     neteaseStore.setQrStatus('scanned');
-                    // Save user info from 802 response (NetEase returns nickname/avatar here)
-                    if (result.nickname) {
-                        scannedUser = { nickname: result.nickname, avatarUrl: result.avatarUrl };
-                    }
-                    // Also save cookie if present
-                    if (result.cookie) {
-                        neteaseStore.setCookie(result.cookie);
-                    }
+                    setStep('scanning');
+                    if (result?.nickname) scannedUser.nickname = result.nickname;
+                    if (result?.avatarUrl) scannedUser.avatarUrl = result.avatarUrl;
                 } else if (code === 803) {
-                    // Success!
                     if (pollTimer.current) clearInterval(pollTimer.current);
-                    setStep('success');
                     neteaseStore.setQrStatus('confirmed');
+                    setStep('success');
 
-                    // Save cookie from response
-                    if (result.cookie) {
-                        neteaseStore.setCookie(result.cookie);
+                    const responseCookie = result?.cookie || '';
+                    if (responseCookie) {
+                        neteaseStore.setCookie(responseCookie);
                     }
 
-                    // Fetch user profile
                     try {
-                        const cookie = result.cookie || neteaseStore.cookie;
-                        const statusData = await NeteaseService.getLoginStatus(cookie);
-                        const profile = statusData?.data?.profile || statusData?.profile;
-                        if (profile) {
-                            neteaseStore.setUser({
-                                userId: profile.userId,
-                                nickname: profile.nickname,
-                                avatarUrl: profile.avatarUrl,
-                                vipType: profile.vipType || 0,
-                            });
+                        const cookie = responseCookie || neteaseStore.cookie;
+                        if (cookie) {
+                            const statusData = await NeteaseService.getLoginStatus(cookie);
+                            const profile = statusData?.data?.profile || statusData?.profile;
+                            if (profile) {
+                                neteaseStore.setUser({
+                                    userId: profile.userId,
+                                    nickname: profile.nickname,
+                                    avatarUrl: profile.avatarUrl,
+                                    vipType: profile.vipType || 0,
+                                });
+                            } else if (scannedUser.nickname) {
+                                neteaseStore.setUser({
+                                    userId: 0,
+                                    nickname: scannedUser.nickname,
+                                    avatarUrl: scannedUser.avatarUrl || '',
+                                    vipType: 0,
+                                });
+                            }
                         }
-                    } catch (e) {
-                        console.warn('Failed to fetch user profile:', e);
-                        // Fallback to scanned user info
+                    } catch (profileErr) {
+                        console.warn('Failed to fetch profile after QR login:', profileErr);
                         if (scannedUser.nickname) {
                             neteaseStore.setUser({
                                 userId: 0,
@@ -169,40 +159,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     }
 
                     neteaseStore.setLoggedIn(true);
-
-                    // Close modal after brief success animation
                     setTimeout(() => {
                         onConnect(platform!.name);
                         onClose();
                     }, 1500);
-                } else if (code === 8821 && scannedUser.nickname) {
-                    // NetEase security blocked final confirmation, but we have user info from 802
-                    // Treat as success with limited functionality (no cookie = limited API access)
-                    console.warn('[QR Poll] Security block (8821), using fallback user info from 802');
+                } else if (code === 800) {
                     if (pollTimer.current) clearInterval(pollTimer.current);
-                    setStep('success');
-                    neteaseStore.setQrStatus('confirmed');
-
-                    neteaseStore.setUser({
-                        userId: 0,
-                        nickname: scannedUser.nickname,
-                        avatarUrl: scannedUser.avatarUrl || '',
-                        vipType: 0,
-                    });
-                    neteaseStore.setLoggedIn(true);
-
-                    setTimeout(() => {
-                        onConnect(platform!.name);
-                        onClose();
-                    }, 1500);
-                } else if (code !== 801) {
-                    // Unknown error code
-                    console.error('[QR Poll] Unexpected code:', code, result.message);
-                    if (pollTimer.current) clearInterval(pollTimer.current);
-                    setStep('error');
-                    neteaseStore.setQrStatus('error');
+                    neteaseStore.setQrStatus('expired');
+                    setStep('expired');
                 }
-                // code === 801: still waiting, do nothing
             } catch (err) {
                 console.error('QR poll error:', err);
             }
@@ -211,13 +176,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
 
     /** Handle simulated login for non-NetEase platforms */
     const handleSimulateLogin = () => {
-        if (isNetease) return;
         setLoading(true);
         setTimeout(() => {
-            setLoading(false);
             setStep('success');
+            setLoading(false);
             setTimeout(() => {
-                if (platform) onConnect(platform.name);
+                onConnect(platform!.name);
                 onClose();
             }, 1500);
         }, 2000);
@@ -234,28 +198,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
         if (pollTimer.current) clearInterval(pollTimer.current);
         setLoginMode(mode);
         setPhoneError('');
+
         if (mode === 'qr') {
             setStep('qrcode');
             initQrLogin();
-        } else if (mode === 'cookie') {
-            setStep('cookie');
-        } else {
+        } else if (mode === 'phone') {
             setStep('phone');
+        } else {
+            setStep('cookie');
         }
     };
 
     /** Login with pasted cookie */
     const handleCookieLogin = async () => {
-        let trimmed = cookieInput.trim();
+        const trimmed = cookieInput.trim();
         if (!trimmed) {
-            setPhoneError('请粘贴 Cookie');
-            return;
-        }
-        // If user pasted just the MUSIC_U value without key name, wrap it
-        if (!trimmed.includes('=')) {
-            trimmed = `MUSIC_U=${trimmed}`;
-        } else if (!trimmed.toUpperCase().includes('MUSIC_U')) {
-            setPhoneError('Cookie 中需要包含 MUSIC_U');
+            setPhoneError('请粘贴有效的 Cookie');
             return;
         }
         setPhoneError('');
@@ -300,7 +258,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             const result = await NeteaseService.sendCaptcha(phoneNumber);
             console.log('[Captcha] send result:', result);
             if (result?.code === 200) {
-                // Start 60s cooldown
                 setCaptchaCooldown(60);
                 cooldownTimer.current = setInterval(() => {
                     setCaptchaCooldown(prev => {
@@ -312,7 +269,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     });
                 }, 1000);
             } else if (result?.code === -462) {
-                // Human verification required
                 const vUrl = result?.data?.url || '';
                 if (vUrl) {
                     setVerifyUrl(vUrl);
@@ -345,14 +301,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             console.log('[PhoneLogin] data:', data, 'cookie:', cookie ? 'present' : 'missing');
 
             if (data?.code === 200) {
-                // Success
                 setStep('success');
-
                 if (cookie) {
                     neteaseStore.setCookie(cookie);
                 }
 
-                // Extract profile from login response
                 const profile = data?.profile;
                 const account = data?.account;
                 if (profile) {
@@ -372,18 +325,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 }
 
                 neteaseStore.setLoggedIn(true);
-
                 setTimeout(() => {
                     onConnect(platform!.name);
                     onClose();
                 }, 1500);
             } else if (data?.code === -462) {
-                // Human verification required
                 const vUrl = data?.data?.url || '';
                 if (vUrl) {
                     setVerifyUrl(vUrl);
                     setStep('verify');
-                    // Open verification in system browser
                     try {
                         await shellOpen(vUrl);
                     } catch (e) {
@@ -405,14 +355,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
 
     if (!isOpen || !platform) return null;
 
-    const platformColors: Record<string, string> = {
-        'NetEase Cloud': '#e60026',
-        'QQ Music': '#31c27c',
-        'Soda Music': '#ffde00',
-    };
-
-    const accentColor = platformColors[platform.name] || '#fff';
+    const accentColor = PLATFORM_COLORS[platform.name] || '#fff';
     const platformNameTranslated = t(`platforms.${getPlatformI18nKey(platform.name)}`);
+
+    // Determine which body content to show
+    const isFormStep = (step === 'phone' || step === 'qrcode' || step === 'cookie') && !loading;
+    const isStatusStep = !isFormStep;
 
     return createPortal(
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 antialiased overflow-hidden">
@@ -456,294 +404,73 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 </div>
 
                 {/* Login Mode Tabs (only for NetEase) */}
-                {isNetease && (step === 'qrcode' || step === 'phone' || step === 'cookie') && !loading && (
+                {isNetease && isFormStep && (
                     <div className="flex mx-8 mt-4 p-1 bg-[var(--glass-highlight)] rounded-lg">
-                        <button
-                            onClick={() => switchLoginMode('phone')}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all ${loginMode === 'phone'
-                                ? 'bg-[var(--accent-color)] text-white shadow-sm'
-                                : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'
-                                }`}
-                        >
-                            <Phone className="w-3.5 h-3.5" />
-                            手机号
-                        </button>
-                        <button
-                            onClick={() => switchLoginMode('qr')}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all ${loginMode === 'qr'
-                                ? 'bg-[var(--accent-color)] text-white shadow-sm'
-                                : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'
-                                }`}
-                        >
-                            <QrCode className="w-3.5 h-3.5" />
-                            扫码
-                        </button>
-                        <button
-                            onClick={() => switchLoginMode('cookie')}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all ${loginMode === 'cookie'
-                                ? 'bg-[var(--accent-color)] text-white shadow-sm'
-                                : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'
-                                }`}
-                        >
-                            <Cookie className="w-3.5 h-3.5" />
-                            Cookie
-                        </button>
+                        {([
+                            { mode: 'phone' as LoginMode, icon: Phone, label: '手机号' },
+                            { mode: 'qr' as LoginMode, icon: QrCode, label: '扫码' },
+                            { mode: 'cookie' as LoginMode, icon: Cookie, label: 'Cookie' },
+                        ]).map(({ mode, icon: Icon, label }) => (
+                            <button
+                                key={mode}
+                                onClick={() => switchLoginMode(mode)}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all ${loginMode === mode
+                                    ? 'bg-[var(--accent-color)] text-white shadow-sm'
+                                    : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'
+                                    }`}
+                            >
+                                <Icon className="w-3.5 h-3.5" />
+                                {label}
+                            </button>
+                        ))}
                     </div>
                 )}
 
                 {/* Body */}
                 <div className="p-8">
-                    {/* Phone Login Step */}
                     {step === 'phone' && !loading && (
-                        <div className="flex flex-col space-y-5 animate-fade-in">
-                            <div className="text-sm text-[var(--text-secondary)] text-center">
-                                输入手机号，获取验证码登录
-                            </div>
-
-                            {/* Phone Number Input */}
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1 px-3 py-3 bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl text-sm text-[var(--text-main)] shrink-0">
-                                    <span>🇨🇳</span>
-                                    <span>+86</span>
-                                </div>
-                                <input
-                                    type="tel"
-                                    value={phoneNumber}
-                                    onChange={(e) => {
-                                        setPhoneNumber(e.target.value.replace(/\D/g, ''));
-                                        setPhoneError('');
-                                    }}
-                                    placeholder="请输入手机号"
-                                    maxLength={11}
-                                    className="flex-1 px-4 py-3 bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-color)] transition-colors"
-                                />
-                            </div>
-
-                            {/* Captcha Input + Send Button */}
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={captchaCode}
-                                    onChange={(e) => {
-                                        setCaptchaCode(e.target.value.replace(/\D/g, ''));
-                                        setPhoneError('');
-                                    }}
-                                    placeholder="验证码"
-                                    maxLength={6}
-                                    className="flex-1 px-4 py-3 bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-color)] transition-colors"
-                                />
-                                <button
-                                    onClick={handleSendCaptcha}
-                                    disabled={captchaCooldown > 0 || !phoneNumber}
-                                    className="shrink-0 flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
-                                    style={{
-                                        background: captchaCooldown > 0 ? 'var(--glass-highlight)' : accentColor,
-                                        color: captchaCooldown > 0 ? 'var(--text-secondary)' : 'white',
-                                    }}
-                                >
-                                    <Send className="w-3.5 h-3.5" />
-                                    {captchaCooldown > 0 ? `${captchaCooldown}s` : '获取验证码'}
-                                </button>
-                            </div>
-
-                            {/* Error */}
-                            {phoneError && (
-                                <p className="text-xs text-red-500 text-center animate-fade-in">{phoneError}</p>
-                            )}
-
-                            {/* Login Button */}
-                            <button
-                                onClick={handlePhoneLogin}
-                                disabled={!phoneNumber || !captchaCode}
-                                className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100 shadow-lg"
-                                style={{ background: accentColor }}
-                            >
-                                登录
-                            </button>
-                        </div>
+                        <PhoneLoginForm
+                            accentColor={accentColor}
+                            phoneError={phoneError}
+                            loading={loading}
+                            phoneNumber={phoneNumber}
+                            captchaCode={captchaCode}
+                            captchaCooldown={captchaCooldown}
+                            onPhoneChange={(v) => { setPhoneNumber(v); setPhoneError(''); }}
+                            onCaptchaChange={(v) => { setCaptchaCode(v); setPhoneError(''); }}
+                            onSendCaptcha={handleSendCaptcha}
+                            onLogin={handlePhoneLogin}
+                        />
                     )}
 
-                    {/* Cookie Login Step */}
                     {step === 'cookie' && !loading && (
-                        <div className="flex flex-col space-y-4 animate-fade-in">
-                            <div className="text-sm text-[var(--text-secondary)] text-center">
-                                从浏览器获取 Cookie 登录（最稳定）
-                            </div>
-
-                            {/* Steps guide */}
-                            <div className="text-xs text-[var(--text-secondary)] bg-[var(--glass-highlight)] rounded-lg p-3 space-y-1.5">
-                                <p>1. 在浏览器中打开 <button onClick={() => shellOpen('https://music.163.com')} className="text-[var(--accent-color)] underline">music.163.com</button> 并登录</p>
-                                <p>2. 按 F12 打开开发者工具</p>
-                                <p>3. 切换到 <b>Application</b> → <b>Cookies</b></p>
-                                <p>4. 找到 <b>MUSIC_U</b> 对应的值，复制粘贴到下方</p>
-                            </div>
-
-                            {/* Cookie input */}
-                            <textarea
-                                value={cookieInput}
-                                onChange={e => setCookieInput(e.target.value)}
-                                placeholder="粘贴 Cookie（至少包含 MUSIC_U=xxx）"
-                                className="w-full h-24 px-3 py-2 text-xs bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg text-[var(--text-main)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] resize-none font-mono"
-                            />
-
-                            {/* Error */}
-                            {phoneError && (
-                                <p className="text-xs text-red-500 text-center animate-fade-in">{phoneError}</p>
-                            )}
-
-                            {/* Login Button */}
-                            <button
-                                onClick={handleCookieLogin}
-                                disabled={!cookieInput.trim()}
-                                className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100 shadow-lg"
-                                style={{ background: accentColor }}
-                            >
-                                验证并登录
-                            </button>
-                        </div>
+                        <CookieLoginForm
+                            accentColor={accentColor}
+                            phoneError={phoneError}
+                            loading={loading}
+                            cookieInput={cookieInput}
+                            onCookieChange={setCookieInput}
+                            onLogin={handleCookieLogin}
+                        />
                     )}
 
-                    {/* QR Code Step */}
                     {step === 'qrcode' && !loading && (
-                        <div className="flex flex-col items-center space-y-6">
-                            <div className="text-sm text-[var(--text-secondary)] text-center px-4">
-                                <Trans
-                                    i18nKey="auth.scanDesc"
-                                    values={{ platform: platformNameTranslated }}
-                                    components={{ b: <b /> }}
-                                />
-                            </div>
-
-                            {/* QR Code */}
-                            <div
-                                className="w-48 h-48 bg-white p-3 rounded-xl shadow-inner cursor-pointer group relative"
-                                onClick={isNetease ? undefined : handleSimulateLogin}
-                            >
-                                {isNetease && qrUrl ? (
-                                    <QRCodeSVG
-                                        value={qrUrl}
-                                        size={168}
-                                        level="M"
-                                        style={{ width: '100%', height: '100%' }}
-                                    />
-                                ) : (
-                                    <>
-                                        <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                                            <QrCode className="w-24 h-24 text-gray-800 opacity-20" />
-                                        </div>
-                                        {!isNetease && (
-                                            <div className="absolute inset-0 bg-black/80 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                                                <Smartphone className="w-8 h-8 mb-2 animate-bounce" />
-                                                <span className="text-xs font-bold">{t('auth.clickToSimulate')}</span>
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                {t('auth.waiting')}
-                            </div>
-                        </div>
+                        <QrLoginPanel
+                            qrUrl={qrUrl}
+                            isNetease={isNetease}
+                            platformNameTranslated={platformNameTranslated}
+                            onSimulateLogin={handleSimulateLogin}
+                        />
                     )}
 
-                    {/* Scanning Step (user scanned, waiting for confirm on phone) */}
-                    {step === 'scanning' && (
-                        <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                <Smartphone className="w-8 h-8 text-blue-400 animate-bounce" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.scanned', '已扫描')}</h3>
-                            <p className="text-sm text-[var(--text-secondary)] text-center">
-                                {t('auth.confirmOnPhone', '请在手机上确认登录')}
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Loading step */}
-                    {loading && (
-                        <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                            <Loader2 className="w-12 h-12 text-[var(--text-main)] animate-spin" />
-                            <p className="text-sm text-[var(--text-secondary)]">{t('auth.authorizing')}</p>
-                        </div>
-                    )}
-
-                    {/* Success */}
-                    {step === 'success' && (
-                        <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
-                                <CheckCircle className="w-8 h-8 text-green-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.success')}</h3>
-                            <p className="text-sm text-[var(--text-secondary)] text-center">
-                                {t('auth.syncing')}
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Human Verification Required */}
-                    {step === 'verify' && (
-                        <div className="py-6 flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                <ShieldCheck className="w-8 h-8 text-amber-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[var(--text-main)]">需要人机验证</h3>
-                            <p className="text-sm text-[var(--text-secondary)] text-center px-4">
-                                已在浏览器中打开验证页面，请完成验证后点击下方按钮重试登录
-                            </p>
-                            <div className="flex flex-col gap-2 w-full">
-                                <button
-                                    onClick={handlePhoneLogin}
-                                    className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-95 shadow-lg"
-                                    style={{ background: accentColor }}
-                                >
-                                    验证完成，重新登录
-                                </button>
-                                {verifyUrl && (
-                                    <button
-                                        onClick={() => shellOpen(verifyUrl)}
-                                        className="w-full py-2.5 rounded-xl font-bold text-sm transition-all bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] text-[var(--text-secondary)]"
-                                    >
-                                        重新打开验证页面
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Expired */}
-                    {step === 'expired' && (
-                        <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                                <AlertTriangle className="w-8 h-8 text-yellow-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.expired', '二维码已过期')}</h3>
-                            <button
-                                onClick={handleRefreshQr}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-colors text-sm text-[var(--text-main)]"
-                            >
-                                <RefreshCw className="w-4 h-4" />
-                                {t('auth.refresh', '刷新二维码')}
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Error */}
-                    {step === 'error' && (
-                        <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
-                                <AlertTriangle className="w-8 h-8 text-red-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.error', '连接失败')}</h3>
-                            <button
-                                onClick={handleRefreshQr}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-colors text-sm text-[var(--text-main)]"
-                            >
-                                <RefreshCw className="w-4 h-4" />
-                                {t('auth.retry', '重试')}
-                            </button>
-                        </div>
+                    {isStatusStep && (
+                        <AuthStatusScreen
+                            step={step}
+                            accentColor={accentColor}
+                            verifyUrl={verifyUrl}
+                            onRetry={handleRefreshQr}
+                            onPhoneLogin={handlePhoneLogin}
+                        />
                     )}
                 </div>
 
