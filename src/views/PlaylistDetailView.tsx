@@ -7,7 +7,8 @@ import ShareButton from '../components/common/ShareButton';
 import SongList from '../components/SongList';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Playlist, Track } from '../types';
+import { songToTrack } from '../lib/trackUtils';
+import type { Playlist } from '../types';
 
 interface PlaylistDetailViewProps {
     playlist: Playlist;
@@ -78,19 +79,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
 
     const handlePlayAll = () => {
         if (playlist.songs && playlist.songs.length > 0) {
-            const tracks: Track[] = playlist.songs.map(song => ({
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                artistId: song.artistId,
-                album: song.album,
-                albumId: song.albumId,
-                duration: song.duration,
-                currentTime: '0:00',
-                source: song.bestSource,
-                quality: song.sources[0]?.qualityLabel || 'Standard',
-            }));
-
+            const tracks = playlist.songs.map(song => songToTrack(song));
             setQueue(tracks);
             setTrack(tracks[0]);
             play();
