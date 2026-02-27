@@ -35,7 +35,7 @@ export const usePlaylistStore = create<PlaylistStore>()(
                 return { userPlaylists: [...state.userPlaylists, newPlaylist] };
             }),
 
-            addSongToPlaylist: (playlistId: number, song: Song) => set((state) => ({
+            addSongToPlaylist: (playlistId: string | number, song: Song) => set((state) => ({
                 userPlaylists: state.userPlaylists.map(pl => {
                     if (pl.id === playlistId) {
                         const songs = pl.songs || [];
@@ -48,7 +48,7 @@ export const usePlaylistStore = create<PlaylistStore>()(
                 })
             })),
 
-            removeSongFromPlaylist: (playlistId: number, songId: number) => set((state) => ({
+            removeSongFromPlaylist: (playlistId: string | number, songId: string | number) => set((state) => ({
                 userPlaylists: state.userPlaylists.map(pl => {
                     if (pl.id === playlistId) {
                         const songs = pl.songs || [];
@@ -59,17 +59,17 @@ export const usePlaylistStore = create<PlaylistStore>()(
                 })
             })),
 
-            removePlaylist: (id: number) => set((state) => ({
+            removePlaylist: (id: string | number) => set((state) => ({
                 userPlaylists: state.userPlaylists.filter(pl => pl.id !== id)
             })),
 
-            updatePlaylistTitle: (id: number, title: string) => set((state) => ({
+            updatePlaylistTitle: (id: string | number, title: string) => set((state) => ({
                 userPlaylists: state.userPlaylists.map(pl =>
                     pl.id === id ? { ...pl, title } : pl
                 )
             })),
 
-            updatePlaylistCover: (id: number, cover: string) => set((state) => ({
+            updatePlaylistCover: (id: string | number, cover: string) => set((state) => ({
                 userPlaylists: state.userPlaylists.map(pl =>
                     pl.id === id ? { ...pl, cover } : pl
                 )

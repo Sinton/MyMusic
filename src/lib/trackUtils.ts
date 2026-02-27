@@ -27,5 +27,6 @@ export function songToTrack(
         source: source?.platform || song.bestSource,
         quality: source?.qualityLabel || song.sources[0]?.qualityLabel || 'Standard',
         cover: overrides?.cover || song.cover,
+        sourceId: source?.sourceId || song.sources[0]?.sourceId,
     };
 }

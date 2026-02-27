@@ -7,16 +7,17 @@ export interface AudioSource {
     qualityLabel: string;
     vip: boolean;
     color: string;
+    sourceId?: string | number;
 }
 
 // ================== SONG ==================
 export interface Song {
-    id: number;
+    id: string | number;
     title: string;
     artist: string;
-    artistId?: number;
+    artistId?: string | number;
     album: string;
-    albumId?: number;
+    albumId?: string | number;
     duration: string;
     sources: AudioSource[];
     bestSource: string;
@@ -26,7 +27,7 @@ export interface Song {
 
 // ================== PLAYLIST ==================
 export interface Playlist {
-    id: number;
+    id: string | number;
     title: string;
     count: number;
     creator: string;
@@ -36,7 +37,7 @@ export interface Playlist {
 
 // ================== ALBUM ==================
 export interface Album {
-    id: number;
+    id: string | number;
     title: string;
     artist: string;
     artistId?: number;
@@ -48,7 +49,7 @@ export interface Album {
 
 // ================== ARTIST ==================
 export interface Artist {
-    id: number;
+    id: string | number;
     name: string;
     avatar: string;
     bio?: string;
@@ -60,15 +61,16 @@ export interface Artist {
 
 // ================== TRACK (Currently Playing) ==================
 export interface Track {
-    id: number;
+    id: string | number;
     title: string;
     artist: string;
-    artistId?: number;
+    artistId?: string | number;
     album: string;
-    albumId?: number;
+    albumId?: string | number;
     duration: string;
     currentTime: string;
     source: string;
     quality: string;
     cover?: string;
+    sourceId?: string | number;
 }

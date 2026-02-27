@@ -9,7 +9,7 @@ interface OptionsPanelProps {
     onClose: () => void;
     currentTrack: Track;
     userPlaylists: Playlist[];
-    onAddToPlaylist: (playlistId: number, song: Song) => void;
+    onAddToPlaylist: (playlistId: string | number, song: Song) => void;
     onNavigate?: (view: string) => void;
 }
 
@@ -37,7 +37,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
     const [sleepTimer, setSleepTimer] = useState<number | null>(null);
     const [isCopied, setIsCopied] = useState(false);
 
-    const handleAddToPlaylist = (playlistId: number) => {
+    const handleAddToPlaylist = (playlistId: string | number) => {
         const songToStore: Song = {
             id: currentTrack.id,
             title: currentTrack.title,

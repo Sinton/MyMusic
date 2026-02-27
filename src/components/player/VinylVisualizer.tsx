@@ -3,13 +3,15 @@ import React from 'react';
 interface VinylVisualizerProps {
     isPlaying: boolean;
     visualizerEnabled: boolean;
-    trackId: number;
+    trackId: string | number;
+    trackColor?: string;
 }
 
 const VinylVisualizer: React.FC<VinylVisualizerProps> = React.memo(({
     isPlaying,
     visualizerEnabled,
-    trackId
+    trackId,
+    trackColor
 }) => {
     return (
         <div className="w-[50vh] h-[50vh] relative group flex items-center justify-center">
@@ -29,7 +31,7 @@ const VinylVisualizer: React.FC<VinylVisualizerProps> = React.memo(({
                                     transformOrigin: 'bottom center',
                                     transform: `rotate(${i * (360 / 48)}deg) translateY(-120%)`,
                                     '--rotation': `${i * (360 / 48)}deg`,
-                                    backgroundColor: `var(--accent-color)`,
+                                    backgroundColor: trackColor || `var(--accent-color)`,
                                     opacity: isPlaying ? 0.5 : 0.05,
                                     filter: isPlaying ? 'blur(2.5px)' : 'none',
                                     animation: isPlaying ? `music-ring-bar ${0.6 + Math.random() * 0.4}s ease-out infinite` : 'none',

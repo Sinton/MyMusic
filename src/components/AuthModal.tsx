@@ -12,10 +12,13 @@ import type { Platform } from '../types';
 // Sub-components
 import PhoneLoginForm from './auth/PhoneLoginForm';
 import CookieLoginForm from './auth/CookieLoginForm';
+import QQCookieLoginForm from './auth/QQCookieLoginForm';
 import QrLoginPanel from './auth/QrLoginPanel';
 import AuthStatusScreen from './auth/AuthStatusScreen';
 import { PLATFORM_COLORS } from './auth/authTypes';
 import type { AuthStep, LoginMode } from './auth/authTypes';
+import { QQMusicService } from '../services/QQMusicService';
+import { useQQStore } from '../stores/useQQStore';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -39,7 +42,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
     const cooldownTimer = useRef<ReturnType<typeof setInterval> | null>(null);
     const isNetease = platform?.name?.includes('NetEase') ?? false;
+    const isQQ = platform?.name?.includes('QQ') ?? false;
     const neteaseStore = useNeteaseStore();
+    const qqStore = useQQStore();
 
     // Clean up timers on unmount
     useEffect(() => {
@@ -64,6 +69,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
 
             if (isNetease && loginMode === 'qr') {
                 initQrLogin();
+            } else if (isQQ) {
+                setStep('cookie');
+                setLoginMode('cookie');
             }
         } else {
             if (pollTimer.current) clearInterval(pollTimer.current);
@@ -240,6 +248,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             }
         } catch (err) {
             console.error('Cookie login failed:', err);
+            setPhoneError('验证失败，请检查 Cookie 是否正确');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /** Login with pasted cookie for QQ Music */
+    const handleQQCookieLogin = async () => {
+        const trimmed = cookieInput.trim();
+        if (!trimmed) {
+            setPhoneError('请粘贴有效的 Cookie');
+            return;
+        }
+        setPhoneError('');
+        setLoading(true);
+        try {
+            qqStore.setCookie(trimmed);
+            const user = await QQMusicService.getLoginStatus(trimmed);
+
+            if (user) {
+                qqStore.setUser(user);
+                qqStore.setLoggedIn(true);
+                setStep('success');
+                setTimeout(() => {
+                    onConnect(platform!.name);
+                    onClose();
+                }, 1500);
+            } else {
+                setPhoneError('Cookie 无效或已过期，请重新获取');
+            }
+        } catch (err) {
+            console.error('QQ Cookie login failed:', err);
             setPhoneError('验证失败，请检查 Cookie 是否正确');
         } finally {
             setLoading(false);
@@ -444,14 +484,25 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     )}
 
                     {step === 'cookie' && !loading && (
-                        <CookieLoginForm
-                            accentColor={accentColor}
-                            phoneError={phoneError}
-                            loading={loading}
-                            cookieInput={cookieInput}
-                            onCookieChange={setCookieInput}
-                            onLogin={handleCookieLogin}
-                        />
+                        isQQ ? (
+                            <QQCookieLoginForm
+                                accentColor={accentColor}
+                                phoneError={phoneError}
+                                loading={loading}
+                                cookieInput={cookieInput}
+                                onCookieChange={setCookieInput}
+                                onLogin={handleQQCookieLogin}
+                            />
+                        ) : (
+                            <CookieLoginForm
+                                accentColor={accentColor}
+                                phoneError={phoneError}
+                                loading={loading}
+                                cookieInput={cookieInput}
+                                onCookieChange={setCookieInput}
+                                onLogin={handleCookieLogin}
+                            />
+                        )
                     )}
 
                     {step === 'qrcode' && !loading && (

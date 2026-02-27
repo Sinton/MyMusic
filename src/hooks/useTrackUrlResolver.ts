@@ -3,7 +3,9 @@ import { invoke } from '@tauri-apps/api/core';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { NeteaseService } from '../services/NeteaseService';
-import { isNeteasePlatform, detectPlatform, getPlatformReferer } from '../lib/platformUtils';
+import { detectPlatform, getPlatformReferer } from '../lib/platformUtils';
+import { QQMusicService } from '../services/QQMusicService';
+import { useQQStore } from '../stores/useQQStore';
 import { remoteLog, parseDuration } from '../lib/audioUtils';
 
 /**
@@ -21,7 +23,8 @@ import { remoteLog, parseDuration } from '../lib/audioUtils';
  */
 export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement | null>) {
     const currentTrack = usePlayerStore((s) => s.currentTrack);
-    const cookie = useNeteaseStore((s) => s.cookie);
+    const neteaseCookie = useNeteaseStore((s) => s.cookie);
+    const qqCookie = useQQStore((s) => s.cookie);
     const currentUrlRef = useRef<string>('');
     const blobUrlRef = useRef<string | null>(null);
     const isNetease = useRef(false);
@@ -30,38 +33,62 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
         const audio = audioRef.current;
         if (!audio) return;
 
-        const trackIsNetease = isNeteasePlatform(currentTrack.source);
-        remoteLog(`[UrlResolver] Track Source: ${currentTrack.source} Is Netease: ${trackIsNetease}`);
-        isNetease.current = trackIsNetease;
+        const platform = detectPlatform(currentTrack.source);
+        isNetease.current = platform === 'netease';
+        remoteLog(`[UrlResolver] Track Source: ${currentTrack.source} Platform: ${platform}`);
 
-        if (!trackIsNetease) {
-            audio.pause();
-            audio.src = '';
-            currentUrlRef.current = '';
+        // Immediately stop old track and clear its playback URI
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+        currentUrlRef.current = '';
+        if (blobUrlRef.current) {
+            URL.revokeObjectURL(blobUrlRef.current);
+            blobUrlRef.current = null;
+        }
+
+        if (platform !== 'netease' && platform !== 'qq') {
             return;
         }
 
         let cancelled = false;
         (async () => {
             try {
-                // Step 1: Resolve playback URL
-                const data = await NeteaseService.getSongUrl(currentTrack.id, cookie);
-                console.log('[UrlResolver] Got song url data:', data);
-                const urlData = data?.data?.[0];
-                let url = urlData?.url ?? null;
+                let url: string | null = null;
+                let durationFromApi = 0;
 
-                // Fallback to legacy URL API if v1 returns null
-                if (!url) {
-                    remoteLog('[UrlResolver] v1 URL is null, trying legacy song_url...');
-                    const legacyResult = await invoke('request_api', {
-                        provider: 'netease',
-                        apiName: 'song_url',
-                        params: `id=${currentTrack.id}&br=128000`,
-                        cookie,
-                    }) as { body: { data?: Array<{ url?: string }> } };
-                    remoteLog(`[UrlResolver] legacyResult: ${JSON.stringify(legacyResult.body)}`);
-                    const legacyData = legacyResult.body?.data?.[0];
-                    url = legacyData?.url ?? null;
+                // Step 1: Resolve playback URL based on platform
+                if (platform === 'netease') {
+                    const data = await NeteaseService.getSongUrl(currentTrack.id, neteaseCookie);
+                    const urlData = data?.data?.[0];
+                    url = urlData?.url ?? null;
+                    durationFromApi = urlData?.time ? Math.floor(urlData.time / 1000) : 0;
+
+                    // Fallback to legacy URL API if v1 returns null
+                    if (!url) {
+                        remoteLog('[UrlResolver] v1 URL is null, trying legacy song_url...');
+                        const legacyResult = await invoke('request_api', {
+                            provider: 'netease',
+                            apiName: 'song_url',
+                            params: `id=${currentTrack.id}&br=128000`,
+                            cookie: neteaseCookie,
+                        }) as { body: { data?: Array<{ url?: string }> } };
+                        const legacyData = legacyResult.body?.data?.[0];
+                        url = legacyData?.url ?? null;
+                    }
+                } else if (platform === 'qq') {
+                    const songmid = String(currentTrack.sourceId || currentTrack.id);
+                    remoteLog(`[UrlResolver] QQ Music: Resolving URL for songmid=${songmid}, cookie=${qqCookie ? 'present' : 'empty'}`);
+                    try {
+                        // Call getSongUrl and log everything
+                        const urls = await QQMusicService.getSongUrl(songmid, qqCookie);
+                        remoteLog(`[UrlResolver] QQ Music: Got ${urls.length} URLs: ${JSON.stringify(urls).substring(0, 300)}`);
+                        if (urls.length > 0) {
+                            url = urls[0];
+                        }
+                    } catch (qqErr: any) {
+                        remoteLog(`[UrlResolver] QQ Music getSongUrl error: ${qqErr?.message || qqErr}`);
+                    }
                 }
 
                 const durationFromTrack = parseDuration(currentTrack.duration);
@@ -70,18 +97,33 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                 if (cancelled) return;
 
                 if (!url) {
-                    remoteLog('[UrlResolver] No URL returned from Netease APIs.');
+                    remoteLog(`[UrlResolver] No URL returned from ${platform} APIs.`);
+                    // Still set duration even if URL fails
+                    if (durationFromTrack > 0) {
+                        usePlayerStore.setState({ durationSec: durationFromTrack });
+                    }
                     return;
                 }
 
-                // Step 2: Download via Rust byte bridge
+                // Step 2: Download via Rust byte bridge (if needed)
                 try {
-                    remoteLog(`[UrlResolver] Downloading bytes via bridge...`);
                     const platform = detectPlatform(currentTrack.source);
+
+                    remoteLog(`[UrlResolver] Downloading bytes via bridge...`);
                     const referer = getPlatformReferer(platform);
                     const bytesArray = await invoke('request_bytes', { url, referer }) as number[];
+
+                    if (!bytesArray || bytesArray.length < 1000) {
+                        throw new Error(`Downloaded bytes too small (${bytesArray?.length}), likely an error page`);
+                    }
+
                     const uint8 = new Uint8Array(bytesArray);
-                    const blob = new Blob([uint8], { type: 'audio/mpeg' });
+
+                    let mimeType = 'audio/mpeg'; // default mp3
+                    if (url.includes('.m4a') || url.includes('.m4a?')) mimeType = 'audio/mp4';
+                    else if (url.includes('.flac') || url.includes('.flac?')) mimeType = 'audio/flac';
+
+                    const blob = new Blob([uint8], { type: mimeType });
                     const blobUrl = URL.createObjectURL(blob);
 
                     // Clean up previous Blob URL
@@ -113,7 +155,6 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                 }
 
                 // Step 4: Set duration
-                const durationFromApi = urlData?.time ? Math.floor(urlData.time / 1000) : 0;
                 const finalDuration = durationFromApi > 0 ? durationFromApi : durationFromTrack;
 
                 if (finalDuration > 0) {
@@ -133,7 +174,7 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
         })();
 
         return () => { cancelled = true; };
-    }, [currentTrack.id, currentTrack.source, cookie, audioRef]);
+    }, [currentTrack.id, currentTrack.source, currentTrack.sourceId, neteaseCookie, qqCookie, audioRef]);
 
     return { currentUrlRef, isNetease };
 }

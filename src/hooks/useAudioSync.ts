@@ -11,8 +11,7 @@ import { usePlayerStore } from '../stores/usePlayerStore';
  */
 export function useAudioSync(
     audioRef: React.RefObject<HTMLAudioElement | null>,
-    currentUrlRef: React.RefObject<string>,
-    isNetease: React.RefObject<boolean>
+    currentUrlRef: React.RefObject<string>
 ) {
     const isPlaying = usePlayerStore((s) => s.isPlaying);
     const volume = usePlayerStore((s) => s.volume);
@@ -21,14 +20,14 @@ export function useAudioSync(
     // Sync Play/Pause state from Store
     useEffect(() => {
         const audio = audioRef.current;
-        if (!audio || !isNetease.current || !currentUrlRef.current) return;
+        if (!audio || !currentUrlRef.current) return;
 
         if (isPlaying && audio.paused) {
             audio.play().catch(e => console.error('Play failed:', e));
         } else if (!isPlaying && !audio.paused) {
             audio.pause();
         }
-    }, [isPlaying, audioRef, currentUrlRef, isNetease]);
+    }, [isPlaying, audioRef, currentUrlRef]);
 
     // Sync Volume
     useEffect(() => {
@@ -40,11 +39,11 @@ export function useAudioSync(
     // Sync Seek Operations
     useEffect(() => {
         const audio = audioRef.current;
-        if (!audio || !isNetease.current || !currentUrlRef.current) return;
+        if (!audio || !currentUrlRef.current) return;
 
         // If the difference between audio time and store time is large (user clicked scrub bar)
         if (Math.abs(audio.currentTime - currentTimeSec) > 2) {
             audio.currentTime = currentTimeSec;
         }
-    }, [currentTimeSec, audioRef, currentUrlRef, isNetease]);
+    }, [currentTimeSec, audioRef, currentUrlRef]);
 }

@@ -26,13 +26,35 @@ async fn request_bytes(
     client: tauri::State<'_, HttpClient>,
     url: String,
     referer: Option<String>,
+    cookie: Option<String>,
+    method: Option<String>,
+    body: Option<String>,
+    content_type: Option<String>,
 ) -> Result<Vec<u8>, String> {
-    let mut req = client.internal
-        .get(url)
-        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    let is_post = method.as_deref() == Some("POST");
+    
+    let mut req = if is_post {
+        client.internal.post(&url)
+    } else {
+        client.internal.get(&url)
+    };
+
+    req = req.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
     if let Some(r) = referer {
         req = req.header("Referer", r);
+    }
+
+    if let Some(c) = cookie {
+        req = req.header("Cookie", c);
+    }
+
+    if let Some(ct) = content_type {
+        req = req.header("Content-Type", ct);
+    }
+
+    if let Some(b) = body {
+        req = req.body(b);
     }
 
     let resp = req.send()
@@ -49,15 +71,19 @@ async fn request_bytes(
 
 #[tauri::command]
 fn log_info(message: String) {
-    use std::fs::OpenOptions;
-    use std::io::Write;
-    let mut file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("debug.log")
-        .unwrap();
-    writeln!(file, "[JS] {}", message).unwrap();
-    println!("[JS] {}", message);
+    #[cfg(debug_assertions)]
+    {
+        use std::fs::OpenOptions;
+        use std::io::Write;
+        if let Ok(mut file) = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("debug.log")
+        {
+            let _ = writeln!(file, "[UI] {}", message);
+        }
+        println!("[UI] {}", message);
+    }
 }
 
 #[tauri::command]
@@ -107,8 +133,6 @@ fn main() {
             app.manage(client);
 
             println!("[Main] Registering musiclocal:// protocol handler (Temporarily disabled)");
-            // let handle = app.handle();
-            // let _ = handle.register_uri_scheme_protocol("musiclocal", stream::handle_stream_protocol);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![request_api, request_bytes, log_info])

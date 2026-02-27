@@ -11,5 +11,5 @@ pub async fn get(client: &HttpClient, options: Options) -> HttpResult<HttpRespon
         "limit": parsed.get("limit").unwrap_or(&"30".to_string()),
         "offset": parsed.get("offset").unwrap_or(&"0".to_string())
     });
-    weapi(client, "https://music.163.com/weapi/search/get", params, &options).await
+    weapi(client, "https://music.163.com/weapi/cloudsearch/get/web", params, &options).await
 }

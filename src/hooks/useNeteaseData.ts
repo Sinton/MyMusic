@@ -89,16 +89,16 @@ function neteaseToAlbum(item: NeteaseAlbumFull): Album {
 
 export const NeteaseQueryKeys = {
     Search: (keywords: string) => ['netease', 'search', keywords] as const,
-    UserPlaylists: (uid: number) => ['netease', 'userPlaylists', uid] as const,
-    PlaylistDetail: (id: number) => ['netease', 'playlistDetail', id] as const,
-    SongDetail: (id: number) => ['netease', 'songDetail', id] as const,
-    SongUrl: (id: number) => ['netease', 'songUrl', id] as const,
-    Lyric: (id: number) => ['netease', 'lyric', id] as const,
+    UserPlaylists: (uid: string | number) => ['netease', 'userPlaylists', uid] as const,
+    PlaylistDetail: (id: string | number) => ['netease', 'playlistDetail', id] as const,
+    SongDetail: (id: string | number) => ['netease', 'songDetail', id] as const,
+    SongUrl: (id: string | number) => ['netease', 'songUrl', id] as const,
+    Lyric: (id: string | number) => ['netease', 'lyric', id] as const,
     Personalized: ['netease', 'personalized'] as const,
     RecommendSongs: ['netease', 'recommendSongs'] as const,
     RecommendResource: ['netease', 'recommendResource'] as const,
     AlbumNewest: ['netease', 'albumNewest'] as const,
-    AlbumDetail: (id: number) => ['netease', 'albumDetail', id] as const,
+    AlbumDetail: (id: string | number) => ['netease', 'albumDetail', id] as const,
     Toplist: ['netease', 'toplist'] as const,
 };
 
@@ -358,13 +358,13 @@ export const useNeteaseSongUrl = (id: number, options?: { enabled?: boolean }) =
 /**
  * Get song lyrics
  */
-export const useNeteaseLyric = (id: number, options?: { enabled?: boolean }) => {
+export const useNeteaseLyric = (id: string | number, options?: { enabled?: boolean }) => {
     const cookie = useNeteaseStore((s) => s.cookie);
 
     const query = useQuery({
         queryKey: NeteaseQueryKeys.Lyric(id),
         queryFn: async () => {
-            const data = await NeteaseService.getLyric(id, cookie);
+            const data = await NeteaseService.getLyric(id as number, cookie);
             const lrcText = data?.lrc?.lyric || '';
             // Parse LRC format: [mm:ss.xx]text
             return parseLrc(lrcText);

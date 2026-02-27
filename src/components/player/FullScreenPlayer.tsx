@@ -5,8 +5,8 @@ import { usePlayerStore } from '../../stores/usePlayerStore';
 import { usePlaylistStore } from '../../stores/usePlaylistStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useNeteaseLyric } from '../../hooks/useNeteaseData';
+import { useQQLyric } from '../../hooks/useQQData';
 import { isNeteasePlatform } from '../../lib/platformUtils';
-import { mockComments, mockLyrics } from '../../data/mockData';
 
 // Sub-components
 import VinylVisualizer from './VinylVisualizer';
@@ -56,10 +56,15 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
 
-    // Use real lyrics for NetEase tracks, fallback to mockLyrics
     const isNetease = isNeteasePlatform(currentTrack.source);
+    const isQQ = currentTrack.source?.toLowerCase().includes('qq');
+
     const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack.id, { enabled: isNetease && !!currentTrack.id });
-    const activeLyrics = (isNetease && neteaseLyrics.length > 0) ? neteaseLyrics : mockLyrics;
+    const qqSongMid = String(currentTrack.sourceId || currentTrack.id);
+    const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: isQQ && !!qqSongMid });
+
+    // Use platform-specific lyrics, otherwise fallback to empty
+    const activeLyrics = isNetease ? neteaseLyrics : (isQQ ? qqLyrics : []);
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -71,6 +76,24 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     const handlePlayQueueTrack = (track: typeof currentTrack) => {
         setTrack(track);
         play();
+    };
+
+    // Get a deterministic background gradient based on track ID
+    const getTrackColor = (id: string | number) => {
+        const colors = [
+            'from-indigo-500 to-purple-500',
+            'from-pink-500 to-rose-500',
+            'from-blue-500 to-cyan-500',
+            'from-amber-500 to-orange-500',
+            'from-emerald-500 to-teal-500'
+        ];
+        let numericId;
+        if (typeof id === 'string') {
+            numericId = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        } else {
+            numericId = id;
+        }
+        return colors[numericId % colors.length];
     };
 
     // Close all panels when player closes or opens
@@ -117,6 +140,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                         isPlaying={isPlaying}
                         visualizerEnabled={visualizerEnabled}
                         trackId={currentTrack.id}
+                        trackColor={currentTrack.id !== 0 && currentTrack.id !== '0' ? getTrackColor(currentTrack.id) : undefined}
                     />
                 </div>
 
@@ -158,7 +182,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
             <CommentsPanel
                 isOpen={showCommentsPanel}
                 onClose={toggleCommentsPanel}
-                comments={mockComments}
+                comments={[]}
             />
 
             <QueuePanel

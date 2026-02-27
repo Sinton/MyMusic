@@ -1,84 +1,31 @@
-import React, { useState, useMemo } from 'react';
-import { TrendingUp, Flame, ArrowLeft } from 'lucide-react';
+import React from 'react';
+import { TrendingUp, Flame } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { FeatureCard, GenreCard, SongRow } from '../components';
+import { FeatureCard } from '../components';
 import { Skeleton } from '../components/common/Skeleton';
-import { useSongs, useGenres } from '../hooks/useData';
-import { usePlayerStore } from '../stores/usePlayerStore';
+import { useNeteaseToplist } from '../hooks/useNeteaseData';
+import type { Playlist } from '../types';
 
-const ExploreView: React.FC = () => {
+interface ExploreViewProps {
+    onNavigate?: (view: string) => void;
+}
+
+const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
     const { t } = useTranslation();
-    const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
-    const { songs } = useSongs();
-    const { genres, isLoading: isGenresLoading } = useGenres();
-    const { setTrack, play } = usePlayerStore();
 
-    const filteredSongs = useMemo(() => {
-        if (!selectedGenre) return [];
-        return songs.filter(s => s.genre === selectedGenre);
-    }, [selectedGenre, songs]);
+    // Replace Mock Data with Real NetEase Toplists
+    const { playlists: toplists, isLoading: isToplistLoading } = useNeteaseToplist();
 
     const handleQuickPlay = () => {
-        if (songs.length > 0) {
-            const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            const track: any = {
-                id: randomSong.id,
-                title: randomSong.title,
-                artist: randomSong.artist,
-                artistId: randomSong.artistId,
-                album: randomSong.album,
-                albumId: randomSong.albumId,
-                duration: randomSong.duration,
-                currentTime: '0:00',
-                source: randomSong.bestSource,
-                quality: randomSong.sources[0]?.qualityLabel || 'Hi-Res Lossless',
-            };
-            setTrack(track);
-            play();
+        // Fallback or random play logic could be directed here
+        // For now, let's just navigate to the first chart if it exists
+        if (toplists && toplists.length > 0) {
+            onNavigate?.(`Playlist:${toplists[0].id}`);
         }
     };
 
-    // Map chart names to translation keys
-    const chartMapping: Record<string, string> = {
-        'China Top 100': 'chinaTop',
-        'Global Viral': 'globalViral',
-        'K-Pop Hot': 'kpopHot',
-        'Indie Picks': 'indiePicks'
-    };
-
-    if (selectedGenre) {
-        return (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                <button
-                    onClick={() => setSelectedGenre(null)}
-                    className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors mb-4 group"
-                >
-                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-medium text-sm">{t('explore.back')}</span>
-                </button>
-
-                <header className="mb-8">
-                    <h1 className="text-4xl font-bold mb-2">{selectedGenre}</h1>
-                    <p className="text-[var(--text-muted)]">{t('explore.topSongsIn', { genre: selectedGenre })}</p>
-                </header>
-
-                <div className="space-y-2">
-                    {filteredSongs.length > 0 ? (
-                        filteredSongs.map(song => (
-                            <SongRow key={song.id} song={song} />
-                        ))
-                    ) : (
-                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
-                            {t('explore.noSongs')}
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8 animate-fade-in pb-12">
             {/* Featured Cards */}
             <div className="grid grid-cols-2 gap-4">
                 <FeatureCard
@@ -99,39 +46,35 @@ const ExploreView: React.FC = () => {
                 />
             </div>
 
-            {/* Charts */}
+            {/* Charts (Real NetEase Toplists) */}
             <section>
-                <h2 className="text-xl font-bold mb-4 text-[var(--text-secondary)]">{t('explore.charts')}</h2>
-                <div className="grid grid-cols-4 gap-4">
-                    {Object.keys(chartMapping).map((chart) => (
-                        <div
-                            key={chart}
-                            onClick={() => setSelectedGenre(chart)}
-                            className="h-32 rounded-xl bg-[var(--glass-highlight)] p-4 flex items-end cursor-pointer hover:bg-[var(--glass-border)] hover:scale-[1.02] active:scale-95 transition-all group"
-                        >
-                            <span className="font-semibold group-hover:text-[var(--accent-color)] transition-colors">
-                                {t(`explore.chartNames.${chartMapping[chart]}`)}
-                            </span>
-                        </div>
-                    ))}
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-[var(--text-secondary)]">{t('explore.charts')}</h2>
                 </div>
-            </section>
-
-            {/* Browse by Genre */}
-            <section>
-                <h2 className="text-xl font-bold mb-4">{t('explore.browseGenres')}</h2>
-                <div className="grid grid-cols-4 gap-4">
-                    {isGenresLoading ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {isToplistLoading ? (
                         Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                            <Skeleton key={i} className="h-40 rounded-xl" />
                         ))
                     ) : (
-                        genres.map((genre: string) => (
-                            <GenreCard
-                                key={genre}
-                                genre={genre}
-                                onClick={(g) => setSelectedGenre(g)}
-                            />
+                        toplists.slice(0, 16).map((playlist: Playlist) => (
+                            <div
+                                key={playlist.id}
+                                onClick={() => onNavigate?.(`Playlist:${playlist.id}`)}
+                                className="relative h-40 rounded-xl overflow-hidden cursor-pointer group shadow-lg"
+                            >
+                                {playlist.cover ? (
+                                    <img src={playlist.cover} alt={playlist.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+                                ) : (
+                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-800" />
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 flex flex-col justify-end">
+                                    <span className="font-bold text-white text-lg drop-shadow-md">
+                                        {playlist.title}
+                                    </span>
+                                    <span className="text-xs text-white/70 mt-1">{playlist.count} 首</span>
+                                </div>
+                            </div>
                         ))
                     )}
                 </div>

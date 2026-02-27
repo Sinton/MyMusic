@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SongRow, PlaylistCard, AlbumCard } from '../components';
-import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
-import { useSongs, usePlaylists, useAlbums } from '../hooks/useData';
-import { usePlayerStore } from '../stores/usePlayerStore';
+import { PlaylistCard, AlbumCard } from '../components';
+import { Skeleton } from '../components/common/Skeleton';
+import { useNeteaseUserPlaylists, useNeteaseNewestAlbums } from '../hooks/useNeteaseData';
+import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
-import type { Playlist, Album, Track } from '../types';
+import type { Playlist, Album } from '../types';
 
 interface LibraryViewProps {
     initialTab?: 'Songs' | 'Playlists' | 'Albums';
@@ -16,32 +16,25 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'Songs' | 'Playlists' | 'Albums'>(initialTab);
 
-    const { songs, isLoading: isSongsLoading } = useSongs({ enabled: activeTab === 'Songs' });
-    const { playlists: mockPlaylists, isLoading: isPlaylistsLoading } = usePlaylists({ enabled: activeTab === 'Playlists' });
-    const { userPlaylists } = usePlaylistStore();
-    const { albums, isLoading: isAlbumsLoading } = useAlbums({ enabled: activeTab === 'Albums' });
-    const { setTrack, play } = usePlayerStore();
+    // Real Netease Hook for fetching Library items
+    const user = useNeteaseStore(state => state.user);
+    const isLoggedIn = useNeteaseStore(state => state.isLoggedIn);
 
-    const playlists: Playlist[] = [...userPlaylists, ...mockPlaylists.filter(mp => !userPlaylists.some((up: Playlist) => up.id === mp.id))];
+    // Fallback: If not logged in, these won't fetch much or will return empty arrays if properly guarded
+    const { playlists: remotePlaylists, isLoading: isPlaylistsLoading } = useNeteaseUserPlaylists(user?.userId || 0, {
+        enabled: activeTab === 'Playlists' && isLoggedIn
+    });
+
+    // Albums -> Using Netease newest albums purely as a placeholder instead of local mocks since real library albums need further APIs
+    const { albums, isLoading: isAlbumsLoading } = useNeteaseNewestAlbums({ enabled: activeTab === 'Albums' });
+
+    const { userPlaylists } = usePlaylistStore();
+
+    // Deduplicate lists between local created and remote
+    const playlists: Playlist[] = [...userPlaylists, ...remotePlaylists.filter(mp => !userPlaylists.some((up: Playlist) => up.id === mp.id))];
 
     const handlePlayCollection = () => {
-        if (songs.length > 0) {
-            const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            const track: Track = {
-                id: randomSong.id,
-                title: randomSong.title,
-                artist: randomSong.artist,
-                artistId: randomSong.artistId,
-                album: randomSong.album,
-                albumId: randomSong.albumId,
-                duration: randomSong.duration,
-                currentTime: '0:00',
-                source: randomSong.bestSource,
-                quality: randomSong.sources[0]?.qualityLabel || 'Hi-Res Lossless',
-            };
-            setTrack(track);
-            play();
-        }
+        // Safe fallback action if clicking empty playlist or local list without navigating
     };
 
     return (
@@ -75,12 +68,14 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
             {/* Songs Tab */}
             {activeTab === 'Songs' && (
                 <div className="space-y-4 animate-fade-in">
-                    {isSongsLoading ? (
-                        <ListSkeleton rows={8} />
+                    {!isLoggedIn ? (
+                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
+                            {t('auth.pleaseLogin', '请先登录以查看您的音乐库')}
+                        </div>
                     ) : (
-                        songs.map((song) => (
-                            <SongRow key={song.id} song={song} />
-                        ))
+                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
+                            暂未实现获取喜欢的音乐 (TODO)
+                        </div>
                     )}
                 </div>
             )}
@@ -102,7 +97,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                                 key={pl.id}
                                 playlist={pl}
                                 onClick={() => {
-                                    if (pl.id >= 100 && onNavigate) {
+                                    if (typeof pl.id === 'number' && pl.id >= 100 && onNavigate) {
                                         onNavigate(`Playlist:${pl.id}`);
                                     } else {
                                         handlePlayCollection();

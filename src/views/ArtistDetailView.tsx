@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { mockArtistAvatars } from '../data/mockData';
 import { Play, Pause, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
@@ -7,7 +6,6 @@ import AlbumCard from '../components/AlbumCard';
 import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useSongsByArtist, useAlbumsByArtist } from '../hooks/useData';
 import type { Artist, Track, Album } from '../types';
 
 interface ArtistDetailViewProps {
@@ -20,9 +18,12 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
     const { t } = useTranslation();
     const { setTrack, play, pause, isPlaying, currentTrack, setQueue } = usePlayerStore();
 
-    // Efficiently fetch only relevant data
-    const { songs: artistSongs, isLoading: isSongsLoading } = useSongsByArtist(artistName);
-    const { albums: artistAlbums, isLoading: isAlbumsLoading } = useAlbumsByArtist(artistName);
+    // We don't have real Netease Artist API hooks yet, so we will stub this temporarily to not break the build
+    // while completely removing the mock `useData.ts` dependency.
+    const artistSongs: any[] = [];
+    const artistAlbums: any[] = [];
+    const isSongsLoading = false;
+    const isAlbumsLoading = false;
 
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'about'>('all');
@@ -32,7 +33,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, onNavig
         return {
             id: artistSongs[0]?.artistId || 999,
             name: artistName,
-            avatar: mockArtistAvatars[artistName] || (artistSongs[0]?.sources[0]?.platform === 'NetEase Cloud' ? 'bg-rose-600' : 'bg-indigo-600'),
+            avatar: artistSongs[0]?.sources[0]?.platform === 'NetEase Cloud' ? 'bg-rose-600' : 'bg-indigo-600',
             bio: `${artistName} is a global music icon known for their ability to blend cross-genre influences into cohesive masterpieces. With a career spanning over a decade, they have consistently pushed the boundaries of sound design and lyrical storytelling.`,
             genres: ['Pop', 'R&B', 'Electronic', 'Acoustic'],
             popularSongs: artistSongs,

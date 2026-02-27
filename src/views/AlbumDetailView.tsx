@@ -6,7 +6,6 @@ import { ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import ShareButton from '../components/common/ShareButton';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useSongsByAlbumId } from '../hooks/useData';
 import type { Album, Song, Track } from '../types';
 
 interface AlbumDetailViewProps {
@@ -21,9 +20,8 @@ interface AlbumDetailViewProps {
 const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, externalSongs, externalLoading }) => {
     const { t } = useTranslation();
     const { setTrack, play, isPlaying, currentTrack, setQueue } = usePlayerStore();
-    const { songs: localSongs, isLoading: localLoading } = useSongsByAlbumId(album.id);
-    const albumSongs = externalSongs ?? localSongs;
-    const isLoading = externalLoading ?? localLoading;
+    const albumSongs = externalSongs ?? [];
+    const isLoading = externalLoading ?? false;
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;

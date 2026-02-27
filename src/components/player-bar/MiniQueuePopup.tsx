@@ -17,6 +17,9 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
     // Close when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            if ((event.target as Element).closest('#queue-toggle-btn')) {
+                return;
+            }
             if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
                 onClose();
             }
@@ -31,9 +34,8 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
         };
     }, [isOpen, onClose]);
 
-    if (!isOpen) return null;
-
-    const getTrackColor = (id: number) => {
+    // Quick deterministic color assignment based on track/song ID
+    const getTrackColor = (id: string | number) => {
         const colors = [
             'from-indigo-500 to-purple-500',
             'from-pink-500 to-rose-500',
@@ -41,13 +43,21 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
             'from-amber-500 to-orange-500',
             'from-emerald-500 to-teal-500'
         ];
-        return colors[(id - 1) % colors.length];
+        let numericId;
+        if (typeof id === 'string') {
+            numericId = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        } else {
+            numericId = id;
+        }
+        return colors[numericId % colors.length];
     };
+
+    if (!isOpen) return null;
 
     return (
         <div
             ref={popupRef}
-            className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 max-h-[500px] glass rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-[var(--glass-border)] animate-in fade-in slide-in-from-bottom-2 duration-200 z-[100]"
+            className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 max-h-[500px] glass rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[var(--glass-border)] animate-in fade-in slide-in-from-bottom-2 duration-200 z-[100]"
         >
             <div className="p-4 border-b border-[var(--glass-border)] bg-[var(--glass-highlight)]">
                 <h3 className="font-bold text-sm flex items-center gap-2">

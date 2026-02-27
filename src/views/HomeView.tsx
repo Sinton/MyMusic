@@ -3,10 +3,9 @@ import { Search, X, Loader2, Cloud, Music } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PlaylistCard, SongRow } from '../components';
 import { Skeleton } from '../components/common/Skeleton';
-import { usePlaylists, useSongs } from '../hooks/useData';
 import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/useNeteaseData';
-import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Playlist, Track, Album } from '../types';
+import { useQQSearch } from '../hooks/useQQData';
+import type { Playlist, Album, Song } from '../types';
 
 interface HomeViewProps {
     onNavigate?: (view: string) => void;
@@ -16,15 +15,15 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { playlists, isLoading: isPlaylistsLoading } = usePlaylists();
-    const { songs } = useSongs();
-    const { setTrack, play } = usePlayerStore();
-
     // NetEase state
     // Use activeQuery instead of debouncedQuery for search triggering
     const [activeQuery, setActiveQuery] = useState('');
 
     const { songs: neteaseResults, isLoading: isNeteaseSearching } = useNeteaseSearch(activeQuery, {
+        enabled: !!activeQuery.trim(),
+    });
+
+    const { songs: qqResults, isLoading: isQQSearching } = useQQSearch(activeQuery, {
         enabled: !!activeQuery.trim(),
     });
 
@@ -37,51 +36,60 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     // Feature 3: Toplists (Charts)
     const { playlists: toplists, isLoading: isToplistLoading } = useNeteaseToplist();
 
-    // Remove debounce effect and local search merging logic if we are committed to NetEase primarily,
-    // but preserving local search merging for now as it doesn't hurt.
-
-    const localResults = useMemo(() => {
-        if (!activeQuery.trim()) return [];
-        const query = activeQuery.toLowerCase();
-        return songs.filter(song =>
-            song.title.toLowerCase().includes(query) ||
-            song.artist.toLowerCase().includes(query) ||
-            song.album.toLowerCase().includes(query)
-        );
-    }, [activeQuery, songs]);
-
-    // Merge: local first, then NetEase (deduplicated by title+artist)
+    // Combine NetEase and QQ results, merging songs with same title and artist
     const mergedResults = useMemo(() => {
         if (!activeQuery.trim()) return [];
-        const seen = new Set(localResults.map(s => `${s.title}::${s.artist}`.toLowerCase()));
-        const uniqueNetease = neteaseResults.filter(
-            s => !seen.has(`${s.title}::${s.artist}`.toLowerCase())
-        );
-        return [...localResults, ...uniqueNetease];
-    }, [activeQuery, localResults, neteaseResults]);
 
-    const handlePlayPlaylist = useCallback((_playlist: Playlist) => {
-        if (songs.length > 0) {
-            const randomSong = songs[Math.floor(Math.random() * songs.length)];
-            const track: Track = {
-                id: randomSong.id,
-                title: randomSong.title,
-                artist: randomSong.artist,
-                artistId: randomSong.artistId,
-                album: randomSong.album,
-                albumId: randomSong.albumId,
-                duration: randomSong.duration,
-                currentTime: '0:00',
-                source: randomSong.bestSource,
-                quality: randomSong.sources[0]?.qualityLabel || 'Hi-Res Lossless',
-                cover: randomSong.cover,
-            };
-            setTrack(track);
-            play();
+        const merged: Song[] = [];
+
+        // Interleave the results so that rank #1 from NetEase is followed by rank #1 from QQ, etc.
+        // This ensures the top results from both platforms appear at the top of the combined list
+        // instead of all NetEase results showing up before any QQ results.
+        const combined: Song[] = [];
+        const maxLength = Math.max(neteaseResults.length, qqResults.length);
+        for (let i = 0; i < maxLength; i++) {
+            if (i < neteaseResults.length) combined.push(neteaseResults[i]);
+            if (i < qqResults.length) combined.push(qqResults[i]);
         }
-    }, [songs, setTrack, play]);
 
-    const isSearching = isNeteaseSearching && !!activeQuery.trim();
+        // Helper to normalize strings for comparison (ignore case, spaces, parens)
+        const normalize = (s: string) => s.toLowerCase().replace(/[\s()（）]/g, '');
+
+        combined.forEach(song => {
+            const existing = merged.find(m =>
+                normalize(m.title) === normalize(song.title) &&
+                normalize(m.artist) === normalize(song.artist)
+            );
+
+            if (existing) {
+                // Add new source if not already present
+                const newSources = song.sources.filter(
+                    s1 => !existing.sources.some(s2 => s2.platform === s1.platform)
+                );
+                existing.sources = [...existing.sources, ...newSources];
+
+                // If the existing entry is missing a cover but the new one has it, copy it over
+                if (!existing.cover && song.cover) {
+                    existing.cover = song.cover;
+                }
+            } else {
+                merged.push({ ...song }); // Deep clone the top level so we can push sources to it
+            }
+        });
+
+        // Optional: Sort heavily by relevance (number of sources), but keep their original interwoven rank otherwise.
+        merged.sort((a, b) => b.sources.length - a.sources.length);
+
+        return merged;
+    }, [activeQuery, neteaseResults, qqResults]);
+
+    const handlePlayPlaylist = useCallback((playlist: Playlist) => {
+        if (onNavigate) {
+            onNavigate(`Playlist:${playlist.id}`);
+        }
+    }, [onNavigate]);
+
+    const isSearching = (isNeteaseSearching || isQQSearching) && !!activeQuery.trim();
 
     return (
         <div className="space-y-8 animate-fade-in pb-12">
@@ -130,16 +138,16 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                         </div>
                     </div>
 
-                    {mergedResults.length > 0 ? (
+                    {isSearching ? (
+                        <div className="h-64 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
+                            <Loader2 className="w-12 h-12 animate-spin opacity-30" />
+                            <p className="text-lg">{t('home.searching', '搜索中...')}</p>
+                        </div>
+                    ) : mergedResults.length > 0 ? (
                         <div className="space-y-2">
                             {mergedResults.map(song => (
                                 <SongRow key={`${song.id}-${song.bestSource}`} song={song} />
                             ))}
-                        </div>
-                    ) : isSearching ? (
-                        <div className="h-64 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
-                            <Loader2 className="w-12 h-12 animate-spin opacity-30" />
-                            <p className="text-lg">{t('home.searching', '搜索中...')}</p>
                         </div>
                     ) : (
                         <div className="h-64 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
@@ -257,12 +265,12 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                             </button>
                         </div>
                         <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-2 -mx-2 hide-scrollbar">
-                            {isPlaylistsLoading ? (
+                            {isToplistLoading ? (
                                 Array.from({ length: 6 }).map((_, i) => (
                                     <Skeleton key={i} className="shrink-0 w-48 h-16 rounded-xl" />
                                 ))
                             ) : (
-                                playlists.map((pl: Playlist) => (
+                                toplists.map((pl: Playlist) => (
                                     <PlaylistCard
                                         key={pl.id}
                                         playlist={pl}
@@ -278,7 +286,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                     <section>
                         <h2 className="text-xl font-bold mb-6 text-[var(--text-secondary)]">{t('home.jumpBackIn')}</h2>
                         <div className="grid grid-cols-6 gap-6">
-                            {isPlaylistsLoading ? (
+                            {isToplistLoading ? (
                                 Array.from({ length: 6 }).map((_, i) => (
                                     <div key={i} className="space-y-2">
                                         <Skeleton className="w-full aspect-square rounded-xl" />
@@ -286,13 +294,13 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                                     </div>
                                 ))
                             ) : (
-                                playlists.slice(0, 6).map((pl: Playlist) => (
+                                toplists.slice(0, 6).map((pl: Playlist) => (
                                     <div
                                         key={pl.id}
                                         className="group cursor-pointer"
                                         onClick={() => handlePlayPlaylist(pl)}
                                     >
-                                        <div className={`w-full aspect-square ${pl.cover} rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`}></div>
+                                        <div className={`w-full aspect-square rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`} style={{ backgroundImage: `url(${pl.cover})`, backgroundSize: 'cover' }}></div>
                                         <div className="font-medium text-sm truncate text-[var(--text-main)]">{pl.title}</div>
                                         <div className="text-xs text-[var(--text-muted)]">{t('sidebar.playlists')}</div>
                                     </div>

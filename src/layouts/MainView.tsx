@@ -12,8 +12,8 @@ import PlaylistDetailView from '../views/PlaylistDetailView';
 import NeteasePlaylistDetailView from '../views/NeteasePlaylistDetailView';
 import AlbumDetailView from '../views/AlbumDetailView';
 import ArtistDetailView from '../views/ArtistDetailView';
-import { useAlbums } from '../hooks/useData';
 import { useNeteaseAlbumDetail } from '../hooks/useNeteaseData';
+import { parseRoute } from '../lib/routeUtils';
 import type { Album } from '../types';
 
 interface MainViewProps {
@@ -49,7 +49,6 @@ const NeteaseAlbumWrapper: React.FC<{ albumId: number; onBack: () => void; onNav
 
 const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     const { userPlaylists } = usePlaylistStore();
-    const { albums } = useAlbums();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const currentTrack = usePlayerStore(state => state.currentTrack);
     const hasTrack = currentTrack && currentTrack.id !== 0;
@@ -87,81 +86,50 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     }, [activeView]);
 
     const renderContent = () => {
-        // Handle playlist detail view
-        if (activeView.startsWith('Playlist:')) {
-            const playlistId = parseInt(activeView.split(':')[1]);
-            const playlist = userPlaylists.find(p => p.id === playlistId);
-            if (playlist) {
-                return <PlaylistDetailView key={activeView} playlist={playlist} onBack={() => onNavigate('Library')} />;
-            }
-            // Fallback: treat as NetEase playlist
-            if (!isNaN(playlistId)) {
-                return <NeteasePlaylistDetailView key={activeView} playlistId={playlistId} />;
-            }
-        }
+        const route = parseRoute(activeView);
 
-        // Handle Album detail view
-        if (activeView.startsWith('Album:')) {
-            const albumId = parseInt(activeView.split(':')[1]);
-            const album = albums.find((a: Album) => a.id === albumId);
-
-            if (album) {
-                // Local album — use AlbumDetailView directly
-                return (
-                    <AlbumDetailView
-                        key={activeView}
-                        album={album}
-                        onBack={() => onNavigate('Library')}
-                        onNavigate={onNavigate}
-                    />
-                );
+        switch (route.type) {
+            case 'playlist': {
+                const playlist = userPlaylists.find(p => p.id === route.id);
+                if (playlist) {
+                    return <PlaylistDetailView key={activeView} playlist={playlist} onBack={() => onNavigate('Library')} />;
+                }
+                return <NeteasePlaylistDetailView key={activeView} playlistId={route.id} />;
             }
-
-            // Fallback: treat as NetEase album — reuse AlbumDetailView via wrapper
-            if (!isNaN(albumId)) {
+            case 'album':
                 return (
                     <NeteaseAlbumWrapper
                         key={activeView}
-                        albumId={albumId}
+                        albumId={route.id}
                         onBack={() => onNavigate('Home')}
                         onNavigate={onNavigate}
                     />
                 );
-            }
-        }
-
-        // Handle Artist detail view
-        if (activeView.startsWith('Artist:')) {
-            const artistName = activeView.split(':')[1];
-            return (
-                <ArtistDetailView
-                    key={activeView}
-                    artistName={artistName}
-                    onBack={() => onNavigate('Library')}
-                    onNavigate={onNavigate}
-                />
-            );
-        }
-
-        // Handle main views
-        switch (activeView) {
-            case 'Home':
-                return <HomeView key={activeView} onNavigate={onNavigate} />;
-            case 'Explore':
-                return <ExploreView key={activeView} />;
-            case 'Settings':
-                return <SettingsView key={activeView} />;
-            case 'My Music':
-            case 'Library':
-            case 'Playlists':
-            default:
+            case 'artist':
                 return (
-                    <LibraryView
+                    <ArtistDetailView
                         key={activeView}
-                        initialTab={activeView === 'Playlists' ? 'Playlists' : 'Songs'}
+                        artistName={route.name}
+                        onBack={() => onNavigate('Library')}
                         onNavigate={onNavigate}
                     />
                 );
+            case 'home':
+                return <HomeView key={activeView} onNavigate={onNavigate} />;
+            case 'explore':
+                return <ExploreView key={activeView} />;
+            case 'settings':
+                return <SettingsView key={activeView} />;
+            case 'library':
+                return (
+                    <LibraryView
+                        key={activeView}
+                        initialTab={route.tab}
+                        onNavigate={onNavigate}
+                    />
+                );
+            default:
+                return null;
         }
     };
 

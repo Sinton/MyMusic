@@ -14,8 +14,8 @@ import { useAudioSync } from '../hooks/useAudioSync';
  */
 export function AudioEngine() {
     const audioRef = useAudioPlayer();
-    const { currentUrlRef, isNetease } = useTrackUrlResolver(audioRef);
-    useAudioSync(audioRef, currentUrlRef, isNetease);
+    const { currentUrlRef } = useTrackUrlResolver(audioRef);
+    useAudioSync(audioRef, currentUrlRef);
 
     return null;
 }

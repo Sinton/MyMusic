@@ -64,7 +64,7 @@ export const getPreviousIndex = (
 /**
  * Get gradient colors for track cover
  */
-export const getTrackGradient = (trackId: number): string => {
+export const getTrackGradient = (trackId: string | number): string => {
     const colors = [
         'from-indigo-500 to-purple-500',
         'from-pink-500 to-rose-500',
@@ -72,7 +72,13 @@ export const getTrackGradient = (trackId: number): string => {
         'from-amber-500 to-orange-500',
         'from-emerald-500 to-teal-500'
     ];
-    return colors[(trackId - 1) % colors.length];
+    let numericId;
+    if (typeof trackId === 'string') {
+        numericId = trackId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    } else {
+        numericId = trackId;
+    }
+    return colors[numericId % colors.length];
 };
 
 /**

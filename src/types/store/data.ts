@@ -9,11 +9,11 @@ export interface PlaylistState {
 
 export interface PlaylistActions {
     createPlaylist: (title: string, cover?: string) => void;
-    addSongToPlaylist: (playlistId: number, song: Song) => void;
-    removeSongFromPlaylist: (playlistId: number, songId: number) => void;
-    removePlaylist: (id: number) => void;
-    updatePlaylistTitle: (id: number, title: string) => void;
-    updatePlaylistCover: (id: number, cover: string) => void;
+    addSongToPlaylist: (playlistId: string | number, song: Song) => void;
+    removeSongFromPlaylist: (playlistId: string | number, songId: string | number) => void;
+    removePlaylist: (id: string | number) => void;
+    updatePlaylistTitle: (id: string | number, title: string) => void;
+    updatePlaylistCover: (id: string | number, cover: string) => void;
     toggleLike: (song: Song) => void;
 }
 
