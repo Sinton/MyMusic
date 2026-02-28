@@ -1,6 +1,7 @@
 import React from 'react';
-import { ListMusic } from 'lucide-react';
+import { ListMusic, ShieldCheck } from 'lucide-react';
 import type { Playlist } from '../types';
+import PlatformBadge from './PlatformBadge';
 
 interface PlaylistCardProps {
     playlist: Playlist;
@@ -10,6 +11,28 @@ interface PlaylistCardProps {
 
 const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant = 'default' }) => {
     const isImage = playlist.cover?.includes('/') || playlist.cover?.includes('.');
+
+    const renderSourceBadge = () => {
+        if (!playlist.source) return null;
+        if (playlist.source === 'vibe' || playlist.source === 'Local') {
+            return (
+                <PlatformBadge
+                    name="Vibe"
+                    color="var(--accent-color)"
+                    size="sm"
+                    className="absolute bottom-2 right-2 shadow-lg border border-white/20 z-20"
+                />
+            );
+        }
+        return (
+            <PlatformBadge
+                name={playlist.source === 'netease' ? 'NetEase' : playlist.source}
+                color={playlist.source === 'netease' ? '#e60026' : '#333'}
+                size="sm"
+                className="absolute bottom-2 right-2 shadow-lg border border-white/10 z-20"
+            />
+        );
+    };
 
     if (variant === 'compact') {
         return (
@@ -29,6 +52,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
                             <ListMusic className="w-10 h-10 text-white/50" />
                         </div>
                     )}
+                    {renderSourceBadge()}
                 </div>
                 <div className="font-medium text-sm truncate text-[var(--text-main)]">{playlist.title}</div>
                 <div className="text-xs text-[var(--text-secondary)]">{playlist.count}</div>
@@ -54,6 +78,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
                         <ListMusic className="w-10 h-10 text-white/50" />
                     </div>
                 )}
+                {renderSourceBadge()}
             </div>
             <div className="font-medium text-sm truncate text-[var(--text-main)]">{playlist.title}</div>
             <div className="text-xs text-[var(--text-secondary)]">{playlist.count}</div>

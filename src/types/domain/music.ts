@@ -33,6 +33,9 @@ export interface Playlist {
     creator: string;
     cover: string;
     songs?: Song[];
+    source?: string;
+    isSubscribed?: boolean;
+    creatorId?: string | number;
 }
 
 // ================== ALBUM ==================

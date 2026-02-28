@@ -87,6 +87,7 @@ export interface NeteasePlaylistItem {
     picUrl?: string;
     creator?: NeteasePlaylistCreator;
     tracks?: NeteaseSongItem[];
+    subscribed?: boolean;
 }
 
 export interface NeteasePlaylistDetailResponse {

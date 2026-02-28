@@ -3,11 +3,12 @@ import { Music } from 'lucide-react';
 import neteaseIcon from '../assets/netease_music.png';
 import qqIcon from '../assets/qq_music.png';
 import sodaIcon from '../assets/soda_music.png';
+import vibeLogo from '../assets/logo_bg.png';
 
 interface PlatformBadgeProps {
     name: string;
     color: string;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     showInitial?: boolean;
     connected?: boolean;
     useIcon?: boolean;
@@ -20,6 +21,7 @@ const iconMap: Record<string, string> = {
     'QQ Music': qqIcon,
     'Soda Music': sodaIcon,
     'Soda': sodaIcon,
+    'Vibe': vibeLogo,
 };
 
 const PlatformBadge: React.FC<PlatformBadgeProps> = ({
@@ -35,12 +37,14 @@ const PlatformBadge: React.FC<PlatformBadgeProps> = ({
         sm: 'w-6 h-6 text-[10px]',
         md: 'w-8 h-8 text-xs',
         lg: 'w-10 h-10 text-sm',
+        xl: 'w-16 h-16 text-lg',
     };
 
     const iconSizes = {
         sm: 'w-3 h-3',
         md: 'w-4 h-4',
         lg: 'w-5 h-5',
+        xl: 'w-8 h-8',
     };
 
     const icon = iconMap[name];

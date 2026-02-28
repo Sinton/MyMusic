@@ -163,6 +163,27 @@ export const QQMusicService = {
     },
 
     /**
+     * Get user's playlists (self-created and collected)
+     */
+    async getUserPlaylists(cookie: string): Promise<any> {
+        const { uin } = this._getCookieVals(cookie);
+        const body = JSON.stringify({
+            comm: { ct: "19", cv: "1859", uin: uin },
+            req: {
+                method: "GetUserDissList",
+                module: "srf_diss_info.DissInfoServer",
+                param: { host_uin: 0, sin: 0, size: 100 }
+            }
+        });
+
+        return this._postJson<any>(
+            'https://u.y.qq.com/cgi-bin/musicu.fcg',
+            body,
+            cookie
+        );
+    },
+
+    /**
      * Validate Cookie and get user info
      */
     async getLoginStatus(cookie: string): Promise<QQUser | null> {

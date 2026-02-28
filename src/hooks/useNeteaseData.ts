@@ -68,8 +68,11 @@ function neteaseToPlaylist(item: NeteasePlaylistItem): Playlist {
         id: item.id,
         title: item.name,
         count: item.trackCount || 0,
-        creator: item.creator?.nickname || '',
+        creator: item.nickname || item.creator?.nickname || '',
         cover: item.coverImgUrl || item.picUrl || '',
+        source: 'netease',
+        isSubscribed: !!item.subscribed,
+        creatorId: item.creator?.userId,
     };
 }
 

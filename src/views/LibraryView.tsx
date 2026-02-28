@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlaylistCard, AlbumCard } from '../components';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { PlaylistCard, AlbumCard, PlatformBadge } from '../components';
 import { Skeleton } from '../components/common/Skeleton';
 import { useNeteaseUserPlaylists, useNeteaseNewestAlbums } from '../hooks/useNeteaseData';
+import { useQQUserPlaylists } from '../hooks/useQQData';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
+import { useQQStore } from '../stores/useQQStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import type { Playlist, Album } from '../types';
 
@@ -16,30 +19,90 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'Songs' | 'Playlists' | 'Albums'>(initialTab);
 
-    // Real Netease Hook for fetching Library items
-    const user = useNeteaseStore(state => state.user);
-    const isLoggedIn = useNeteaseStore(state => state.isLoggedIn);
-
-    // Fallback: If not logged in, these won't fetch much or will return empty arrays if properly guarded
-    const { playlists: remotePlaylists, isLoading: isPlaylistsLoading } = useNeteaseUserPlaylists(user?.userId || 0, {
-        enabled: activeTab === 'Playlists' && isLoggedIn
+    // Collapsible states
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+        vibe: true,
+        netease: true,
+        qq: true,
     });
 
-    // Albums -> Using Netease newest albums purely as a placeholder instead of local mocks since real library albums need further APIs
+    const toggleSection = (id: string) => {
+        setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    // NetEase Store & Data
+    const neteaseUser = useNeteaseStore(state => state.user);
+    const isLoggedInNetease = useNeteaseStore(state => state.isLoggedIn);
+    const { playlists: neteaseRemotePlaylists, isLoading: isNeteaseLoading } = useNeteaseUserPlaylists(neteaseUser?.userId || 0, {
+        enabled: activeTab === 'Playlists' && isLoggedInNetease
+    });
+
+    // QQ Store & Data
+    const isLoggedInQQ = useQQStore(state => state.isLoggedIn);
+    const { playlists: qqRemotePlaylists, isLoading: isQQLoading } = useQQUserPlaylists({
+        enabled: activeTab === 'Playlists' && isLoggedInQQ
+    });
+
     const { albums, isLoading: isAlbumsLoading } = useNeteaseNewestAlbums({ enabled: activeTab === 'Albums' });
 
     const { userPlaylists } = usePlaylistStore();
 
-    // Deduplicate lists between local created and remote
-    const playlists: Playlist[] = [...userPlaylists, ...remotePlaylists.filter(mp => !userPlaylists.some((up: Playlist) => up.id === mp.id))];
+    // Grouping NetEase Playlists
+    const neteaseLikedPlaylist = neteaseRemotePlaylists.length > 0 ? neteaseRemotePlaylists[0] : null;
+    const neteaseOtherPlaylists = neteaseRemotePlaylists.slice(1);
+    const neteaseCreatedPlaylists = neteaseOtherPlaylists.filter(p => !p.isSubscribed);
+    const neteaseCollectedPlaylists = neteaseOtherPlaylists.filter(p => p.isSubscribed);
 
-    const handlePlayCollection = () => {
-        // Safe fallback action if clicking empty playlist or local list without navigating
+    // Grouping QQ Playlists
+    const qqCreatedPlaylists = qqRemotePlaylists.filter(p => !p.isSubscribed);
+    const qqCollectedPlaylists = qqRemotePlaylists.filter(p => p.isSubscribed);
+
+    const isPlaylistsLoading = isNeteaseLoading || isQQLoading;
+
+    // Section Header Helper
+    const renderSectionHeader = (id: string, title: string, count?: number, color?: string, icon?: React.ReactNode, isSubSection = false) => {
+        const isExpanded = expandedSections[id];
+
+        // Static header for sub-sections (no folding)
+        if (isSubSection) {
+            return (
+                <div className="flex items-center gap-3 mb-4 mt-6 px-1">
+                    <div className="w-1 h-4 rounded-full" style={{ backgroundColor: color || 'var(--accent-color)' }}></div>
+                    <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2 opacity-90">
+                        {title}
+                        {count !== undefined && (
+                            <span className="text-sm font-medium text-[var(--text-muted)] opacity-60">({count})</span>
+                        )}
+                    </h3>
+                </div>
+            );
+        }
+
+        return (
+            <div
+                onClick={() => toggleSection(id)}
+                className="flex items-center justify-between group cursor-pointer hover:bg-[var(--glass-highlight)] px-3 py-2 -mx-3 rounded-xl transition-all mb-4"
+            >
+                <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-6 rounded-full" style={{ backgroundColor: color || 'var(--accent-color)' }}></div>
+                    {icon && <div className="scale-90 -mx-0.5">{icon}</div>}
+                    <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
+                        {title}
+                        {count !== undefined && (
+                            <span className="text-sm font-medium text-[var(--text-muted)] opacity-60">({count})</span>
+                        )}
+                    </h2>
+                </div>
+                <div className="text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">
+                    {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                </div>
+            </div>
+        );
     };
 
     return (
         <div className="relative min-h-full">
-            {/* Header Title (Scrolls away) */}
+            {/* Header Title */}
             <div className="mb-4 pt-4">
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--text-secondary)]">
                     {t('library.title')}
@@ -65,72 +128,238 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                 </div>
             </div>
 
-            {/* Songs Tab */}
-            {activeTab === 'Songs' && (
-                <div className="space-y-4 animate-fade-in">
-                    {!isLoggedIn ? (
-                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
-                            {t('auth.pleaseLogin', '请先登录以查看您的音乐库')}
-                        </div>
-                    ) : (
-                        <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
-                            暂未实现获取喜欢的音乐 (TODO)
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Playlists Tab */}
-            {activeTab === 'Playlists' && (
-                <div className="grid grid-cols-3 gap-6 animate-fade-in">
-                    {isPlaylistsLoading ? (
-                        Array.from({ length: 9 }).map((_, i) => (
-                            <div key={i} className="space-y-3">
-                                <Skeleton className="w-full aspect-square rounded-2xl" />
-                                <Skeleton className="w-3/4 h-4 rounded" />
-                                <Skeleton className="w-1/2 h-3 rounded" />
+            {/* Content Area */}
+            <div className="animate-fade-in pb-20">
+                {activeTab === 'Songs' && (
+                    <div className="space-y-4">
+                        {(!isLoggedInNetease && !isLoggedInQQ) ? (
+                            <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
+                                {t('auth.pleaseLogin', '请先登录以查看您的音乐库')}
                             </div>
-                        ))
-                    ) : (
-                        playlists.map((pl: Playlist) => (
-                            <PlaylistCard
-                                key={pl.id}
-                                playlist={pl}
-                                onClick={() => {
-                                    if (typeof pl.id === 'number' && pl.id >= 100 && onNavigate) {
-                                        onNavigate(`Playlist:${pl.id}`);
-                                    } else {
-                                        handlePlayCollection();
-                                    }
-                                }}
-                            />
-                        ))
-                    )}
-                </div>
-            )}
-
-            {/* Albums Tab */}
-            {activeTab === 'Albums' && (
-                <div className="grid grid-cols-4 gap-6 animate-fade-in">
-                    {isAlbumsLoading ? (
-                        Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="space-y-3">
-                                <Skeleton className="w-full aspect-square rounded-2xl" />
-                                <Skeleton className="w-3/4 h-4 rounded" />
-                                <Skeleton className="w-1/2 h-3 rounded" />
+                        ) : (
+                            <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
+                                暂未实现获取喜欢的音乐 (TODO)
                             </div>
-                        ))
-                    ) : (
-                        albums.map((album: Album) => (
-                            <AlbumCard
-                                key={album.id}
-                                album={album}
-                                onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
-                            />
-                        ))
-                    )}
-                </div>
-            )}
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'Playlists' && (
+                    <div className="space-y-6">
+                        {isPlaylistsLoading ? (
+                            <div className="grid grid-cols-4 gap-6">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className="space-y-3">
+                                        <Skeleton className="w-full aspect-square rounded-2xl" />
+                                        <Skeleton className="w-3/4 h-4 rounded" />
+                                        <Skeleton className="w-1/2 h-3 rounded" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <>
+                                {/* Vibe Section */}
+                                {userPlaylists.length > 0 && (
+                                    <section>
+                                        {renderSectionHeader(
+                                            'vibe',
+                                            t('library.sections.local', '本地'),
+                                            userPlaylists.length,
+                                            undefined,
+                                            <PlatformBadge name="Vibe" color="var(--accent-color)" size="md" />
+                                        )}
+                                        {expandedSections.vibe && (
+                                            <div className="grid grid-cols-4 gap-6 animate-slide-up mt-2">
+                                                {userPlaylists.map((pl: Playlist) => (
+                                                    <PlaylistCard
+                                                        key={pl.id}
+                                                        playlist={pl}
+                                                        onClick={() => pl.id && onNavigate && onNavigate(`Playlist:${pl.id}`)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </section>
+                                )}
+
+                                {/* NetEase Platform Section */}
+                                {isLoggedInNetease && (
+                                    <section className={`${userPlaylists.length > 0 ? 'pt-4 border-t border-[var(--glass-border)]' : ''}`}>
+                                        {renderSectionHeader(
+                                            'netease',
+                                            t('library.sections.netease', '网易云音乐'),
+                                            neteaseRemotePlaylists.length,
+                                            '#e60026',
+                                            <PlatformBadge name="NetEase" color="#e60026" size="md" />
+                                        )}
+
+                                        {expandedSections.netease && (
+                                            <div className="pl-4 space-y-4 animate-slide-up">
+                                                {/* Liked */}
+                                                {neteaseLikedPlaylist && (
+                                                    <section>
+                                                        {renderSectionHeader(
+                                                            '',
+                                                            t('library.sections.neteaseLiked', '我喜欢的音乐'),
+                                                            undefined,
+                                                            '#e60026',
+                                                            undefined,
+                                                            true
+                                                        )}
+                                                        <div className="grid grid-cols-4 gap-6 px-1">
+                                                            <PlaylistCard
+                                                                playlist={neteaseLikedPlaylist}
+                                                                onClick={() => neteaseLikedPlaylist.id && onNavigate && onNavigate(`Playlist:${neteaseLikedPlaylist.id}`)}
+                                                            />
+                                                        </div>
+                                                    </section>
+                                                )}
+
+                                                {/* Created */}
+                                                {neteaseCreatedPlaylists.length > 0 && (
+                                                    <section>
+                                                        {renderSectionHeader(
+                                                            '',
+                                                            t('library.sections.neteaseCreated', '创建的歌单'),
+                                                            neteaseCreatedPlaylists.length,
+                                                            '#e60026',
+                                                            undefined,
+                                                            true
+                                                        )}
+                                                        <div className="grid grid-cols-4 gap-6 px-1">
+                                                            {neteaseCreatedPlaylists.map((pl: Playlist) => (
+                                                                <PlaylistCard
+                                                                    key={pl.id}
+                                                                    playlist={pl}
+                                                                    onClick={() => pl.id && onNavigate && onNavigate(`Playlist:${pl.id}`)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </section>
+                                                )}
+
+                                                {/* Collected */}
+                                                {neteaseCollectedPlaylists.length > 0 && (
+                                                    <section>
+                                                        {renderSectionHeader(
+                                                            '',
+                                                            t('library.sections.neteaseCollected', '收藏的歌单'),
+                                                            neteaseCollectedPlaylists.length,
+                                                            '#e60026',
+                                                            undefined,
+                                                            true
+                                                        )}
+                                                        <div className="grid grid-cols-4 gap-6 px-1">
+                                                            {neteaseCollectedPlaylists.map((pl: Playlist) => (
+                                                                <PlaylistCard
+                                                                    key={pl.id}
+                                                                    playlist={pl}
+                                                                    onClick={() => pl.id && onNavigate && onNavigate(`Playlist:${pl.id}`)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </section>
+                                                )}
+                                            </div>
+                                        )}
+                                    </section>
+                                )}
+
+                                {/* QQ Music Platform Section */}
+                                {isLoggedInQQ && (
+                                    <section className={`${(userPlaylists.length > 0 || isLoggedInNetease) ? 'pt-4 border-t border-[var(--glass-border)]' : ''}`}>
+                                        {renderSectionHeader(
+                                            'qq',
+                                            t('library.sections.qq', 'QQ 音乐'),
+                                            qqRemotePlaylists.length,
+                                            '#31c27c',
+                                            <PlatformBadge name="QQ Music" color="#31c27c" size="md" />
+                                        )}
+
+                                        {expandedSections.qq && (
+                                            <div className="pl-4 space-y-4 animate-slide-up">
+                                                {/* Created */}
+                                                {qqCreatedPlaylists.length > 0 && (
+                                                    <section>
+                                                        {renderSectionHeader(
+                                                            '',
+                                                            t('library.sections.qqCreated', '创建的歌单'),
+                                                            qqCreatedPlaylists.length,
+                                                            '#31c27c',
+                                                            undefined,
+                                                            true
+                                                        )}
+                                                        <div className="grid grid-cols-4 gap-6 px-1">
+                                                            {qqCreatedPlaylists.map((pl: Playlist) => (
+                                                                <PlaylistCard
+                                                                    key={pl.id}
+                                                                    playlist={pl}
+                                                                    onClick={() => pl.id && onNavigate && onNavigate(`Playlist:${pl.id}`)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </section>
+                                                )}
+
+                                                {/* Collected */}
+                                                {qqCollectedPlaylists.length > 0 && (
+                                                    <section>
+                                                        {renderSectionHeader(
+                                                            '',
+                                                            t('library.sections.qqCollected', '收藏的歌单'),
+                                                            qqCollectedPlaylists.length,
+                                                            '#31c27c',
+                                                            undefined,
+                                                            true
+                                                        )}
+                                                        <div className="grid grid-cols-4 gap-6 px-1">
+                                                            {qqCollectedPlaylists.map((pl: Playlist) => (
+                                                                <PlaylistCard
+                                                                    key={pl.id}
+                                                                    playlist={pl}
+                                                                    onClick={() => pl.id && onNavigate && onNavigate(`Playlist:${pl.id}`)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </section>
+                                                )}
+                                            </div>
+                                        )}
+                                    </section>
+                                )}
+
+                                {!isLoggedInNetease && !isLoggedInQQ && !userPlaylists.length && (
+                                    <div className="py-20 text-center text-[var(--text-muted)] bg-[var(--glass-highlight)] rounded-2xl border border-dashed border-[var(--glass-border)]">
+                                        暂无歌单
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'Albums' && (
+                    <div className="grid grid-cols-4 gap-6">
+                        {isAlbumsLoading ? (
+                            Array.from({ length: 8 }).map((_, i) => (
+                                <div key={i} className="space-y-3">
+                                    <Skeleton className="w-full aspect-square rounded-2xl" />
+                                    <Skeleton className="w-3/4 h-4 rounded" />
+                                    <Skeleton className="w-1/2 h-3 rounded" />
+                                </div>
+                            ))
+                        ) : (
+                            albums.map((album: Album) => (
+                                <AlbumCard
+                                    key={album.id}
+                                    album={album}
+                                    onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
+                                />
+                            ))
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

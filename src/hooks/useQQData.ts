@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { QQMusicService } from '../services/QQMusicService';
 import { useQQStore } from '../stores/useQQStore';
-import type { Song, AudioSource } from '../types';
+import type { Song, AudioSource, Playlist } from '../types';
 import type { QQSongItem } from '../types/api/qqmusic';
 
 // ================== TYPE CONVERTERS ==================
@@ -44,13 +44,53 @@ function qqToSong(item: QQSongItem): Song {
     };
 }
 
+/** Convert QQ playlist item to our app's Playlist type */
+function qqToPlaylist(item: any): Playlist {
+    return {
+        id: item.dissid,
+        title: item.dissname,
+        count: item.song_cnt || 0,
+        creator: '', // Not easily available in result
+        cover: item.imgurl || '',
+        source: 'qq',
+        isSubscribed: item.dirid !== 0, // dirid 0 usually means self created
+    };
+}
+
 // ================== QUERY KEYS ==================
 
 export const QQQueryKeys = {
     Search: (keywords: string) => ['qq', 'search', keywords] as const,
+    UserPlaylists: (cookie: string) => ['qq', 'userPlaylists', cookie] as const,
 };
 
 // ================== HOOKS ==================
+
+/**
+ * Get user's playlists from QQ Music
+ */
+export const useQQUserPlaylists = (options?: { enabled?: boolean }) => {
+    const cookie = useQQStore((s) => s.cookie);
+    const isLoggedIn = useQQStore((s) => s.isLoggedIn);
+
+    const query = useQuery({
+        queryKey: QQQueryKeys.UserPlaylists(cookie),
+        queryFn: async () => {
+            const data = await QQMusicService.getUserPlaylists(cookie);
+            const playlists = data?.req?.data?.list || [];
+            return playlists.map(qqToPlaylist);
+        },
+        enabled: (options?.enabled !== false) && isLoggedIn,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    return {
+        ...query,
+        playlists: (query.data || []) as Playlist[],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
 
 /**
  * Search QQ Music (2025.9 API)

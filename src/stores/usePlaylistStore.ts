@@ -30,7 +30,8 @@ export const usePlaylistStore = create<PlaylistStore>()(
                     count: 0,
                     creator: 'Yan',
                     cover: selectedCover,
-                    songs: []
+                    songs: [],
+                    source: 'vibe'
                 };
                 return { userPlaylists: [...state.userPlaylists, newPlaylist] };
             }),
