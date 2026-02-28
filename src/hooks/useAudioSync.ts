@@ -17,25 +17,6 @@ export function useAudioSync(
     const volume = usePlayerStore((s) => s.volume);
     const currentTimeSec = usePlayerStore((s) => s.currentTimeSec);
 
-    // Sync Play/Pause state from Store
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio || !currentUrlRef.current) return;
-
-        if (isPlaying && audio.paused) {
-            audio.play().catch(e => console.error('Play failed:', e));
-        } else if (!isPlaying && !audio.paused) {
-            audio.pause();
-        }
-    }, [isPlaying, audioRef, currentUrlRef]);
-
-    // Sync Volume
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = Math.max(0, Math.min(1, volume / 100));
-        }
-    }, [volume, audioRef]);
-
     // Sync Seek Operations
     useEffect(() => {
         const audio = audioRef.current;
@@ -46,4 +27,23 @@ export function useAudioSync(
             audio.currentTime = currentTimeSec;
         }
     }, [currentTimeSec, audioRef, currentUrlRef]);
+
+    // Sync Play/Pause state from Store
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || !currentUrlRef.current) return;
+
+        if (isPlaying && (audio.paused || audio.ended)) {
+            audio.play().catch(e => console.error('Play failed:', e));
+        } else if (!isPlaying && !audio.paused) {
+            audio.pause();
+        }
+    }, [isPlaying, audioRef, currentUrlRef, currentTimeSec]);
+
+    // Sync Volume
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = Math.max(0, Math.min(1, volume / 100));
+        }
+    }, [volume, audioRef]);
 }
