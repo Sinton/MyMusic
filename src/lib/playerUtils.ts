@@ -24,8 +24,14 @@ export const getNextIndex = (
     currentIndex: number,
     queueLength: number,
     shuffle: boolean,
-    repeat: 'off' | 'all' | 'one'
+    repeat: 'off' | 'all' | 'one',
+    isAuto: boolean = false
 ): { index: number; shouldStop: boolean } => {
+    // If auto-advancing on "Repeat One" mode, play the identical song again indefinitely
+    if (isAuto && repeat === 'one') {
+        return { index: currentIndex, shouldStop: false };
+    }
+
     if (shuffle) {
         let nextIndex = Math.floor(Math.random() * queueLength);
         // Avoid same track if possible
@@ -38,7 +44,9 @@ export const getNextIndex = (
     const nextIndex = currentIndex + 1;
 
     if (nextIndex >= queueLength) {
-        if (repeat === 'off') {
+        // Only stop if the playlist inherently finished and we strictly are "off" 
+        // For general user flow or explicit Next button clicks, wrap around to start
+        if (repeat === 'off' && isAuto) {
             return { index: currentIndex, shouldStop: true };
         }
         return { index: 0, shouldStop: false };

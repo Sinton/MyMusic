@@ -192,6 +192,15 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                 currentTrack={currentTrack}
                 isPlaying={isPlaying}
                 onPlayTrack={handlePlayQueueTrack}
+                onRemoveTrack={(index) => {
+                    const removedTrack = queue[index];
+                    const newQueue = queue.filter((_, i) => i !== index);
+                    usePlayerStore.getState().setQueue(newQueue);
+                    // If the current playing track was removed, optionally automatically play next. 
+                    if (removedTrack.id === currentTrack.id) {
+                        nextTrack();
+                    }
+                }}
             />
 
             <OptionsPanel

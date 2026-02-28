@@ -72,13 +72,13 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                         {shuffle ? <Shuffle className="w-5 h-5" /> : repeat === 'one' ? <div className="relative"><Repeat className="w-5 h-5" /><span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[6px] font-bold uppercase pt-0.5">1</span></div> : <Repeat className="w-5 h-5" />}
                     </button>
 
-                    <button onClick={onPreviousTrack} className="btn-icon w-10 h-10 hover:text-[var(--text-main)] active:scale-90 transition-transform">
+                    <button onClick={() => onPreviousTrack()} className="btn-icon w-10 h-10 hover:text-[var(--text-main)] active:scale-90 transition-transform">
                         <SkipBack className="w-8 h-8" />
                     </button>
                     <button onClick={onTogglePlay} className="w-16 h-16 rounded-full bg-[var(--text-main)] text-[var(--bg-color)] flex items-center justify-center hover:scale-105 hover:bg-[var(--text-secondary)] transition-all shadow-lg">
                         {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}
                     </button>
-                    <button onClick={onNextTrack} className="btn-icon w-10 h-10 hover:text-[var(--text-main)] active:scale-90 transition-transform">
+                    <button onClick={() => onNextTrack()} className="btn-icon w-10 h-10 hover:text-[var(--text-main)] active:scale-90 transition-transform">
                         <SkipForward className="w-8 h-8" />
                     </button>
 

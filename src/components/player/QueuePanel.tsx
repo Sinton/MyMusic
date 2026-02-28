@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, ListMusic, Play } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { X, ListMusic, Play, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Track } from '../../types';
 import { getTrackGradient } from '../../lib/playerUtils';
@@ -11,6 +11,7 @@ interface QueuePanelProps {
     currentTrack: Track;
     isPlaying: boolean;
     onPlayTrack: (track: Track) => void;
+    onRemoveTrack?: (index: number) => void;
 }
 
 const QueuePanel: React.FC<QueuePanelProps> = ({
@@ -19,14 +20,25 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
     queue,
     currentTrack,
     isPlaying,
-    onPlayTrack
+    onPlayTrack,
+    onRemoveTrack
 }) => {
     const { t } = useTranslation();
-    const [showShadow, setShowShadow] = React.useState(false);
+    const [showShadow, setShowShadow] = useState(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isOpen) {
             setShowShadow(true);
+            // Scroll to the currently playing track after a small delay to let the drawer open
+            setTimeout(() => {
+                if (scrollContainerRef.current) {
+                    const activeElement = scrollContainerRef.current.querySelector('[data-active="true"]');
+                    if (activeElement) {
+                        activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }, 300);
         } else {
             const timer = setTimeout(() => setShowShadow(false), 500);
             return () => clearTimeout(timer);
@@ -45,13 +57,14 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                         <X className="w-6 h-6 text-[var(--text-secondary)]" />
                     </button>
                 </div>
-                <div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
+                <div ref={scrollContainerRef} className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
                     {queue.map((track, index) => {
                         const isCurrent = track.id === currentTrack.id;
                         const trackColor = getTrackGradient(track.id);
                         return (
                             <div
                                 key={`${track.id}-${index}`}
+                                data-active={isCurrent ? "true" : "false"}
                                 onClick={() => onPlayTrack(track)}
                                 className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all group relative ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20' : 'hover:bg-[var(--glass-highlight)]'}`}
                             >
@@ -77,11 +90,27 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                                         )}
                                     </div>
                                 </div>
-                                <div className="min-w-0 flex-1">
+                                <div className="min-w-0 flex-1 pr-2">
                                     <div className={`font-bold truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>{track.title}</div>
                                     <div className="text-sm text-[var(--text-secondary)] truncate">{track.artist}</div>
                                 </div>
-                                <div className="text-xs font-mono text-[var(--text-muted)]">{track.duration}</div>
+
+                                {/* Right Side Actions: Duration / Remove */}
+                                <div className="flex items-center gap-2">
+                                    <div className="text-xs font-mono text-[var(--text-muted)] group-hover:hidden block">{track.duration}</div>
+                                    {onRemoveTrack && (
+                                        <button
+                                            className="p-2 rounded-full hidden group-hover:block hover:bg-[var(--glass-border)] transition-colors text-[var(--text-muted)] hover:text-red-500"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRemoveTrack(index);
+                                            }}
+                                            title={t('fullPlayer.queue.remove')}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         );
                     })}

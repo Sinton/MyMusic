@@ -58,7 +58,7 @@ export const usePlayerStore = create<PlayerStore>()(
             }),
 
             // ================== NAVIGATION ACTIONS ==================
-            nextTrack: () => {
+            nextTrack: (isAuto = false) => {
                 const state = get();
                 const { queue, currentTrack, shuffle, repeat } = state;
                 const currentIndex = queue.findIndex(t => t.id === currentTrack.id);
@@ -67,7 +67,8 @@ export const usePlayerStore = create<PlayerStore>()(
                     currentIndex,
                     queue.length,
                     shuffle,
-                    repeat
+                    repeat,
+                    isAuto
                 );
 
                 if (shouldStop) {

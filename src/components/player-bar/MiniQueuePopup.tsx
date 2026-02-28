@@ -1,8 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { ListMusic, Play } from 'lucide-react';
+import { ListMusic, Play, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
-
 
 interface MiniQueuePopupProps {
     isOpen: boolean;
@@ -11,8 +10,9 @@ interface MiniQueuePopupProps {
 
 export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { queue, currentTrack, isPlaying, setTrack, play } = usePlayerStore();
+    const { queue, currentTrack, isPlaying, setTrack, play, setQueue } = usePlayerStore();
     const popupRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // Close when clicking outside
     useEffect(() => {
@@ -34,6 +34,21 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
         };
     }, [isOpen, onClose]);
 
+    // Handle auto-scroll only when first opened
+    useEffect(() => {
+        if (isOpen) {
+            const timer = setTimeout(() => {
+                if (scrollContainerRef.current) {
+                    const activeElement = scrollContainerRef.current.querySelector('[data-active="true"]');
+                    if (activeElement) {
+                        activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+
     // Quick deterministic color assignment based on track/song ID
     const getTrackColor = (id: string | number) => {
         const colors = [
@@ -54,6 +69,23 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
 
     if (!isOpen) return null;
 
+    const handleRemoveTrack = (e: React.MouseEvent, index: number) => {
+        e.stopPropagation();
+        const removedTrack = queue[index];
+        const newQueue = queue.filter((_, i) => i !== index);
+        setQueue(newQueue);
+
+        // If they removed everything, close the popup
+        if (newQueue.length === 0) {
+            onClose();
+        } else if (removedTrack.id === currentTrack.id) {
+            // Optional: if you removed the current track, switch to the next track available at that index
+            const nextTrack = newQueue[index] || newQueue[0];
+            setTrack(nextTrack);
+            play();
+        }
+    };
+
     return (
         <div
             ref={popupRef}
@@ -62,15 +94,16 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
             <div className="p-4 border-b border-[var(--glass-border)] bg-[var(--glass-highlight)]">
                 <h3 className="font-bold text-sm flex items-center gap-2">
                     <ListMusic className="w-4 h-4 text-[var(--accent-color)]" />
-                    {t('playerBar.nextUp')}
+                    {t('playerBar.nextUp', '接下来播放')}
                 </h3>
             </div>
-            <div className="overflow-y-auto max-h-[440px] p-2 space-y-1 custom-scrollbar-none">
-                {queue.map((track) => {
+            <div ref={scrollContainerRef} className="overflow-y-auto max-h-[440px] p-2 space-y-1 custom-scrollbar-none">
+                {queue.map((track, index) => {
                     const isCurrent = track.id === currentTrack.id;
                     return (
                         <div
-                            key={track.id}
+                            key={`${track.id}-${index}`}
+                            data-active={isCurrent ? "true" : "false"}
                             onClick={() => {
                                 setTrack(track);
                                 play();
@@ -101,7 +134,7 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                                     )}
                                 </div>
                             </div>
-                            <div className="min-w-0 flex-1">
+                            <div className="min-w-0 flex-1 pr-1">
                                 <div className={`text-xs font-medium truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>
                                     {track.title}
                                 </div>
@@ -109,6 +142,14 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                                     {track.artist}
                                 </div>
                             </div>
+
+                            <button
+                                onClick={(e) => handleRemoveTrack(e, index)}
+                                className="p-1.5 rounded-full hidden group-hover:block hover:bg-[var(--glass-border)] transition-colors text-[var(--text-muted)] hover:text-red-500"
+                                title={t('fullPlayer.queue.remove', '移除')}
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                         </div>
                     );
                 })}

@@ -47,7 +47,7 @@ export function useAudioPlayer() {
 
         const onEnded = () => {
             remoteLog('[AudioPlayer] onEnded: next track');
-            nextTrack();
+            nextTrack(true);
         };
 
         const onPlay = () => remoteLog('[AudioPlayer] onPlay event fired');

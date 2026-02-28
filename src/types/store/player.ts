@@ -26,7 +26,7 @@ export interface PlayerActions {
     toggleShuffle: () => void;
     cycleRepeat: () => void;
     toggleMode: () => void;
-    nextTrack: () => void;
+    nextTrack: (isAuto?: boolean) => void;
     previousTrack: () => void;
     setProgress: (time: number) => void;
     setQueue: (queue: Track[]) => void;

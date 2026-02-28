@@ -132,14 +132,14 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                             )}
                         </button>
 
-                        <button onClick={previousTrack} className="btn-icon w-8 h-8 hover:text-[var(--text-main)] active:scale-90 transition-transform"><SkipBack className="w-5 h-5" /></button>
+                        <button onClick={() => previousTrack()} className="btn-icon w-8 h-8 hover:text-[var(--text-main)] active:scale-90 transition-transform"><SkipBack className="w-5 h-5" /></button>
                         <button
                             onClick={togglePlay}
                             className="w-10 h-10 rounded-full bg-[var(--text-main)] text-[var(--bg-color)] flex items-center justify-center hover:scale-105 transition-transform shadow-md"
                         >
                             {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                         </button>
-                        <button onClick={nextTrack} className="btn-icon w-8 h-8 hover:text-[var(--text-main)] active:scale-90 transition-transform"><SkipForward className="w-5 h-5" /></button>
+                        <button onClick={() => nextTrack()} className="btn-icon w-8 h-8 hover:text-[var(--text-main)] active:scale-90 transition-transform"><SkipForward className="w-5 h-5" /></button>
 
                         {/* Queue Button with Popover */}
                         <div className="relative">
