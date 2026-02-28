@@ -126,6 +126,7 @@ export interface NeteaseAlbumFull {
     artist?: NeteaseAlbumArtist;
     artists?: NeteaseAlbumArtist[];
     publishTime?: number;
+    size?: number;
 }
 
 export interface NeteaseAlbumDetailResponse {

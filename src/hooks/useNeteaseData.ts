@@ -82,6 +82,7 @@ function neteaseToAlbum(item: NeteaseAlbumFull): Album {
         artistId: item.artist?.id || item.artists?.[0]?.id,
         year: item.publishTime ? new Date(item.publishTime).getFullYear() : new Date().getFullYear(),
         cover: item.picUrl || item.blurPicUrl || '',
+        count: item.size || 0,
     };
 }
 

@@ -17,12 +17,20 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ album, onClick }) => {
             className="group p-4 rounded-xl bg-[rgba(255,255,255,0.05)] hover:bg-[var(--glass-highlight)] transition-colors cursor-pointer border border-transparent hover:border-[var(--glass-border)]"
         >
             {/* Cover */}
-            <div className={`w-full aspect-square rounded-xl mb-4 shadow-xl ${album.cover} relative flex items-center justify-center overflow-hidden`}>
+            <div className="w-full aspect-square rounded-xl mb-4 shadow-xl relative flex items-center justify-center overflow-hidden bg-[rgba(255,255,255,0.05)]">
                 {/* Inner Ring */}
                 <div className="absolute inset-0 border border-white/10 rounded-xl pointer-events-none z-10"></div>
 
-                {/* Vinyl Icon */}
-                <Disc className="w-1/2 h-1/2 text-white/20 animate-spin-slow-variable" style={{ animationDuration: '10s' }} />
+                {album.cover ? (
+                    <img
+                        src={album.cover}
+                        alt={album.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                ) : (
+                    /* Vinyl Icon Fallback */
+                    <Disc className="w-1/2 h-1/2 text-white/20 animate-spin-slow-variable" style={{ animationDuration: '10s' }} />
+                )}
 
                 {/* Hover Overlay */}
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20 backdrop-blur-[2px]">
@@ -39,7 +47,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ album, onClick }) => {
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] mt-1">
                     <span>{album.year}</span>
                     <span className="opacity-50">•</span>
-                    <span>{album.songs?.length || 0} {t('album.songs')}</span>
+                    <span>{album.songs?.length || album.count || 0} {t('album.songs')}</span>
                 </div>
             </div>
         </div>

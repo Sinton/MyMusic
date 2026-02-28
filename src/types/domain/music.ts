@@ -44,6 +44,7 @@ export interface Album {
     year: number;
     cover: string;
     songs?: Song[];
+    count?: number;
     genre?: string;
 }
 
