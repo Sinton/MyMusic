@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Volume2, VolumeX, Volume1 } from 'lucide-react';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 
@@ -13,12 +13,34 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
     popoverDirection = 'up'
 }) => {
     const [showVolume, setShowVolume] = useState(false);
+    const [prevVolume, setPrevVolume] = useState(80);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { volume, setVolume } = usePlayerStore();
 
     const getIcon = () => {
         if (volume === 0) return <VolumeX className="w-5 h-5" />;
         if (volume < 50) return <Volume1 className="w-5 h-5" />;
         return <Volume2 className="w-5 h-5" />;
+    };
+
+    const handleMouseEnter = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        setShowVolume(true);
+    };
+
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => {
+            setShowVolume(false);
+        }, 300);
+    };
+
+    const handleToggleMute = () => {
+        if (volume > 0) {
+            setPrevVolume(volume);
+            setVolume(0);
+        } else {
+            setVolume(prevVolume > 0 ? prevVolume : 80);
+        }
     };
 
     const popoverPositionStyles = {
@@ -29,17 +51,21 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
     };
 
     return (
-        <div className={`relative ${className}`}>
+        <div
+            className={`relative ${className}`}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
             <button
-                onClick={() => setShowVolume(!showVolume)}
-                className={`btn-icon transition-colors ${showVolume ? 'text-[var(--accent-color)] bg-[var(--glass-highlight)]' : ''}`}
+                onClick={handleToggleMute}
+                className={`btn-icon transition-colors hover:text-[var(--accent-color)] ${showVolume ? 'text-[var(--accent-color)] bg-[var(--glass-highlight)]' : ''}`}
             >
                 {getIcon()}
             </button>
 
             {/* Volume Slider Popup */}
             {showVolume && (
-                <div className={`absolute ${popoverPositionStyles[popoverDirection]} w-10 h-40 glass rounded-full flex flex-col items-center py-5 bg-[var(--bg-color)]/95 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300 z-50`}>
+                <div className={`absolute ${popoverPositionStyles[popoverDirection]} w-10 h-40 glass rounded-2xl flex flex-col items-center py-4 bg-[var(--bg-color)]/95 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300 z-50`}>
                     <div className="flex-1 w-1.5 bg-[var(--glass-border)] rounded-full relative group cursor-pointer">
                         <input
                             type="range"
@@ -56,7 +82,7 @@ const VolumeControl: React.FC<VolumeControlProps> = ({
                             }}
                         />
                         <div
-                            className="absolute bottom-0 left-0 right-0 bg-[var(--accent-color)] rounded-full transition-all duration-150"
+                            className="absolute bottom-0 left-0 right-0 bg-[var(--accent-color)] rounded-full"
                             style={{ height: `${volume}%` }}
                         >
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-[var(--text-main)] rounded-full shadow-lg border border-[var(--glass-border)] z-10"></div>
