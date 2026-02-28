@@ -2,10 +2,10 @@ import React from 'react';
 import { Settings, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlatformStore } from '../stores/usePlatformStore';
-import AppearanceSettings from '../components/settings/AppearanceSettings';
-import GeneralSettings from '../components/settings/GeneralSettings';
-import AudioSettings from '../components/settings/AudioSettings';
-import AboutSection from '../components/settings/AboutSection';
+import AppearanceSettings from './settings/AppearanceSettings';
+import GeneralSettings from './settings/GeneralSettings';
+import AudioSettings from './settings/AudioSettings';
+import AboutSection from './settings/AboutSection';
 
 const SettingsView: React.FC = () => {
     const { t } = useTranslation();

@@ -2,7 +2,7 @@ import React from 'react';
 import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '../../stores/useSettingsStore';
-import { Dropdown } from '../index';
+import { Dropdown } from '../../components/index';
 
 const GeneralSettings: React.FC = () => {
     const { t } = useTranslation();
