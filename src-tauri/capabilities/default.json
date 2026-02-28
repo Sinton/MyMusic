@@ -7,17 +7,6 @@
     "permissions": [
         "core:default",
         "shell:default",
-        {
-            "identifier": "http:default",
-            "allow": [
-                {
-                    "url": "https://**"
-                },
-                {
-                    "url": "http://**"
-                }
-            ]
-        },
         "core:window:allow-close",
         "core:window:allow-minimize",
         "core:window:allow-maximize",
