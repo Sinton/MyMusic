@@ -7,8 +7,8 @@ import vibeLogo from '../assets/logo_bg.png';
 
 interface PlatformBadgeProps {
     name: string;
-    color: string;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    color?: string;
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     showInitial?: boolean;
     connected?: boolean;
     useIcon?: boolean;
@@ -26,7 +26,7 @@ const iconMap: Record<string, string> = {
 
 const PlatformBadge: React.FC<PlatformBadgeProps> = ({
     name,
-    color,
+    color = 'var(--accent-color)',
     size = 'md',
     showInitial = true,
     connected = true,
@@ -34,6 +34,7 @@ const PlatformBadge: React.FC<PlatformBadgeProps> = ({
     className = '',
 }) => {
     const sizeClasses = {
+        xs: 'w-4 h-4 text-[8px]',
         sm: 'w-6 h-6 text-[10px]',
         md: 'w-8 h-8 text-xs',
         lg: 'w-10 h-10 text-sm',
@@ -41,6 +42,7 @@ const PlatformBadge: React.FC<PlatformBadgeProps> = ({
     };
 
     const iconSizes = {
+        xs: 'w-2.5 h-2.5',
         sm: 'w-3 h-3',
         md: 'w-4 h-4',
         lg: 'w-5 h-5',
