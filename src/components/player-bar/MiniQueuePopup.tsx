@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { ListMusic, Play, Trash2, Target, Eraser, Check, X } from 'lucide-react';
+import { ListMusic, Play, Trash2, Target, Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 
@@ -7,6 +7,94 @@ interface MiniQueuePopupProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+// Helper for deterministic color assignment
+const getTrackColor = (id: string | number) => {
+    const colors = [
+        'from-indigo-500 to-purple-500',
+        'from-pink-500 to-rose-500',
+        'from-blue-500 to-cyan-500',
+        'from-amber-500 to-orange-500',
+        'from-emerald-500 to-teal-500'
+    ];
+    let numericId;
+    if (typeof id === 'string') {
+        numericId = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    } else {
+        numericId = id as number;
+    }
+    return colors[numericId % colors.length];
+};
+
+// Mini Component for each track in the mini queue
+interface MiniQueueTrackItemProps {
+    track: any;
+    index: number;
+    isCurrent: boolean;
+    isPlaying: boolean;
+    onPlay: () => void;
+    onRemove: (e: React.MouseEvent) => void;
+    t: any;
+}
+
+const MiniQueueTrackItem = React.memo<MiniQueueTrackItemProps>(({
+    track,
+    isCurrent,
+    isPlaying,
+    onPlay,
+    onRemove,
+    t
+}) => {
+    return (
+        <div
+            data-active={isCurrent ? "true" : "false"}
+            onClick={onPlay}
+            className={`
+                flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all group relative
+                ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20' : 'hover:bg-[var(--glass-highlight)]'}
+            `}
+        >
+            {/* Active Track Indicator Bar */}
+            {isCurrent && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
+            )}
+            <div className={`w-10 h-10 rounded bg-gradient-to-br ${getTrackColor(track.id)} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
+                {track.cover && (
+                    <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className={`absolute inset-0 flex items-center justify-center ${isCurrent && isPlaying ? 'bg-black/40' : 'bg-black/0 group-hover:bg-black/30'} transition-colors`}>
+                    {isCurrent && isPlaying ? (
+                        <div className="flex gap-0.5 items-end h-3">
+                            <div className="w-0.5 bg-white animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
+                            <div className="w-0.5 bg-white animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
+                            <div className="w-0.5 bg-white animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
+                        </div>
+                    ) : (
+                        <Play className="w-3 h-3 text-white fill-current opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                </div>
+            </div>
+            <div className="min-w-0 flex-1 pr-1">
+                <div className={`text-xs font-medium truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>
+                    {track.title}
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                    {track.artist}
+                </div>
+            </div>
+
+            <button
+                onClick={onRemove}
+                className="p-1.5 rounded-full hidden group-hover:block hover:bg-[var(--glass-border)] transition-colors text-[var(--text-muted)] hover:text-red-500"
+                title={t('fullPlayer.queue.remove', '移除')}
+            >
+                <Trash2 className="w-3.5 h-3.5" />
+            </button>
+        </div>
+    );
+});
+
+MiniQueueTrackItem.displayName = 'MiniQueueTrackItem';
 
 export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
@@ -54,24 +142,6 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
         }
     }, [isOpen]);
 
-    // Quick deterministic color assignment based on track/song ID
-    const getTrackColor = (id: string | number) => {
-        const colors = [
-            'from-indigo-500 to-purple-500',
-            'from-pink-500 to-rose-500',
-            'from-blue-500 to-cyan-500',
-            'from-amber-500 to-orange-500',
-            'from-emerald-500 to-teal-500'
-        ];
-        let numericId;
-        if (typeof id === 'string') {
-            numericId = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        } else {
-            numericId = id;
-        }
-        return colors[numericId % colors.length];
-    };
-
     if (!isOpen) return null;
 
     const handleRemoveTrack = (e: React.MouseEvent, index: number) => {
@@ -84,7 +154,6 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
         if (newQueue.length === 0) {
             onClose();
         } else if (removedTrack.id === currentTrack.id) {
-            // Optional: if you removed the current track, switch to the next track available at that index
             const nextTrack = newQueue[index] || newQueue[0];
             setTrack(nextTrack);
             play();
@@ -138,7 +207,7 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                                 >
                                     <div className="relative w-3.5 h-3.5">
                                         <Check className={`absolute inset-0 w-3.5 h-3.5 transition-all duration-300 transform ${showConfirmClear ? 'scale-100 rotate-0 opacity-100' : 'scale-50 -rotate-45 opacity-0'}`} />
-                                        <Eraser className={`absolute inset-0 w-3.5 h-3.5 transition-all duration-300 transform ${showConfirmClear ? 'scale-50 rotate-45 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
+                                        <Trash2 className={`absolute inset-0 w-3.5 h-3.5 transition-all duration-300 transform ${showConfirmClear ? 'scale-50 rotate-45 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
                                     </div>
                                 </button>
                                 <div className={`flex items-center transition-all duration-500 ${showConfirmClear ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1'}`}>
@@ -158,68 +227,29 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                     )}
                 </div>
             </div>
-            <div ref={scrollContainerRef} className="overflow-y-auto max-h-[440px] p-2 space-y-1 custom-scrollbar-none">
+            <div ref={scrollContainerRef} className="overflow-y-auto max-h-[440px] p-2 pr-1.5 space-y-1 mini-scrollbar">
                 {queue.length === 0 ? (
                     <div className="py-20 flex flex-col items-center justify-center opacity-30">
                         <ListMusic className="w-12 h-12 mb-2" />
                         <p className="text-xs font-medium">{t('fullPlayer.queue.empty', '队列为空')}</p>
                     </div>
                 ) : (
-                    queue.map((track, index) => {
-                        const isCurrent = track.id === currentTrack.id;
-                        return (
-                            <div
-                                key={`${track.id}-${index}`}
-                                data-active={isCurrent ? "true" : "false"}
-                                onClick={() => {
-                                    setTrack(track);
-                                    play();
-                                    onClose();
-                                }}
-                                className={`
-                                    flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all group relative
-                                    ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20' : 'hover:bg-[var(--glass-highlight)]'}
-                                `}
-                            >
-                                {/* Active Track Indicator Bar */}
-                                {isCurrent && (
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
-                                )}
-                                <div className={`w-10 h-10 rounded bg-gradient-to-br ${getTrackColor(track.id)} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
-                                    {track.cover && (
-                                        <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
-                                    )}
-                                    <div className={`absolute inset-0 flex items-center justify-center ${isCurrent && isPlaying ? 'bg-black/40' : 'bg-black/0 group-hover:bg-black/30'} transition-colors`}>
-                                        {isCurrent && isPlaying ? (
-                                            <div className="flex gap-0.5 items-end h-3">
-                                                <div className="w-0.5 bg-white animate-[music-bar_0.6s_ease-in-out_infinite] h-full"></div>
-                                                <div className="w-0.5 bg-white animate-[music-bar_0.8s_ease-in-out_infinite] h-2/3"></div>
-                                                <div className="w-0.5 bg-white animate-[music-bar_0.7s_ease-in-out_infinite] h-5/6"></div>
-                                            </div>
-                                        ) : (
-                                            <Play className="w-3 h-3 text-white fill-current opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="min-w-0 flex-1 pr-1">
-                                    <div className={`text-xs font-medium truncate ${isCurrent ? 'text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}>
-                                        {track.title}
-                                    </div>
-                                    <div className="text-[10px] text-[var(--text-secondary)] truncate">
-                                        {track.artist}
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={(e) => handleRemoveTrack(e, index)}
-                                    className="p-1.5 rounded-full hidden group-hover:block hover:bg-[var(--glass-border)] transition-colors text-[var(--text-muted)] hover:text-red-500"
-                                    title={t('fullPlayer.queue.remove', '移除')}
-                                >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                        );
-                    })
+                    queue.map((track, index) => (
+                        <MiniQueueTrackItem
+                            key={`${track.id}-${index}`}
+                            track={track}
+                            index={index}
+                            isCurrent={track.id === currentTrack.id}
+                            isPlaying={isPlaying}
+                            onPlay={() => {
+                                setTrack(track);
+                                play();
+                                onClose();
+                            }}
+                            onRemove={(e) => handleRemoveTrack(e, index)}
+                            t={t}
+                        />
+                    ))
                 )}
             </div>
         </div>
