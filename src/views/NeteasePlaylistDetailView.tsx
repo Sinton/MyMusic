@@ -1,7 +1,7 @@
 import React from 'react';
-import { Cloud } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PlaylistShell } from '../components/common/PlaylistShell';
+import { PlatformBadge } from '../components';
 import { useNeteasePlaylistDetail } from '../hooks/useNeteaseData';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { songToTrack } from '../lib/trackUtils';
@@ -35,9 +35,15 @@ const NeteasePlaylistDetailView: React.FC<NeteasePlaylistDetailViewProps> = ({ p
             cover={coverFallback}
             creator={playlist?.creator || ''}
             songs={songs}
-            HeaderIcon={Cloud}
+            HeaderIcon={() => (
+                <PlatformBadge
+                    name="NetEase"
+                    size="xs"
+                    className="w-3.5 h-3.5 rounded-sm shadow-[0_1px_4px_rgba(236,65,65,0.3)]"
+                />
+            )}
             headerTagText={t('playlist.neteasePlaylist', '网易云歌单')}
-            headerTagColorClass="text-red-500"
+            headerTagColorClass="text-[var(--text-muted)]"
             isEditable={false}
             onPlayAll={handlePlayAll}
         />

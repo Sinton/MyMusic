@@ -150,8 +150,9 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
         const newQueue = queue.filter((_, i) => i !== index);
         setQueue(newQueue);
 
-        // If they removed everything, close the popup
+        // If they removed everything, reset player and close popup
         if (newQueue.length === 0) {
+            clearQueue();
             onClose();
         } else if (removedTrack.id === currentTrack.id) {
             const nextTrack = newQueue[index] || newQueue[0];

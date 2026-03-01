@@ -1,7 +1,8 @@
 import React from 'react';
-import { Cloud, Music } from 'lucide-react';
+import { Music } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../../components/common/Skeleton';
+import { PlatformBadge } from '../../components';
 import type { Playlist } from '../../types';
 
 interface PersonalizedSectionProps {
@@ -19,8 +20,12 @@ export const PersonalizedSection: React.FC<PersonalizedSectionProps> = ({
 
     return (
         <section className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-                <Cloud className="w-5 h-5 text-red-500" />
+            <div className="flex items-center gap-2.5 mb-6">
+                <PlatformBadge
+                    name="NetEase"
+                    size="xs"
+                    className="w-5 h-5 rounded-md shadow-[0_2px_10px_rgba(236,65,65,0.25)]"
+                />
                 <h2 className="text-xl font-bold text-[var(--text-main)]">
                     {t('home.neteaseRecommend', '网易云推荐')}
                 </h2>
