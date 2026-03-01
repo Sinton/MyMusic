@@ -107,16 +107,18 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                         </div>
                     </div>
 
-                    {/* Metadata Info - Adjusted margin to prevent overlap */}
-                    <div className="flex-1 flex flex-col items-start z-10 mb-2 md:pl-12 lg:pl-20">
+                    {/* Metadata Info - Optimized for long titles */}
+                    <div className="flex-1 flex flex-col items-start z-10 mb-2 md:pl-12 lg:pl-20 max-w-2xl">
                         <div className="flex items-center gap-3 mb-4">
                             <span className="px-4 py-1 rounded-full bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-[0.25em] shadow-lg shadow-[var(--accent-color)]/20">
                                 {getAlbumTypeLabel()}
                             </span>
-                            <span className="text-sm font-bold text-[var(--text-secondary)] tracking-wider">{album.year}</span>
+                            <span className="text-sm font-bold text-[var(--text-secondary)] tracking-wider">
+                                {album.year}
+                            </span>
                         </div>
 
-                        <h1 className="text-6xl md:text-8xl font-black mb-8 text-[var(--text-main)] tracking-tighter leading-[0.85] drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-8 text-[var(--text-main)] tracking-tighter leading-[0.9] drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)] line-clamp-3 overflow-hidden">
                             {album.title}
                         </h1>
 
@@ -126,8 +128,12 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                                 onClick={() => onNavigate && onNavigate(`Artist:${album.artist}`)}
                                 className="flex items-center gap-4 group/artist"
                             >
-                                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 shadow-xl transition-all group-hover/artist:ring-[var(--accent-color)] group-hover/artist:scale-110">
-                                    <img src={album.cover} className="w-full h-full object-cover blur-[2px] opacity-80" alt="Artist" />
+                                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 shadow-xl transition-all group-hover/artist:ring-[var(--accent-color)] group-hover/artist:scale-110 bg-[var(--glass-highlight)]">
+                                    <img
+                                        src={album.artistAvatar || album.cover}
+                                        className={`w-full h-full object-cover transition-all duration-500 ${!album.artistAvatar ? 'blur-[2px] opacity-80' : ''}`}
+                                        alt="Artist"
+                                    />
                                 </div>
                                 <span className="text-xl font-black text-[var(--text-main)] hover:text-[var(--accent-color)] transition-all underline-offset-8 decoration-2 decoration-transparent hover:decoration-[var(--accent-color)]">
                                     {album.artist}

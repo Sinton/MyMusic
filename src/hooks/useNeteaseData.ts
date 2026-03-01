@@ -258,6 +258,7 @@ export const useNeteaseAlbumDetail = (id: number, options?: { enabled?: boolean 
                 artistId: albumInfo.artist?.id || albumInfo.artists?.[0]?.id,
                 year: albumInfo.publishTime ? new Date(albumInfo.publishTime).getFullYear() : new Date().getFullYear(),
                 cover: albumInfo.picUrl || albumInfo.blurPicUrl || '',
+                artistAvatar: albumInfo.artist?.picUrl || albumInfo.artists?.[0]?.picUrl || '',
             };
 
             const albumCover = albumInfo.picUrl || albumInfo.blurPicUrl || '';
