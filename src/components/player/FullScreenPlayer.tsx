@@ -51,7 +51,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
         play,
         shuffle,
         repeat,
-        toggleMode
+        toggleMode,
+        clearQueue
     } = usePlayerStore();
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
@@ -201,6 +202,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                         nextTrack();
                     }
                 }}
+                onClearQueue={clearQueue}
             />
 
             <OptionsPanel

@@ -36,6 +36,7 @@ export const usePlayerStore = create<PlayerStore>()(
             setVolume: (volume: number) => set({ volume }),
             setProgress: (time: number) => set({ currentTimeSec: time }),
             setQueue: (queue: Track[]) => set({ queue }),
+            clearQueue: () => set({ queue: [] }),
 
             // ================== MODE ACTIONS ==================
             toggleShuffle: () => set((state) => ({ shuffle: !state.shuffle })),
