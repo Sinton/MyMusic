@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Play, ChevronDown } from 'lucide-react';
-import { QualityBadge } from './index';
+import { QualityBadge, VipBadge } from './index';
 import type { Song, AudioSource } from '../types';
 import { useSongActions } from '../hooks/useSongActions';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -121,8 +121,8 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
 
                     {/* Overlay & Play Icon */}
                     <div className={`absolute inset-0 flex items-center justify-center transition-all duration-200 ${(isCurrent && isPlaying) ? 'bg-black/50 opacity-100' :
-                            isCurrent ? 'bg-black/30 opacity-100' :
-                                'bg-black/0 opacity-0 group-hover:bg-black/40 group-hover:opacity-100'
+                        isCurrent ? 'bg-black/30 opacity-100' :
+                            'bg-black/0 opacity-0 group-hover:bg-black/40 group-hover:opacity-100'
                         }`}>
                         {isCurrent && isPlaying ? (
                             <div className="flex gap-0.5 items-end h-4">
@@ -145,6 +145,12 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                             <h3 className="font-medium text-[var(--text-main)] truncate">{song.title}</h3>
+                            {song.sources.some(s => s.vip) && (
+                                <VipBadge
+                                    variant="outline"
+                                    platform={song.sources.find(s => s.vip)?.platform}
+                                />
+                            )}
                             {hasHiRes && <QualityBadge label="Hi-Res" />}
                         </div>
                         <div className="text-sm text-[var(--text-secondary)] truncate">

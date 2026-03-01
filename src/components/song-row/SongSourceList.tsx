@@ -80,7 +80,7 @@ export const SongSourceList: React.FC<SongSourceListProps> = ({ song, expanded, 
                         </div>
                         <div className="flex items-center gap-4">
                             <QualityBadge label={source.qualityLabel} />
-                            {source.vip && <VipBadge variant="outline" />}
+                            {source.vip && <VipBadge variant="outline" platform={source.platform} />}
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation(); // prevent double trigger
