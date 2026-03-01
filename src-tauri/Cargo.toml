@@ -1,6 +1,6 @@
 [package]
-name = "music-app"
-version = "0.0.0"
+name = "vibe-music"
+version = "0.0.1"
 description = "A Vibe Coding Music App"
 authors = ["Vibe Coding"]
 edition = "2021"
