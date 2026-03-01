@@ -44,6 +44,8 @@ export interface NeteaseAlbumBrief {
     name: string;
     picUrl?: string;
     blurPicUrl?: string;
+    pic_str?: string;
+    pic?: number;
 }
 
 export interface NeteasePrivilege {
@@ -64,6 +66,7 @@ export interface NeteaseSongItem {
     artists?: NeteaseArtistBrief[];
     album?: NeteaseAlbumBrief;
     duration?: number;
+    picUrl?: string;
 }
 
 export interface NeteaseSongDetailResponse {
@@ -88,6 +91,7 @@ export interface NeteasePlaylistItem {
     creator?: NeteasePlaylistCreator;
     tracks?: NeteaseSongItem[];
     subscribed?: boolean;
+    nickname?: string;
 }
 
 export interface NeteasePlaylistDetailResponse {
@@ -140,6 +144,43 @@ export interface NeteaseAlbumDetailResponse {
 export interface NeteaseAlbumNewestResponse {
     code: number;
     albums: NeteaseAlbumFull[];
+}
+
+// ================== Artist ==================
+export interface NeteaseArtistDetail {
+    artist: {
+        id: number;
+        name: string;
+        picUrl?: string;
+        cover?: string;
+        briefDesc?: string;
+        musicSize?: number;
+        albumSize?: number;
+        identify?: {
+            imageTag?: string;
+        };
+    };
+    identify?: {
+        imageTag?: string;
+    };
+}
+
+export interface NeteaseArtistDetailResponse {
+    code: number;
+    data?: NeteaseArtistDetail;
+    artist?: NeteaseArtistDetail['artist'];
+    identify?: NeteaseArtistDetail['identify'];
+}
+
+export interface NeteaseArtistSongsResponse {
+    code: number;
+    songs: NeteaseSongItem[];
+}
+
+export interface NeteaseArtistAlbumsResponse {
+    code: number;
+    hotAlbums: NeteaseAlbumFull[];
+    more: boolean;
 }
 
 // ================== Recommend ==================

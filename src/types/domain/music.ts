@@ -62,6 +62,8 @@ export interface Artist {
     followers?: string;
     popularSongs?: Song[];
     albums?: Album[];
+    songCount?: number;
+    albumCount?: number;
 }
 
 // ================== TRACK (Currently Playing) ==================

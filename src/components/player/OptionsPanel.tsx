@@ -67,7 +67,9 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     const handleViewArtist = () => {
         if (onNavigate && currentTrack.artist) {
-            onNavigate(`Artist:${currentTrack.artist}`);
+            // Include artistId if available to ensure correct metadata loading
+            const artistIdParam = currentTrack.artistId ? `:${currentTrack.artistId}` : '';
+            onNavigate(`Artist:${currentTrack.artist}${artistIdParam}`);
             onClose();
         } else {
             handleComingSoon(t('fullPlayer.options.viewArtist'));

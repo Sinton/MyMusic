@@ -5,7 +5,7 @@ export type AppRoute =
     | { type: 'settings' }
     | { type: 'playlist', id: number }
     | { type: 'album', id: number }
-    | { type: 'artist', name: string };
+    | { type: 'artist', name: string, id?: number };
 
 export function parseRoute(activeView: string): AppRoute {
     if (activeView.startsWith('Playlist:')) {
@@ -19,7 +19,8 @@ export function parseRoute(activeView: string): AppRoute {
     }
 
     if (activeView.startsWith('Artist:')) {
-        return { type: 'artist', name: activeView.split(':')[1] };
+        const parts = activeView.split(':');
+        return { type: 'artist', name: parts[1], id: parts[2] ? parseInt(parts[2]) : undefined };
     }
 
     switch (activeView) {

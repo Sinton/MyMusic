@@ -110,6 +110,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                     <ArtistDetailView
                         key={activeView}
                         artistName={route.name}
+                        artistId={route.id}
                         onBack={() => onNavigate('Library')}
                         onNavigate={onNavigate}
                     />

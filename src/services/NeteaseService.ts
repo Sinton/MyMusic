@@ -12,6 +12,9 @@ import type {
     NeteaseRecommendSongsResponse,
     NeteaseToplistResponse,
     NeteaseLyricResponse,
+    NeteaseArtistDetailResponse,
+    NeteaseArtistSongsResponse,
+    NeteaseArtistAlbumsResponse,
     NeteaseQrKeyResponse,
     NeteaseQrCheckResponse,
     NeteaseUserAccountResponse,
@@ -174,6 +177,29 @@ export const NeteaseService = {
     /** Search songs/playlists/etc */
     async search(keywords: string, cookie: string = '', type: number = 1, limit: number = 30, offset: number = 0): Promise<NeteaseSearchResponse> {
         const resp = await this._request<NeteaseSearchResponse>('search', `keywords=${keywords}&type=${type}&limit=${limit}&offset=${offset}`, cookie);
+        return resp.data;
+    },
+
+    // ========== Artist ==========
+
+    /** Get artist detail info */
+    async getArtistDetail(id: number | string, cookie: string = ''): Promise<NeteaseArtistDetailResponse> {
+        const resp = await this._request<NeteaseArtistDetailResponse>('artist_detail', `id=${id}`, cookie);
+        invoke('log_info', { message: `[NeteaseService] getArtistDetail for ${id}: ${JSON.stringify(resp.data).substring(0, 200)}...` }).catch(() => { });
+        return resp.data;
+    },
+
+    /** Get artist's hot songs (popular tracks) */
+    async getArtistSongs(id: number | string, cookie: string = '', limit: number = 100): Promise<NeteaseArtistSongsResponse> {
+        const resp = await this._request<NeteaseArtistSongsResponse>('artist_songs', `id=${id}&limit=${limit}`, cookie);
+        invoke('log_info', { message: `[NeteaseService] getArtistSongs for ${id}: ${JSON.stringify(resp.data).substring(0, 200)}...` }).catch(() => { });
+        return resp.data;
+    },
+
+    /** Get artist's albums */
+    async getArtistAlbums(id: number | string, cookie: string = '', limit: number = 30, offset: number = 0): Promise<NeteaseArtistAlbumsResponse> {
+        const resp = await this._request<NeteaseArtistAlbumsResponse>('artist_album', `id=${id}&limit=${limit}&offset=${offset}`, cookie);
+        invoke('log_info', { message: `[NeteaseService] getArtistAlbums for ${id}: more=${resp.data.more}, count=${resp.data.hotAlbums?.length}` }).catch(() => { });
         return resp.data;
     },
 

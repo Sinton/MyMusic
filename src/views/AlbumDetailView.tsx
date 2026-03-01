@@ -125,7 +125,12 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                         <div className="flex items-center flex-wrap gap-x-8 gap-y-4">
                             {/* Artist Identifier */}
                             <button
-                                onClick={() => onNavigate && onNavigate(`Artist:${album.artist}`)}
+                                onClick={() => {
+                                    if (onNavigate) {
+                                        const artistIdParam = album.artistId ? `:${album.artistId}` : '';
+                                        onNavigate(`Artist:${album.artist}${artistIdParam}`);
+                                    }
+                                }}
                                 className="flex items-center gap-4 group/artist"
                             >
                                 <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 shadow-xl transition-all group-hover/artist:ring-[var(--accent-color)] group-hover/artist:scale-110 bg-[var(--glass-highlight)]">

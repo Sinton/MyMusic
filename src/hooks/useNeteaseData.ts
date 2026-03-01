@@ -1,14 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
-import type { Song, Playlist, Track, AudioSource, Album, NeteaseSongItem, NeteasePlaylistItem, NeteaseAlbumFull } from '../types';
+import type { Song, Playlist, Track, AudioSource, Album, Artist, NeteaseSongItem, NeteasePlaylistItem, NeteaseAlbumFull } from '../types';
 
 // ================== TYPE CONVERTERS ==================
 
 /** Convert a NetEase song object to our app's Song type */
 function neteaseToSong(item: NeteaseSongItem): Song {
     const artists = item.ar || item.artists || [];
-    const album = item.al || item.album || {} as { name?: string; id?: number; picUrl?: string; blurPicUrl?: string };
+    const album = item.al || item.album || {} as any;
     const artistName = artists.map(a => a.name).join(', ');
     const durationMs = item.dt || item.duration || 0;
     const minutes = Math.floor(durationMs / 60000);
@@ -22,6 +22,9 @@ function neteaseToSong(item: NeteaseSongItem): Song {
         color: '#e60026',
     };
 
+    // NetEase cover detection - fallback to item.picUrl if album metadata is incomplete
+    const cover = album.picUrl || album.blurPicUrl || item.picUrl;
+
     return {
         id: item.id,
         title: item.name,
@@ -33,19 +36,20 @@ function neteaseToSong(item: NeteaseSongItem): Song {
         sources: [source],
         bestSource: 'NetEase Cloud',
         genre: undefined,
-        // NetEase usually has picUrl or blurPicUrl on the album object
-        cover: album.picUrl || album.blurPicUrl || undefined,
+        cover: cover || undefined,
     };
 }
 
 /** Convert a NetEase song to our app's Track type (for player) */
 function neteaseToTrack(item: NeteaseSongItem): Track {
     const artists = item.ar || item.artists || [];
-    const album = item.al || item.album || {} as { name?: string; id?: number; picUrl?: string; blurPicUrl?: string };
+    const album = item.al || item.album || {} as any;
     const artistName = artists.map(a => a.name).join(', ');
     const durationMs = item.dt || item.duration || 0;
     const minutes = Math.floor(durationMs / 60000);
     const seconds = Math.floor((durationMs % 60000) / 1000);
+
+    const cover = album.picUrl || album.blurPicUrl || item.picUrl;
 
     return {
         id: item.id,
@@ -58,7 +62,7 @@ function neteaseToTrack(item: NeteaseSongItem): Track {
         currentTime: '0:00',
         source: 'NetEase Cloud',
         quality: (item.privilege?.maxbr ?? 0) >= 999000 ? 'SQ' : 'HQ',
-        cover: album.picUrl || album.blurPicUrl || undefined,
+        cover: cover || undefined,
     };
 }
 
@@ -104,6 +108,9 @@ export const NeteaseQueryKeys = {
     AlbumNewest: ['netease', 'albumNewest'] as const,
     AlbumDetail: (id: string | number) => ['netease', 'albumDetail', id] as const,
     Toplist: ['netease', 'toplist'] as const,
+    ArtistDetail: (id: string | number) => ['netease', 'artistDetail', id] as const,
+    ArtistSongs: (id: string | number) => ['netease', 'artistSongs', id] as const,
+    ArtistAlbums: (id: string | number) => ['netease', 'artistAlbums', id] as const,
 };
 
 // ================== HOOKS ==================
@@ -304,6 +311,115 @@ export const useNeteaseToplist = (options?: { enabled?: boolean }) => {
     return {
         ...query,
         playlists: (query.data || []) as Playlist[],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+/**
+ * Get artist Detail
+ */
+export const useNeteaseArtistDetail = (id: number | string, options?: { enabled?: boolean }) => {
+    const cookie = useNeteaseStore((s) => s.cookie);
+
+    const query = useQuery({
+        queryKey: NeteaseQueryKeys.ArtistDetail(id),
+        queryFn: async () => {
+            const data = await NeteaseService.getArtistDetail(id, cookie);
+            const artist = data?.artist || data?.data?.artist;
+            if (!artist) return null;
+
+            const identify = data?.identify || data?.data?.identify;
+
+            const converted: Artist = {
+                id: artist.id,
+                name: artist.name,
+                // Some artists have picUrl, others have cover, or identify tag
+                avatar: artist.picUrl || artist.cover || identify?.imageTag || '',
+                bio: artist.briefDesc || '',
+                songCount: artist.musicSize || 0,
+                albumCount: artist.albumSize || 0,
+            };
+            return converted;
+        },
+        enabled: (options?.enabled !== false) && !!id,
+        staleTime: 300_000,
+    });
+
+    return {
+        ...query,
+        artist: query.data as Artist | null,
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+/**
+ * Get artist popular songs
+ */
+export const useNeteaseArtistSongs = (id: number | string, options?: { enabled?: boolean }) => {
+    const cookie = useNeteaseStore((s) => s.cookie);
+    // Also get artist detail to use avatar as fallback cover
+    const { artist } = useNeteaseArtistDetail(id, { enabled: !!id });
+    const avatar = artist?.avatar;
+
+    const query = useQuery({
+        queryKey: NeteaseQueryKeys.ArtistSongs(id),
+        queryFn: async () => {
+            const data = await NeteaseService.getArtistSongs(id, cookie);
+            const songs = data?.songs || [];
+            return songs.map(s => {
+                const song = neteaseToSong(s);
+                if (!song.cover && avatar) {
+                    song.cover = avatar;
+                }
+                return song;
+            });
+        },
+        enabled: (options?.enabled !== false) && !!id,
+        staleTime: 300_000,
+    });
+
+    return {
+        ...query,
+        songs: (query.data || []) as Song[],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
+    };
+};
+
+/**
+ * Get artist albums (Paginated/Infinite)
+ */
+export const useNeteaseArtistAlbums = (id: number | string, options?: { enabled?: boolean }) => {
+    const cookie = useNeteaseStore((s) => s.cookie);
+    const LIMIT = 30;
+
+    const query = useInfiniteQuery({
+        queryKey: NeteaseQueryKeys.ArtistAlbums(id),
+        queryFn: async ({ pageParam = 0 }) => {
+            const data = await NeteaseService.getArtistAlbums(id, cookie, LIMIT, pageParam);
+            const albums = (data?.hotAlbums || []).map(neteaseToAlbum);
+            return {
+                albums,
+                nextOffset: data.more ? pageParam + LIMIT : undefined,
+                hasMore: data.more,
+            };
+        },
+        initialPageParam: 0,
+        getNextPageParam: (lastPage) => lastPage.nextOffset,
+        enabled: (options?.enabled !== false) && !!id,
+        staleTime: 300_000,
+    });
+
+    const allAlbums = query.data ? query.data.pages.flatMap(page => page.albums) : [];
+
+    return {
+        ...query,
+        albums: allAlbums,
+        hasNextPage: query.hasNextPage,
+        isFetchingNextPage: query.isFetchingNextPage,
+        fetchNextPage: query.fetchNextPage,
         isLoading: query.isLoading,
         error: query.error?.message || null,
     };

@@ -11,6 +11,7 @@ pub mod playlist;
 pub mod discover;
 pub mod search;
 pub mod user;
+pub mod artist;
 pub mod dto;
 pub mod crypto;
 
@@ -160,6 +161,11 @@ pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> 
         "toplist" => discover::toplist(client, options).await,
         "recommend_resource" => discover::recommend_resource(client, options).await,
         "recommend_songs" => discover::recommend_songs(client, options).await,
+        
+        // Artist
+        "artist_detail" => artist::detail(client, options).await,
+        "artist_songs" => artist::songs(client, options).await,
+        "artist_album" => artist::albums(client, options).await,
         
         // User
         "user_account" => user::account(client, options).await,
