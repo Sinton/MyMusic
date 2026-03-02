@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { useQQStore } from '../stores/useQQStore';
@@ -69,8 +68,8 @@ export const useSidebarData = () => {
                 title: '网易云音乐',
                 type: 'platform',
                 liked,
-                created: other.filter(p => !p.isSubscribed),
-                collected: other.filter(p => p.isSubscribed)
+                created: other.filter((p: Playlist) => !p.isSubscribed),
+                collected: other.filter((p: Playlist) => p.isSubscribed)
             });
         }
 
@@ -83,8 +82,8 @@ export const useSidebarData = () => {
                 title: 'QQ 音乐',
                 type: 'platform',
                 liked,
-                created: other.filter(p => !p.isSubscribed),
-                collected: other.filter(p => p.isSubscribed)
+                created: other.filter((p: Playlist) => !p.isSubscribed),
+                collected: other.filter((p: Playlist) => p.isSubscribed)
             });
         }
 

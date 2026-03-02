@@ -3,52 +3,22 @@ import type { QQSearchResponse, QQMusicuResponse, QQUser } from '../types/api/qq
 
 export const QQMusicService = {
     /**
-     * POST JSON request via Rust backend (bypasses all Tauri HTTP plugin restrictions)
+     * Call QQ Music API via Rust backend provider
      */
-    async _postJson<T>(url: string, body: string, cookie: string = ''): Promise<T> {
-        try {
-            const bytes: number[] = await invoke('request_bytes', {
-                url,
-                referer: 'https://y.qq.com/',
-                cookie: cookie || null,
-                method: 'POST',
-                body,
-                contentType: 'application/json;charset=utf-8',
-            });
+    async _requestApi<T>(apiName: string, params: Record<string, any> = {}, cookie: string = ''): Promise<T> {
+        const paramString = Object.entries(params)
+            .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+            .join('&');
 
-            const text = new TextDecoder().decode(new Uint8Array(bytes));
-            return JSON.parse(text) as T;
-        } catch (e) {
-            console.error('[QQMusicService] POST request failed:', url, e);
-            throw e;
-        }
-    },
+        const res = await invoke<any>('request_api', {
+            provider: 'qqmusic',
+            apiName,
+            params: paramString,
+            cookie
+        });
 
-    /**
-     * GET request via Rust backend
-     */
-    async _get<T>(url: string, cookie: string = ''): Promise<T> {
-        try {
-            const bytes: number[] = await invoke('request_bytes', {
-                url,
-                referer: 'https://y.qq.com/',
-                cookie: cookie || null,
-            });
-
-            const text = new TextDecoder().decode(new Uint8Array(bytes));
-
-            // Handle jsonp callback wrapper
-            let jsonString = text;
-            const jsonpMatch = text.match(/^\w+\((.*)\)$/);
-            if (jsonpMatch) {
-                jsonString = jsonpMatch[1];
-            }
-
-            return JSON.parse(jsonString) as T;
-        } catch (e) {
-            console.error('[QQMusicService] GET request failed:', url, e);
-            throw e;
-        }
+        invoke('log_info', { message: `[QQMusicService] API: ${apiName} Params: ${paramString} Response: ${JSON.stringify(res.body).slice(0, 200)}...` });
+        return res.body as T;
     },
 
     /**
@@ -67,92 +37,27 @@ export const QQMusicService = {
 
     /**
      * Search songs via new API (2025.9 confirmed working)
-     * Uses POST https://u.y.qq.com/cgi-bin/musicu.fcg
-     * Source: https://github.com/copws/qq-music-api
      */
     async searchMusic(keyword: string, cookie?: string): Promise<QQSearchResponse> {
-        const body = JSON.stringify({
-            comm: { ct: "19", cv: "1859", uin: "0" },
-            req: {
-                method: "DoSearchForQQMusicDesktop",
-                module: "music.search.SearchCgiService",
-                param: {
-                    grp: 1,
-                    num_per_page: 30,
-                    page_num: 1,
-                    query: keyword,
-                    search_type: 0
-                }
-            }
-        });
-
-        return this._postJson<QQSearchResponse>(
-            'https://u.y.qq.com/cgi-bin/musicu.fcg',
-            body,
-            cookie
-        );
+        // We pass the keyword as-is to the params. 
+        // Rust's parse_params doesn't decode, so if we encodeURIComponent here, 
+        // the Rust side ends up with %E5... in the JSON query.
+        // We use a custom encoding that Rust can handle easily, or just raw if it's safe.
+        return this._requestApi<QQSearchResponse>('search', { keyword }, cookie || '');
     },
 
     /**
-     * Get real playable mp3/m4a URLs via vkey (2025.9 format)
-     * Uses POST https://u.y.qq.com/cgi-bin/musicu.fcg
+     * Get real playable mp3/m4a URLs via vkey
      */
     async getSongUrl(songmid: string, cookie: string = ''): Promise<string[]> {
-        const { guid, uin } = this._getCookieVals(cookie);
-
-        // Request order: 320k mp3 -> standard m4a
-        // If a user doesn't have VIP, higher qualities will return an empty purl.
-        // NOTE: M500 (128k mp3) is omitted because QQ Music's API frequently returns a purl for it,
-        // but the CDN yields a 404 Not Found. C400 (m4a) reliably serves free streams.
-        const qualities = [
-            { reqPrefix: 'M800', reqSuffix: 'mp3' },
-            { reqPrefix: 'C400', reqSuffix: 'm4a' }
-        ];
-
-        const filenames = qualities.map(q => `${q.reqPrefix}${songmid}${songmid}.${q.reqSuffix}`);
-        const songmids = qualities.map(() => songmid);
-        const songtypes = qualities.map(() => 0);
-
-        invoke('log_info', { message: `[QQMusicService] getSongUrl: requesting multiple formats for ${songmid}` });
-
-        const body = JSON.stringify({
-            req_1: {
-                module: "vkey.GetVkeyServer",
-                method: "CgiGetVkey",
-                param: {
-                    filename: filenames,
-                    guid,
-                    songmid: songmids,
-                    songtype: songtypes,
-                    uin,
-                    loginflag: 1,
-                    platform: "20"
-                }
-            },
-            loginUin: uin,
-            comm: { uin, format: "json", ct: 24, cv: 0 }
-        });
-
-        const data = await this._postJson<QQMusicuResponse>(
-            'https://u.y.qq.com/cgi-bin/musicu.fcg',
-            body,
-            cookie
-        );
+        const data = await this._requestApi<QQMusicuResponse>('song_url', { id: songmid }, cookie);
 
         if (!data?.req_1?.data?.midurlinfo || data.req_1.data.midurlinfo.length === 0) {
-            invoke('log_info', { message: '[QQMusicService] No midurlinfo in response' });
             return [];
         }
 
-        // Find the first URL info that actually has a purl
         const validInfo = data.req_1.data.midurlinfo.find(info => !!info.purl);
-
-        if (!validInfo) {
-            invoke('log_info', { message: `[QQMusicService] All purls are empty! Song might be VIP-only with no free streams. Responses: ${JSON.stringify(data.req_1.data.midurlinfo)}` });
-            return [];
-        }
-
-        invoke('log_info', { message: `[QQMusicService] Successfully found playable URL: ${validInfo.filename}` });
+        if (!validInfo) return [];
 
         const sips = data.req_1.data.sip || [
             "http://ws.stream.qqmusic.qq.com/",
@@ -167,20 +72,35 @@ export const QQMusicService = {
      */
     async getUserPlaylists(cookie: string): Promise<any> {
         const { uin } = this._getCookieVals(cookie);
-        const body = JSON.stringify({
-            comm: { ct: "19", cv: "1859", uin: uin },
-            req: {
-                method: "GetUserDissList",
-                module: "srf_diss_info.DissInfoServer",
-                param: { host_uin: 0, sin: 0, size: 100 }
-            }
-        });
+        return this._requestApi<any>('user_playlists', { uin }, cookie);
+    },
 
-        return this._postJson<any>(
-            'https://u.y.qq.com/cgi-bin/musicu.fcg',
-            body,
-            cookie
-        );
+    /**
+     * Get song lyrics (2025 format via cgi-bin)
+     */
+    async getLyric(songmid: string, cookie: string = ''): Promise<{ lyric: string; trans: string }> {
+        const data = await this._requestApi<any>('lyric', { songmid }, cookie);
+
+        let lyric = '';
+        let trans = '';
+
+        const decodeB64 = (str: string) => {
+            try {
+                const bytes = Uint8Array.from(window.atob(str), c => c.charCodeAt(0));
+                return new TextDecoder('utf-8').decode(bytes);
+            } catch {
+                return '';
+            }
+        };
+
+        if (data?.lyric) {
+            lyric = decodeB64(data.lyric);
+        }
+        if (data?.trans) {
+            trans = decodeB64(data.trans);
+        }
+
+        return { lyric, trans };
     },
 
     /**
@@ -204,33 +124,21 @@ export const QQMusicService = {
         }
     },
 
-    /**
-     * Get song lyrics (2025 format via cgi-bin)
-     * Response is jsonp mapped by _get wrapper. Contains base64 encoded lyric.
-     */
-    async getLyric(songmid: string, cookie: string = ''): Promise<{ lyric: string; trans: string }> {
-        const url = `https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${songmid}&format=json&nobase64=0`;
-        const data = await this._get<any>(url, cookie);
+    // Artist Detail & Songs
+    async getArtistDetail(artistMid: string) {
+        return this._requestApi<any>('artist_detail', { mid: artistMid });
+    },
 
-        let lyric = '';
-        let trans = '';
+    async getArtistSongs(artistMid: string, page = 0) {
+        return this._requestApi<any>('artist_songs', { mid: artistMid, page });
+    },
 
-        const decodeB64 = (str: string) => {
-            try {
-                const bytes = Uint8Array.from(window.atob(str), c => c.charCodeAt(0));
-                return new TextDecoder('utf-8').decode(bytes);
-            } catch {
-                return '';
-            }
-        };
+    async getArtistAlbums(artistMid: string, begin = 0) {
+        return this._requestApi<any>('artist_albums', { mid: artistMid, begin });
+    },
 
-        if (data?.lyric) {
-            lyric = decodeB64(data.lyric);
-        }
-        if (data?.trans) {
-            trans = decodeB64(data.trans);
-        }
-
-        return { lyric, trans };
+    // Album Detail
+    async getAlbumDetail(albumMid: string) {
+        return this._requestApi<any>('album_detail', { mid: albumMid });
     }
 };

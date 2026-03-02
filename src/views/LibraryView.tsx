@@ -50,12 +50,12 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
     // Grouping NetEase Playlists
     const neteaseLikedPlaylist = neteaseRemotePlaylists.length > 0 ? neteaseRemotePlaylists[0] : null;
     const neteaseOtherPlaylists = neteaseRemotePlaylists.slice(1);
-    const neteaseCreatedPlaylists = neteaseOtherPlaylists.filter(p => !p.isSubscribed);
-    const neteaseCollectedPlaylists = neteaseOtherPlaylists.filter(p => p.isSubscribed);
+    const neteaseCreatedPlaylists = neteaseOtherPlaylists.filter((p: Playlist) => !p.isSubscribed);
+    const neteaseCollectedPlaylists = neteaseOtherPlaylists.filter((p: Playlist) => p.isSubscribed);
 
     // Grouping QQ Playlists
-    const qqCreatedPlaylists = qqRemotePlaylists.filter(p => !p.isSubscribed);
-    const qqCollectedPlaylists = qqRemotePlaylists.filter(p => p.isSubscribed);
+    const qqCreatedPlaylists = qqRemotePlaylists.filter((p: Playlist) => !p.isSubscribed);
+    const qqCollectedPlaylists = qqRemotePlaylists.filter((p: Playlist) => p.isSubscribed);
 
     const isPlaylistsLoading = isNeteaseLoading || isQQLoading;
 

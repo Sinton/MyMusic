@@ -67,9 +67,10 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     const handleViewArtist = () => {
         if (onNavigate && currentTrack.artist) {
-            // Include artistId if available to ensure correct metadata loading
+            // Include platform prefix and artistId if available
+            const platform = (currentTrack.source?.toLowerCase().includes('qq')) ? 'qq' : 'netease';
             const artistIdParam = currentTrack.artistId ? `:${currentTrack.artistId}` : '';
-            onNavigate(`Artist:${currentTrack.artist}${artistIdParam}`);
+            onNavigate(`Artist:${platform}:${currentTrack.artist}${artistIdParam}`);
             onClose();
         } else {
             handleComingSoon(t('fullPlayer.options.viewArtist'));
@@ -78,7 +79,8 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     const handleViewAlbum = () => {
         if (onNavigate && currentTrack.albumId) {
-            onNavigate(`Album:${currentTrack.albumId}`);
+            const platform = (currentTrack.source?.toLowerCase().includes('qq')) ? 'qq' : 'netease';
+            onNavigate(`Album:${platform}:${currentTrack.albumId}`);
             onClose();
         } else if (onNavigate) {
             // Fallback for missing albumId

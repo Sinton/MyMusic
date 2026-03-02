@@ -13,6 +13,7 @@ import NeteasePlaylistDetailView from '../views/NeteasePlaylistDetailView';
 import AlbumDetailView from '../views/AlbumDetailView';
 import ArtistDetailView from '../views/ArtistDetailView';
 import { useNeteaseAlbumDetail } from '../hooks/useNeteaseData';
+import { useQQAlbumDetail } from '../hooks/useQQData';
 import { parseRoute } from '../lib/routeUtils';
 import type { Album } from '../types';
 
@@ -24,12 +25,36 @@ interface MainViewProps {
 /**
  * Thin wrapper: fetches Netease album data, then delegates to the shared AlbumDetailView.
  */
-const NeteaseAlbumWrapper: React.FC<{ albumId: number; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
-    const { album, isLoading } = useNeteaseAlbumDetail(albumId);
+const NeteaseAlbumWrapper: React.FC<{ albumId: number | string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
+    const { album, isLoading } = useNeteaseAlbumDetail(Number(albumId));
 
-    // While loading or if no data yet, pass a skeleton album object
     const albumObj: Album = album ?? {
-        id: albumId,
+        id: Number(albumId),
+        title: '加载中...',
+        artist: '',
+        year: new Date().getFullYear(),
+        cover: '',
+    };
+
+    return (
+        <AlbumDetailView
+            album={albumObj}
+            onBack={onBack}
+            onNavigate={onNavigate}
+            externalSongs={album?.songs}
+            externalLoading={isLoading}
+        />
+    );
+};
+
+/**
+ * Thin wrapper: fetches QQ album data, then delegates to it.
+ */
+const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumMid, onBack, onNavigate }) => {
+    const { album, isLoading } = useQQAlbumDetail(albumMid);
+
+    const albumObj: Album = album ?? {
+        id: albumMid,
         title: '加载中...',
         artist: '',
         year: new Date().getFullYear(),
@@ -80,7 +105,6 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     // Smoothly scroll to top whenever the activeView changes
     useEffect(() => {
         if (scrollContainerRef.current) {
-            // 700ms duration for a very elegant, deliberate slide
             scrollToTopSlowly(scrollContainerRef.current, 400);
         }
     }, [activeView]);
@@ -94,9 +118,19 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                 if (playlist) {
                     return <PlaylistDetailView key={activeView} playlist={playlist} onBack={() => onNavigate('Library')} />;
                 }
-                return <NeteasePlaylistDetailView key={activeView} playlistId={route.id} />;
+                return <NeteasePlaylistDetailView key={activeView} playlistId={Number(route.id)} />;
             }
             case 'album':
+                if (route.platform === 'qq') {
+                    return (
+                        <QQAlbumWrapper
+                            key={activeView}
+                            albumMid={String(route.id)}
+                            onBack={() => onNavigate('Home')}
+                            onNavigate={onNavigate}
+                        />
+                    );
+                }
                 return (
                     <NeteaseAlbumWrapper
                         key={activeView}
@@ -111,6 +145,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                         key={activeView}
                         artistName={route.name}
                         artistId={route.id}
+                        platform={route.platform}
                         onBack={() => onNavigate('Library')}
                         onNavigate={onNavigate}
                     />

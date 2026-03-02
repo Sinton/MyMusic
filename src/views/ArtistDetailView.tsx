@@ -7,31 +7,95 @@ import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/useNeteaseData';
+import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/useQQData';
 import type { Artist, Track, Album } from '../types';
 
 interface ArtistDetailViewProps {
     artistName: string;
-    artistId?: number;
+    artistId?: string | number;
+    platform?: string;
     onBack: () => void;
     onNavigate?: (view: string) => void;
 }
 
-const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistId, onNavigate }) => {
+const ArtistDetailView: React.FC<ArtistDetailViewProps> = (props) => {
+    const platform = props.platform || 'netease';
+
+    if (platform === 'qq') {
+        return <QQArtistContainer {...props} artistMid={String(props.artistId)} />;
+    }
+
+    return <NeteaseArtistContainer {...props} artistId={Number(props.artistId)} />;
+};
+
+const NeteaseArtistContainer: React.FC<ArtistDetailViewProps & { artistId: number }> = (props) => {
+    const { artistId } = props;
+    const { artist: metadata, isLoading: isDetailLoading } = useNeteaseArtistDetail(artistId, { enabled: !!artistId });
+    const { songs, isLoading: isSongsLoading } = useNeteaseArtistSongs(artistId, { enabled: !!artistId });
+    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useNeteaseArtistAlbums(artistId, { enabled: !!artistId });
+
+    return (
+        <ArtistDetailContent
+            {...props}
+            metadata={metadata}
+            songs={songs}
+            albums={albums}
+            isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
+            pagination={{ hasNextPage, isFetchingNextPage, fetchNextPage }}
+        />
+    );
+};
+
+const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }> = (props) => {
+    const { artistMid } = props;
+    const { artist: metadata, isLoading: isDetailLoading } = useQQArtistDetail(artistMid, { enabled: !!artistMid });
+    const { songs, isLoading: isSongsLoading } = useQQArtistSongs(artistMid, { enabled: !!artistMid });
+    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useQQArtistAlbums(artistMid, { enabled: !!artistMid });
+
+    return (
+        <ArtistDetailContent
+            {...props}
+            metadata={metadata}
+            songs={songs}
+            albums={albums}
+            isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
+            pagination={{ hasNextPage, isFetchingNextPage, fetchNextPage }}
+        />
+    );
+};
+
+interface ContentProps extends ArtistDetailViewProps {
+    metadata: any;
+    songs: any[];
+    albums: any[];
+    isLoading: { detail: boolean; songs: boolean; albums: boolean };
+    pagination: { hasNextPage: boolean; isFetchingNextPage: boolean; fetchNextPage: () => void };
+}
+
+const ArtistDetailContent: React.FC<ContentProps> = ({
+    artistName,
+    onNavigate,
+    metadata,
+    songs,
+    albums,
+    isLoading,
+    pagination
+}) => {
     const { t } = useTranslation();
     const { setTrack, play, pause, isPlaying, currentTrack, setQueue } = usePlayerStore();
-
-    // Use our new real API hooks
-    const { artist: artistMetadata, isLoading: isDetailLoading } = useNeteaseArtistDetail(artistId || 0, { enabled: !!artistId });
-    const { songs: artistSongs, isLoading: isSongsLoading } = useNeteaseArtistSongs(artistId || 0, { enabled: !!artistId });
-    const { albums: artistAlbums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useNeteaseArtistAlbums(artistId || 0, { enabled: !!artistId });
 
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'about'>('all');
 
     // Infinite Scroll Logic
     const loadMoreRef = useRef<HTMLDivElement>(null);
+    const { hasNextPage, isFetchingNextPage, fetchNextPage } = pagination;
+
     useEffect(() => {
         if (!hasNextPage || isFetchingNextPage) return;
+
+        // Find the actual scroll container (.main-scroller) as IntersectionObserver root
+        const scrollContainer = loadMoreRef.current?.closest('.main-scroller') as HTMLElement | null;
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -39,7 +103,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                     fetchNextPage();
                 }
             },
-            { threshold: 0.1, rootMargin: '200px' } // Pre-fetch when 200px from the bottom
+            { threshold: 0.1, rootMargin: '300px', root: scrollContainer }
         );
 
         if (loadMoreRef.current) {
@@ -52,35 +116,38 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
     // Construct artist object
     const artistData: Artist = useMemo(() => {
         return {
-            id: artistId || 0,
+            id: 0, // Placeholder
             name: artistName,
-            avatar: artistMetadata?.avatar || '',
-            bio: artistMetadata?.bio || t('artist.noBio', '极简风格的音乐人。'),
+            avatar: metadata?.avatar || '',
+            bio: metadata?.bio || t('artist.noBio', '极简风格的音乐人。'),
             genres: ['Pop', 'R&B', 'Electronic', 'Acoustic'],
-            popularSongs: artistSongs,
-            albums: artistAlbums,
-            songCount: artistMetadata?.songCount || 0,
-            albumCount: artistMetadata?.albumCount || 0,
+            popularSongs: songs,
+            albums: albums,
+            songCount: metadata?.songCount || 0,
+            albumCount: metadata?.albumCount || 0,
         };
-    }, [artistName, artistId, artistMetadata, artistSongs, artistAlbums]);
+    }, [artistName, metadata, songs, albums]);
 
     // Filtering logic
     const filteredSongs = useMemo(() => {
-        const songs = artistData.popularSongs || [];
-        if (!searchQuery) return songs.slice(0, 10);
-        return songs.filter(s =>
+        const list = songs || [];
+        if (!searchQuery) {
+            // In 'all' tab, show only top 10 popular songs; in 'songs' tab show more
+            return activeTab === 'all' ? list.slice(0, 10) : list.slice(0, 50);
+        }
+        return list.filter(s =>
             s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             s.album.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [artistData.popularSongs, searchQuery]);
+    }, [songs, searchQuery, activeTab]);
 
     const filteredAlbums = useMemo(() => {
-        const albums = artistData.albums || [];
-        if (!searchQuery) return albums;
-        return albums.filter(a =>
+        const list = albums || [];
+        if (!searchQuery) return list;
+        return list.filter(a =>
             a.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [artistData.albums, searchQuery]);
+    }, [albums, searchQuery]);
 
     const handlePlayAll = () => {
         if (filteredSongs.length > 0) {
@@ -117,7 +184,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                 <div className="absolute bottom-24 left-16 md:left-24 right-16 flex flex-col md:flex-row items-end gap-16 z-10">
                     <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 z-20">
                         <div className="relative w-full h-full rounded-full overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] border-4 border-white/20 transition-transform duration-700 group-hover:scale-105 bg-[var(--glass-highlight)]">
-                            {isDetailLoading ? (
+                            {isLoading.detail ? (
                                 <Skeleton className="w-full h-full rounded-full" />
                             ) : artistData.avatar && artistData.avatar.startsWith('http') ? (
                                 <img src={artistData.avatar} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt={artistName} />
@@ -132,7 +199,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                     </div>
 
                     <div className="flex-1 flex flex-col items-start animate-slide-up pb-2">
-                        {isDetailLoading ? (
+                        {isLoading.detail ? (
                             <>
                                 <Skeleton className="h-16 w-3/4 mb-10 rounded-xl" />
                                 <div className="flex gap-10 mt-2">
@@ -213,7 +280,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                                 {searchQuery ? t('home.searchResultsFor') : t('artist.popularTracks')}
                             </h2>
                             <div className="space-y-4">
-                                {isSongsLoading ? (
+                                {isLoading.songs ? (
                                     <ListSkeleton rows={5} />
                                 ) : (
                                     filteredSongs.map((song) => (
@@ -234,7 +301,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                                 {t('artist.albums')}
                             </h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-16">
-                                {isAlbumsLoading ? (
+                                {isLoading.albums ? (
                                     Array.from({ length: 4 }).map((_, i) => (
                                         <div key={i} className="space-y-3">
                                             <Skeleton className="w-full aspect-square rounded-2xl" />
@@ -247,16 +314,16 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                                         <AlbumCard
                                             key={album.id}
                                             album={album}
-                                            onClick={() => onNavigate && onNavigate(`Album:${album.id}`)}
+                                            onClick={(a) => onNavigate && onNavigate(`Album:${a.source || 'netease'}:${a.id}`)}
                                         />
                                     ))
                                 )}
                             </div>
 
                             {/* Infinite Scroll Sentinel */}
-                            {hasNextPage && (
+                            {pagination.hasNextPage && (
                                 <div ref={loadMoreRef} className="mt-16 py-10 flex justify-center">
-                                    {isFetchingNextPage && (
+                                    {pagination.isFetchingNextPage && (
                                         <div className="flex items-center gap-3 text-[var(--text-secondary)]">
                                             <div className="w-5 h-5 border-2 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin" />
                                             <span className="text-xs font-bold uppercase tracking-widest opacity-60">
@@ -269,7 +336,7 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                         </section>
                     )}
 
-                    {/* 3. About Section - Transparent & Typography Driven */}
+                    {/* 3. About Section */}
                     {(activeTab === 'all' || activeTab === 'about') && (
                         <section className="animate-fade-in w-full pt-8">
                             <h2 className="text-xl font-bold mb-10 flex items-center gap-4 text-[var(--text-main)] tracking-tight">
@@ -277,8 +344,8 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = ({ artistName, artistI
                                 {t('artist.about')}
                             </h2>
 
-                            <div className="relative pl-12">
-                                <div className="text-[var(--text-secondary)] text-base md:text-lg leading-relaxed opacity-90 mb-10 max-w-4xl">
+                            <div className="relative pl-12 border-l-2 border-[var(--accent-color)]/20 ml-2">
+                                <div className="text-[var(--text-secondary)] text-base md:text-lg leading-relaxed opacity-90 mb-10 max-w-4xl whitespace-pre-wrap">
                                     {artistData.bio}
                                 </div>
                             </div>

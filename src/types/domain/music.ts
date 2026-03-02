@@ -43,13 +43,14 @@ export interface Album {
     id: string | number;
     title: string;
     artist: string;
-    artistId?: number;
+    artistId?: string | number;
     year: number;
     cover: string;
     artistAvatar?: string;
     songs?: Song[];
     count?: number;
     genre?: string;
+    source?: string;
 }
 
 // ================== ARTIST ==================

@@ -127,8 +127,10 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                             <button
                                 onClick={() => {
                                     if (onNavigate) {
+                                        // Determine platform from album data
+                                        const platform = (album as any).source === 'qq' || album.cover?.includes('gtimg.cn') ? 'qq' : 'netease';
                                         const artistIdParam = album.artistId ? `:${album.artistId}` : '';
-                                        onNavigate(`Artist:${album.artist}${artistIdParam}`);
+                                        onNavigate(`Artist:${platform}:${album.artist}${artistIdParam}`);
                                     }
                                 }}
                                 className="flex items-center gap-4 group/artist"

@@ -3,6 +3,7 @@ use crate::Options;
 use crate::error::AppError;
 
 pub mod netease;
+pub mod qqmusic;
 
 pub async fn dispatch(
     client: &HttpClient,
@@ -12,6 +13,7 @@ pub async fn dispatch(
 ) -> HttpResult<HttpResponse> {
     match provider {
         "netease" => netease::dispatch(client, api_name, options).await,
+        "qqmusic" => qqmusic::dispatch(client, api_name, options).await,
         _ => Err(AppError::Api(format!("Unknown provider: {}", provider))),
     }
 }

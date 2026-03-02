@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListMusic, ShieldCheck } from 'lucide-react';
+import { ListMusic } from 'lucide-react';
 import type { Playlist } from '../types';
 import PlatformBadge from './PlatformBadge';
 
