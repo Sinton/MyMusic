@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Play, Pause, SkipBack, SkipForward, Maximize2, Repeat, Shuffle, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -74,6 +74,20 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
 
     const hasTrack = currentTrack && currentTrack.id !== 0;
 
+    // Track when the slide-up animation has settled, so we can safely enable backdrop-filter.
+    // During transform animations, backdrop-filter doesn't render correctly in Chromium,
+    // so we use an opaque fallback background during the animation and transition to glass after.
+    const [isSettled, setIsSettled] = useState(false);
+
+    useEffect(() => {
+        if (hasTrack) {
+            const timer = setTimeout(() => setIsSettled(true), 850);
+            return () => clearTimeout(timer);
+        } else {
+            setIsSettled(false);
+        }
+    }, [hasTrack]);
+
     return (
         <div
             className={`absolute bottom-6 left-6 right-6 h-[var(--player-height)] z-50 transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${hasTrack
@@ -81,8 +95,16 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                 : 'translate-y-[150%] opacity-0 scale-95 pointer-events-none'
                 }`}
         >
-            {/* Background Layer to prevent backdrop-filter stacking issues */}
-            <div className="absolute inset-0 glass rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--glass-border)] group-hover:shadow-[0_25px_60px_rgba(0,0,0,0.2)] transition-shadow pointer-events-none" />
+            {/* Background Layer: uses opaque fallback during animation, transitions to glass effect after settling */}
+            <div
+                className="absolute inset-0 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--glass-border)] pointer-events-none"
+                style={{
+                    background: isSettled ? 'var(--glass-bg)' : 'var(--player-bar-fallback-bg)',
+                    backdropFilter: isSettled ? 'blur(12px)' : 'none',
+                    WebkitBackdropFilter: isSettled ? 'blur(12px)' : 'none',
+                    transition: 'background-color 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease',
+                }}
+            />
 
             {/* Content Layer */}
             <div className="relative w-full h-full flex items-center px-8 justify-between">
@@ -92,7 +114,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                     className="flex items-center gap-4 w-[300px] cursor-pointer group"
                 >
                     <div
-                        className={`w-12 h-12 rounded-lg bg-gradient-to-br ${getTrackColor(currentTrack.id)} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
+                        className={`w-12 h-12 rounded-lg ${currentTrack.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(currentTrack.id)}`} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
                     >
                         {currentTrack.cover ? (
                             <img

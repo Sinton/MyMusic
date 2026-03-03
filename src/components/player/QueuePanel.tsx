@@ -83,8 +83,8 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                             {queue.length > 0 && onClearQueue && (
                                 <div
                                     className={`flex items-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] h-8 rounded-lg overflow-hidden ${showConfirmClear
-                                            ? 'bg-red-500/10 dark:bg-red-500/20 border border-red-500/40 backdrop-blur-md shadow-[0_0_20px_rgba(239,68,68,0.15)] w-[70px]'
-                                            : 'border border-transparent w-8'
+                                        ? 'bg-red-500/10 dark:bg-red-500/20 border border-red-500/40 backdrop-blur-md shadow-[0_0_20px_rgba(239,68,68,0.15)] w-[70px]'
+                                        : 'border border-transparent w-8'
                                         }`}
                                 >
                                     <div className="flex items-center min-w-[70px]">
@@ -181,7 +181,7 @@ const QueueTrackItem = React.memo<QueueTrackItemProps>(({
             )}
 
             <div className="text-sm font-mono text-[var(--text-muted)] w-4 pl-1">{index + 1}</div>
-            <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${trackColor} flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform relative overflow-hidden`}>
+            <div className={`w-12 h-12 rounded-lg ${track.cover ? 'bg-black/20' : `bg-gradient-to-br ${trackColor}`} flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform relative overflow-hidden`}>
                 {track.cover && (
                     <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                 )}

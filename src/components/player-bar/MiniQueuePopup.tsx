@@ -58,7 +58,7 @@ const MiniQueueTrackItem = React.memo<MiniQueueTrackItemProps>(({
             {isCurrent && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
             )}
-            <div className={`w-10 h-10 rounded bg-gradient-to-br ${getTrackColor(track.id)} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
+            <div className={`w-10 h-10 rounded ${track.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(track.id)}`} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
                 {track.cover && (
                     <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                 )}
