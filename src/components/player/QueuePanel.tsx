@@ -32,9 +32,11 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
 
     const scrollToCurrent = () => {
         if (scrollContainerRef.current) {
-            const activeElement = scrollContainerRef.current.querySelector('[data-active="true"]');
+            const container = scrollContainerRef.current;
+            const activeElement = container.querySelector('[data-active="true"]') as HTMLElement;
             if (activeElement) {
-                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const top = (activeElement.offsetTop - container.offsetTop) - (container.clientHeight / 2) + (activeElement.clientHeight / 2);
+                container.scrollTo({ top, behavior: 'smooth' });
             }
         }
     };

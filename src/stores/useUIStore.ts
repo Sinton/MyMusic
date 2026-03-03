@@ -22,9 +22,21 @@ export const useUIStore = create<UIStore>((set) => ({
     openFullScreenPlayer: () => set({ isFullScreenPlayerOpen: true }),
     closeFullScreenPlayer: () => set({ isFullScreenPlayerOpen: false }),
 
-    toggleQueuePanel: () => set((state) => ({ showQueuePanel: !state.showQueuePanel })),
-    toggleCommentsPanel: () => set((state) => ({ showCommentsPanel: !state.showCommentsPanel })),
-    toggleOptionsPanel: () => set((state) => ({ showOptionsPanel: !state.showOptionsPanel })),
+    toggleQueuePanel: () => set((state) => ({
+        showQueuePanel: !state.showQueuePanel,
+        showCommentsPanel: false,
+        showOptionsPanel: false
+    })),
+    toggleCommentsPanel: () => set((state) => ({
+        showCommentsPanel: !state.showCommentsPanel,
+        showQueuePanel: false,
+        showOptionsPanel: false
+    })),
+    toggleOptionsPanel: () => set((state) => ({
+        showOptionsPanel: !state.showOptionsPanel,
+        showQueuePanel: false,
+        showCommentsPanel: false
+    })),
 
     closeAllPanels: () => set({
         showQueuePanel: false,
