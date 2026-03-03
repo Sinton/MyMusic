@@ -38,5 +38,5 @@ pub async fn url(client: &HttpClient, options: Options) -> HttpResult<HttpRespon
         "comm": { "uin": "0", "format": "json", "ct": 24, "cv": 0 }
     });
 
-    musicu_request(client, payload, &options.cookie).await
+    musicu_request(client, payload, &options.cookie, options.trace_id.clone()).await
 }

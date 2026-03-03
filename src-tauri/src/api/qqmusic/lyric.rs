@@ -10,5 +10,5 @@ pub async fn get(client: &HttpClient, options: Options) -> HttpResult<HttpRespon
     let mut headers = Vec::new();
     headers.push(("Referer".to_string(), "https://y.qq.com/".to_string()));
     
-    client.request("GET", &url, headers, "".to_string()).await
+    client.request("GET", &url, headers, "".to_string(), options.trace_id.clone()).await
 }

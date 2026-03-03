@@ -19,6 +19,7 @@ use http::{HttpClient, HttpResponse};
 pub struct Options {
     pub params: String,
     pub cookie: String,
+    pub trace_id: Option<String>,
 }
 
 #[tauri::command]
@@ -30,8 +31,10 @@ async fn request_bytes(
     method: Option<String>,
     body: Option<String>,
     content_type: Option<String>,
+    trace_id: Option<String>,
 ) -> Result<Vec<u8>, String> {
     let is_post = method.as_deref() == Some("POST");
+    let current_trace_id = trace_id.unwrap_or_else(|| "no-trace".to_string());
     
     let mut req = if is_post {
         client.internal.post(&url)
@@ -57,9 +60,13 @@ async fn request_bytes(
         req = req.body(b);
     }
 
+    println!("[HTTP BYTES REQUEST][{}] Trace: {}", url, current_trace_id);
     let resp = req.send()
         .await
         .map_err(|e| e.to_string())?;
+
+    let status = resp.status().as_u16();
+    println!("[HTTP BYTES RESPONSE {}][{}] {}", status, current_trace_id, url);
 
     let bytes = resp.bytes()
         .await
@@ -93,20 +100,24 @@ async fn request_api(
     api_name: String,
     params: String,
     cookie: String,
+    trace_id: Option<String>,
 ) -> Result<HttpResponse, crate::error::AppError> {
-    // log::debug!("[API] Request: {} Params: {}", api_name, params);
+    let current_trace_id = trace_id.clone().unwrap_or_else(|| "no-trace".to_string());
+    log::info!("[API] Request: {} (Trace: {})", api_name, current_trace_id);
+    
     let options = Options {
         params,
         cookie,
+        trace_id: trace_id.clone(),
     };
     
     match api::dispatch(&client, &provider, &api_name, options).await {
         Ok(res) => {
-            log::info!("[API] Success: {}", api_name);
+            log::info!("[API] Success: {} (Trace: {})", api_name, current_trace_id);
             Ok(res)
         },
         Err(e) => {
-            log::error!("[API] Failed: {} Error: {}", api_name, e);
+            log::error!("[API] Failed: {} Error: {} (Trace: {})", api_name, e, current_trace_id);
             Err(e)
         }
     }

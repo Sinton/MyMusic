@@ -14,6 +14,7 @@ pub(crate) async fn musicu_request(
     client: &HttpClient,
     payload: Value,
     cookie: &str,
+    trace_id: Option<String>,
 ) -> HttpResult<HttpResponse> {
     let url = "https://u.y.qq.com/cgi-bin/musicu.fcg";
     let body = payload.to_string();
@@ -27,7 +28,7 @@ pub(crate) async fn musicu_request(
         headers.push(("Cookie".to_string(), cookie.to_string()));
     }
 
-    client.request("POST", url, headers, body).await
+    client.request("POST", url, headers, body, trace_id).await
 }
 
 pub async fn dispatch(

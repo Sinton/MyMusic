@@ -37,12 +37,15 @@ export const NeteaseService = {
      * Internal: call Rust backend to make HTTP request
      */
     async _request<T = unknown>(apiName: string, params: string = '', cookie: string = ''): Promise<TypedResponse<T>> {
+        const traceId = Math.random().toString(36).substring(2, 8).toUpperCase();
         try {
+            console.log(`[NeteaseService][${traceId}] Requesting API: ${apiName}`, params);
             const response = await invoke('request_api', {
                 provider: 'netease',
                 apiName,
                 params,
                 cookie,
+                traceId
             });
             const anyResp = response as NeteaseHttpResponse<T>;
             return {

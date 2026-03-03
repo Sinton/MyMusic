@@ -111,24 +111,25 @@ pub(crate) async fn request_handler(
     query_params: Value,
     cookies: &str,
     extra_params: Value,
+    trace_id: Option<String>,
 ) -> HttpResult<HttpResponse> {
      let req_data = prepare_request(url, "POST", crypto, query_params, cookies, extra_params);
-     client.request(&req_data.method, &req_data.url, req_data.headers, req_data.body).await
+     client.request(&req_data.method, &req_data.url, req_data.headers, req_data.body, trace_id).await
 }
 
 pub(crate) async fn weapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
     let cookies = get_cookie_string(&options.cookie);
-    request_handler(client, url, "weapi", params, &cookies, json!({})).await
+    request_handler(client, url, "weapi", params, &cookies, json!({}), options.trace_id.clone()).await
 }
 
 pub(crate) async fn eapi(client: &HttpClient, url: &str, params: Value, eapi_path: &str, options: &Options) -> HttpResult<HttpResponse> {
     let cookies = get_cookie_string(&options.cookie);
-    request_handler(client, url, "eapi", params, &cookies, json!({ "url": eapi_path })).await
+    request_handler(client, url, "eapi", params, &cookies, json!({ "url": eapi_path }), options.trace_id.clone()).await
 }
 
 pub(crate) async fn linuxapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
     let cookies = get_cookie_string(&options.cookie);
-    request_handler(client, url, "linuxapi", params, &cookies, json!({})).await
+    request_handler(client, url, "linuxapi", params, &cookies, json!({}), options.trace_id.clone()).await
 }
 
 pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<HttpResponse> {

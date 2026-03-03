@@ -6,18 +6,22 @@ export const QQMusicService = {
      * Call QQ Music API via Rust backend provider
      */
     async _requestApi<T>(apiName: string, params: Record<string, any> = {}, cookie: string = ''): Promise<T> {
+        const traceId = Math.random().toString(36).substring(2, 8).toUpperCase();
         const paramString = Object.entries(params)
             .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
             .join('&');
+
+        console.log(`[QQMusicService][${traceId}] Requesting API: ${apiName}`, params);
 
         const res = await invoke<any>('request_api', {
             provider: 'qqmusic',
             apiName,
             params: paramString,
-            cookie
+            cookie,
+            traceId
         });
 
-        invoke('log_info', { message: `[QQMusicService] API: ${apiName} Params: ${paramString} Response: ${JSON.stringify(res.body).slice(0, 200)}...` });
+        // invoke('log_info', { message: `[QQMusicService][${traceId}] API: ${apiName} Response: ${JSON.stringify(res.body).slice(0, 100)}...` });
         return res.body as T;
     },
 

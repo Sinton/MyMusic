@@ -18,7 +18,7 @@ pub async fn detail(client: &HttpClient, options: Options) -> HttpResult<HttpRes
         }
     });
 
-    musicu_request(client, payload, &options.cookie).await
+    musicu_request(client, payload, &options.cookie, options.trace_id.clone()).await
 }
 
 pub async fn songs(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
@@ -36,7 +36,7 @@ pub async fn songs(client: &HttpClient, options: Options) -> HttpResult<HttpResp
         }
     });
 
-    musicu_request(client, payload, &options.cookie).await
+    musicu_request(client, payload, &options.cookie, options.trace_id.clone()).await
 }
 
 pub async fn albums(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
@@ -50,9 +50,9 @@ pub async fn albums(client: &HttpClient, options: Options) -> HttpResult<HttpRes
         "req": {
             "module": "music.musichallAlbum.AlbumListServer",
             "method": "GetAlbumList",
-            "param": { "singerMid": mid, "begin": begin, "num": 100, "order": 0 }
+            "param": { "singerMid": mid, "begin": begin, "num": 30, "order": 0 }
         }
     });
 
-    musicu_request(client, payload, &options.cookie).await
+    musicu_request(client, payload, &options.cookie, options.trace_id.clone()).await
 }

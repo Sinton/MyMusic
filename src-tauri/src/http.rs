@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::path::PathBuf;
 use std::fs::File;
-use std::io::{BufReader, BufWriter};
+use std::io::{BufReader, BufWriter, Write};
 use crate::error::{AppError, AppResult};
 use reqwest::header::{HeaderMap, HeaderValue, SET_COOKIE};
 use reqwest::{Client, ClientBuilder};
@@ -58,13 +58,16 @@ impl HttpClient {
     }
 
     pub fn save_cookies(&self) -> AppResult<()> {
-                let mut file = File::create(&self.storage_path)
-            .map(BufWriter::new)
+        let file = File::create(&self.storage_path)
             .map_err(|e| AppError::Internal(format!("Failed to create cookie file: {}", e)))?;
+        let mut writer = BufWriter::new(file);
         
         let store = self.cookie_store.lock().map_err(|_| AppError::Internal("Lock poison".to_string()))?;
-                store.save_json(&mut file)
+        // Use the store's save_json method, ensuring we have the Write trait in scope
+        store.save_json(&mut writer)
             .map_err(|e| AppError::Internal(format!("Failed to save cookies: {}", e)))?;
+        
+        writer.flush().map_err(|e| AppError::Internal(format!("Failed to flush cookie file: {}", e)))?;
         Ok(())
     }
 
@@ -74,8 +77,10 @@ impl HttpClient {
         url: &str,
         headers_list: Vec<(String, String)>,
         body: String,
+        trace_id: Option<String>,
     ) -> HttpResult<HttpResponse> {
         let mut headers = HeaderMap::new();
+        let current_trace_id = trace_id.unwrap_or_else(|| "no-trace".to_string());
         
         for (k, v) in headers_list {
             if let Ok(hname) = k.parse::<reqwest::header::HeaderName>() {
@@ -87,11 +92,36 @@ impl HttpClient {
 
         let builder = match method.to_uppercase().as_str() {
             "GET" => self.internal.get(url),
-            "POST" => self.internal.post(url).body(body),
-                        _ => return Err(AppError::Internal(format!("Unsupported method: {}", method))),
+            "POST" => self.internal.post(url).body(body.clone()),
+            _ => return Err(AppError::Internal(format!("Unsupported method: {}", method))),
         };
 
-        log::debug!("[HTTP] {} {}", method, url);
+        // Construct curl for debugging
+        let mut curl = format!("curl -L -X {} '{}'", method.to_uppercase(), url);
+        for (k, v) in &headers {
+             curl.push_str(&format!(" -H '{}: {}'", k, v.to_str().unwrap_or("").replace("'", "'\\''")));
+        }
+
+        // Add cookies from the store to the curl command for a complete reproduction string
+        if let Ok(url_obj) = reqwest::Url::parse(url) {
+            if let Ok(store) = self.cookie_store.lock() {
+                let cookies: Vec<String> = store.get_request_values(&url_obj)
+                    .map(|(name, value)| format!("{}={}", name, value))
+                    .collect();
+                if !cookies.is_empty() {
+                    let cookie_header = cookies.join("; ");
+                    curl.push_str(&format!(" -H 'Cookie: {}'", cookie_header.replace("'", "'\\''")));
+                }
+            }
+        }
+
+        if !body.is_empty() {
+             curl.push_str(&format!(" -d '{}'", body.replace("'", "'\\''")));
+        }
+
+        println!("\n[HTTP REQUEST][{}] Trace: {}\n{}\n", method.to_uppercase(), current_trace_id, curl);
+        log::debug!("[HTTP] {} {} (Trace: {})", method, url, current_trace_id);
+
         let resp = builder
             .headers(headers)
             .send()
@@ -99,7 +129,8 @@ impl HttpClient {
             .map_err(AppError::from)?;
 
         let status = resp.status().as_u16();
-        log::debug!("[HTTP] Response Status: {}", status);
+        println!("[HTTP RESPONSE {}][{}] {}\n", status, current_trace_id, url);
+        log::debug!("[HTTP] Response Status: {} (Trace: {})", status, current_trace_id);
 
         
         // Extract headers

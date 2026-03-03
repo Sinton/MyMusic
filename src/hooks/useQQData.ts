@@ -32,9 +32,13 @@ function qqToSong(item: any): Song {
         sourceId: songMid,
     };
 
+    const songTitleBase = item.title || item.name || 'Unknown Title';
+    const subtitle = item.subtitle || '';
+    const songTitle = subtitle ? `${songTitleBase} (${subtitle})` : songTitleBase;
+
     return {
         id: songMid,
-        title: item.name || item.title || 'Unknown Title',
+        title: songTitle,
         artist: artistName,
         artistId: artistMid,
         album: albumName,
@@ -212,7 +216,7 @@ export function useQQArtistSongs(artistMid: string, options: { enabled?: boolean
 
 /** Artist's albums with infinite scroll pagination */
 export function useQQArtistAlbums(artistMid: string, options?: { enabled?: boolean }) {
-    const LIMIT = 100;
+    const LIMIT = 30;
 
     const query = useInfiniteQuery({
         queryKey: QQ_KEYS.artistAlbums(artistMid),

@@ -23,5 +23,5 @@ pub async fn detail(client: &HttpClient, options: Options) -> HttpResult<HttpRes
         }
     });
 
-    musicu_request(client, payload, &options.cookie).await
+    musicu_request(client, payload, &options.cookie, options.trace_id.clone()).await
 }
