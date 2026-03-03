@@ -8,11 +8,25 @@ const appWindow = getCurrentWindow();
 interface TitleBarProps {
     canGoBack?: boolean;
     onBack?: () => void;
+    isTransparent?: boolean;
 }
 
-export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack }) => {
+export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack, isTransparent = false }) => {
     const [isMaximized, setIsMaximized] = useState(false);
+
+    // Delay restoring the TitleBar background and border so it doesn't instantly
+    // flash over the FullScreenPlayer while it's still sliding down (500ms duration).
+    const [isTransparentDelayed, setIsTransparentDelayed] = useState(isTransparent);
     const { t } = useTranslation();
+
+    useEffect(() => {
+        if (isTransparent) {
+            setIsTransparentDelayed(true);
+        } else {
+            const timer = setTimeout(() => setIsTransparentDelayed(false), 0);
+            return () => clearTimeout(timer);
+        }
+    }, [isTransparent]);
 
     useEffect(() => {
         const checkMaximized = async () => {
@@ -38,9 +52,9 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack })
     const close = () => appWindow.close();
 
     return (
-        <div className="absolute top-0 left-0 right-0 h-8 z-[99999] flex items-stretch select-none bg-black/5 backdrop-blur-sm border-b border-white/5">
+        <div className={`top-0 left-0 right-0 h-8 z-[99999] flex items-stretch select-none transition-colors duration-500 ${isTransparentDelayed ? 'fixed bg-transparent pointer-events-none border-b border-transparent' : 'absolute bg-black/5 backdrop-blur-sm border-b border-white/5'}`}>
             {/* Left Controls (Back) - Aligned with Right Main Content */}
-            <div className="flex items-center z-50">
+            <div className={`flex items-center z-50 pointer-events-auto transition-opacity duration-300 ${isTransparentDelayed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                 {canGoBack && (
                     <button
                         onClick={onBack}
@@ -55,8 +69,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack })
             {/* Drag Region - Flex-1 matches remaining space */}
             <div
                 data-tauri-drag-region
-                className="flex-1 flex items-center px-4"
-            // No pointer-events needed here, default is auto
+                className="flex-1 flex items-center px-4 pointer-events-auto"
             >
                 {/* Optional App Title */}
                 <div className="text-[10px] font-medium text-white/30 pointer-events-none uppercase tracking-widest hidden">
@@ -66,7 +79,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack })
 
             {/* Window Controls - Separate Flex Item */}
             {/* IMPORTANT: Must NOT overlap with data-tauri-drag-region */}
-            <div className="flex bg-transparent z-50">
+            <div className="flex bg-transparent z-50 pointer-events-auto">
                 <button
                     onClick={minimize}
                     className="flex items-center justify-center w-12 h-full hover:bg-white/10 text-white/70 hover:text-white transition-colors focus:outline-none"

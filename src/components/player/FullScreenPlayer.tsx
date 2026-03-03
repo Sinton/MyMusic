@@ -119,8 +119,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                 <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-pink-600/10 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
 
-            {/* Header */}
-            <div className="relative z-10 flex items-center justify-between px-8 py-6">
+            {/* Header: Add top padding to clear the transparent TitleBar overlay */}
+            <div className="relative z-10 flex items-center justify-between px-8 pt-10 pb-4">
                 <button onClick={onClose} className="p-2 rounded-full hover:bg-[rgba(255,255,255,0.1)] transition-colors">
                     <ChevronDown className="w-6 h-6 text-[var(--text-main)]" />
                 </button>

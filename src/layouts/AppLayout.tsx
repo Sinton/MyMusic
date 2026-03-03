@@ -73,7 +73,7 @@ const AppLayout: React.FC = () => {
                 onOpenAuth={openAuthModal}
             />
             <main className="flex-1 relative flex flex-col min-w-0">
-                <TitleBar canGoBack={history.length > 1} onBack={handleBack} />
+                <TitleBar canGoBack={history.length > 1} onBack={handleBack} isTransparent={isFullScreenPlayerOpen} />
                 <MainView
                     activeView={activeView}
                     onNavigate={handleNavigate}
