@@ -51,14 +51,25 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack, i
     };
     const close = () => appWindow.close();
 
+    // The TitleBar is an overlay over FullScreenPlayer when transparent.
+    // FullScreenPlayer respects light/dark theme (bg-[var(--bg-color)]), 
+    // so we must use theme text colors, not forced white.
+    const commonControlsClass = isTransparentDelayed
+        ? "hover:bg-[var(--glass-highlight)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"
+        : "hover:bg-[var(--glass-highlight)] text-[var(--text-secondary)] hover:text-[var(--text-main)]";
+
+    const closeControlsClass = isTransparentDelayed
+        ? "hover:bg-[#c42b1c] hover:text-white text-[var(--text-secondary)]"
+        : "hover:bg-[#c42b1c] hover:text-white text-[var(--text-secondary)]";
+
     return (
-        <div className={`top-0 left-0 right-0 h-8 z-[99999] flex items-stretch select-none transition-colors duration-500 ${isTransparentDelayed ? 'fixed bg-transparent pointer-events-none border-b border-transparent' : 'absolute bg-black/5 backdrop-blur-sm border-b border-white/5'}`}>
+        <div className={`top-0 left-0 right-0 h-8 z-[99999] flex items-stretch select-none transition-colors duration-500 ${isTransparentDelayed ? 'fixed bg-transparent pointer-events-none border-b border-transparent' : 'absolute bg-[var(--glass-bg)] backdrop-blur-sm border-b border-[var(--glass-border)]'}`}>
             {/* Left Controls (Back) - Aligned with Right Main Content */}
             <div className={`flex items-center z-50 pointer-events-auto transition-opacity duration-300 ${isTransparentDelayed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                 {canGoBack && (
                     <button
                         onClick={onBack}
-                        className="flex items-center justify-center w-12 h-full hover:bg-white/10 text-white/70 hover:text-white transition-colors focus:outline-none"
+                        className={`flex items-center justify-center w-12 h-full transition-colors focus:outline-none ${commonControlsClass}`}
                         title={t('common.back', 'Back')}
                     >
                         <ChevronLeft size={16} />
@@ -82,14 +93,14 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack, i
             <div className="flex bg-transparent z-50 pointer-events-auto">
                 <button
                     onClick={minimize}
-                    className="flex items-center justify-center w-12 h-full hover:bg-white/10 text-white/70 hover:text-white transition-colors focus:outline-none"
+                    className={`flex items-center justify-center w-12 h-full transition-colors focus:outline-none ${commonControlsClass}`}
                     title="Minimize"
                 >
                     <Minus size={14} />
                 </button>
                 <button
                     onClick={toggleMaximize}
-                    className="flex items-center justify-center w-12 h-full hover:bg-white/10 text-white/70 hover:text-white transition-colors focus:outline-none"
+                    className={`flex items-center justify-center w-12 h-full transition-colors focus:outline-none ${commonControlsClass}`}
                     title={isMaximized ? "Restore" : "Maximize"}
                 >
                     {isMaximized ? (
@@ -100,7 +111,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack, i
                 </button>
                 <button
                     onClick={close}
-                    className="flex items-center justify-center w-12 h-full hover:bg-[#c42b1c] text-white/70 hover:text-white transition-colors focus:outline-none"
+                    className={`flex items-center justify-center w-12 h-full transition-colors focus:outline-none ${closeControlsClass}`}
                     title="Close"
                 >
                     <X size={14} />

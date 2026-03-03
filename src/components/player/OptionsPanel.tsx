@@ -185,7 +185,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
                                     onClick={() => handleSetSleepTimer(min)}
                                     className={`w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[var(--glass-highlight)] transition-colors ${sleepTimer === min ? 'bg-[var(--accent-color)]/10 text-[var(--accent-color)]' : 'text-[var(--text-main)]'}`}
                                 >
-                                    <span className="font-medium">{min} Minutes</span>
+                                    <span className="font-medium">{min} {t('common.min', '分钟')}</span>
                                     {sleepTimer === min && <Check className="w-4 h-4" />}
                                 </button>
                             ))}
@@ -193,7 +193,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
                                 onClick={() => handleSetSleepTimer(null)}
                                 className={`w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[var(--glass-highlight)] transition-colors text-red-400`}
                             >
-                                <span className="font-medium">Turn Off</span>
+                                <span className="font-medium">{t('fullPlayer.options.turnOffTimer', '关闭定时')}</span>
                                 {sleepTimer === null && <Check className="w-4 h-4" />}
                             </button>
                         </div>

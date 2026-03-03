@@ -65,8 +65,8 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
 
     return (
         <div className={`absolute inset-y-0 right-0 w-full lg:w-[450px] glass-drawer border-l border-[var(--glass-border)] z-[100] transition-transform duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${showShadow ? 'shadow-[-20px_0_50px_rgba(0,0,0,0.3)]' : ''}`}>
-            <div className="p-8 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-8">
+            <div className="py-8 h-full flex flex-col">
+                <div className="flex items-center justify-between mb-8 px-8">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3">
                             <ListMusic className="w-6 h-6 text-[var(--accent-color)]" />
@@ -120,11 +120,11 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                             )}
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-colors">
+                    <button onClick={onClose} className="p-2 mr-6 hover:bg-[var(--glass-highlight)] rounded-full transition-colors">
                         <X className="w-6 h-6 text-[var(--text-secondary)]" />
                     </button>
                 </div>
-                <div ref={scrollContainerRef} className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
+                <div ref={scrollContainerRef} className="flex-1 overflow-y-auto custom-scrollbar">
                     {queue.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center opacity-40 py-20">
                             <ListMusic className="w-16 h-16 mb-4" />
@@ -175,11 +175,11 @@ const QueueTrackItem = React.memo<QueueTrackItemProps>(({
         <div
             data-active={isCurrent ? "true" : "false"}
             onClick={() => onPlayTrack(track)}
-            className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all group relative ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20 shadow-[0_4px_20px_rgba(var(--accent-rgb),0.05)]' : 'hover:bg-[var(--glass-highlight)]'}`}
+            className={`flex items-center gap-4 py-3 pl-8 pr-6 cursor-pointer transition-all group relative ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20 shadow-[0_4px_20px_rgba(var(--accent-rgb),0.05)]' : 'hover:bg-[var(--glass-highlight)]'}`}
         >
             {/* Vertical Glow Indicator */}
             {isCurrent && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_15px_var(--accent-color)]" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_15px_var(--accent-color)]" />
             )}
 
             <div className="text-sm font-mono text-[var(--text-muted)] w-4 pl-1">{index + 1}</div>
