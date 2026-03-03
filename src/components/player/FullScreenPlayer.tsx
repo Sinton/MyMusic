@@ -75,8 +75,12 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     };
 
     const handlePlayQueueTrack = (track: typeof currentTrack) => {
-        setTrack(track);
-        play();
+        if (track.id === currentTrack.id) {
+            togglePlay();
+        } else {
+            setTrack(track);
+            play();
+        }
     };
 
     // Get a deterministic background gradient based on track ID

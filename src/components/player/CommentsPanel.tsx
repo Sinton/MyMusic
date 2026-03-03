@@ -28,14 +28,14 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
 
     return (
         <div className={`absolute inset-y-0 right-0 w-full lg:w-[450px] glass-drawer border-l border-[var(--glass-border)] z-[100] transition-transform duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${showShadow ? 'shadow-[-20px_0_50px_rgba(0,0,0,0.3)]' : ''}`}>
-            <div className="p-8 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-8">
+            <div className="py-8 h-full flex flex-col">
+                <div className="flex items-center justify-between mb-8 pl-8 pr-4">
                     <h3 className="text-xl font-bold text-[var(--text-main)]">{t('fullPlayer.comments.title')}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-main)]">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
-                <div className="flex-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex-1 space-y-6 overflow-y-auto px-8 custom-scrollbar">
                     {comments.map(comment => (
                         <div key={comment.id} className="space-y-4 group">
                             <div className="flex items-center gap-3">

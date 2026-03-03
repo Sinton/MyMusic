@@ -98,7 +98,7 @@ MiniQueueTrackItem.displayName = 'MiniQueueTrackItem';
 
 export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { queue, currentTrack, isPlaying, setTrack, play, setQueue, clearQueue } = usePlayerStore();
+    const { queue, currentTrack, isPlaying, setTrack, play, togglePlay, setQueue, clearQueue } = usePlayerStore();
     const popupRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [showConfirmClear, setShowConfirmClear] = React.useState(false);
@@ -245,9 +245,13 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                             isCurrent={track.id === currentTrack.id}
                             isPlaying={isPlaying}
                             onPlay={() => {
-                                setTrack(track);
-                                play();
-                                onClose();
+                                if (track.id === currentTrack.id) {
+                                    togglePlay();
+                                } else {
+                                    setTrack(track);
+                                    play();
+                                    onClose();
+                                }
                             }}
                             onRemove={(e) => handleRemoveTrack(e, index)}
                             t={t}

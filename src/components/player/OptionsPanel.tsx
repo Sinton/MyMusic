@@ -99,14 +99,14 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     return (
         <div className={`absolute inset-y-0 right-0 w-full lg:w-[320px] glass-drawer border-l border-[var(--glass-border)] z-[110] transition-transform duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${showShadow ? 'shadow-[-20px_0_50px_rgba(0,0,0,0.3)]' : ''}`}>
-            <div className="p-8 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-10">
+            <div className="py-8 h-full flex flex-col">
+                <div className="flex items-center justify-between mb-10 pl-8 pr-4">
                     <h3 className="text-xl font-bold text-[var(--text-main)]">{t('fullPlayer.options.title')}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-main)]">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 px-8 overflow-y-auto custom-scrollbar">
                     {menuView === 'main' ? (
                         <>
                             <button onClick={() => handleComingSoon(t('fullPlayer.options.like'))} className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-[var(--glass-highlight)] transition-colors group">

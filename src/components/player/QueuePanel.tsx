@@ -66,7 +66,7 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
     return (
         <div className={`absolute inset-y-0 right-0 w-full lg:w-[450px] glass-drawer border-l border-[var(--glass-border)] z-[100] transition-transform duration-500 ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${showShadow ? 'shadow-[-20px_0_50px_rgba(0,0,0,0.3)]' : ''}`}>
             <div className="py-8 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-8 px-8">
+                <div className="flex items-center justify-between mb-8 pl-8 pr-4">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3">
                             <ListMusic className="w-6 h-6 text-[var(--accent-color)]" />
@@ -120,7 +120,7 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                             )}
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 mr-6 hover:bg-[var(--glass-highlight)] rounded-full transition-colors">
+                    <button onClick={onClose} className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-colors">
                         <X className="w-6 h-6 text-[var(--text-secondary)]" />
                     </button>
                 </div>
