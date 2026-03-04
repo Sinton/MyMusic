@@ -72,7 +72,7 @@ const ExploreView: React.FC<ExploreViewProps> = ({ onNavigate }) => {
                                     <span className="font-bold text-white text-lg drop-shadow-md">
                                         {playlist.title}
                                     </span>
-                                    <span className="text-xs text-white/70 mt-1">{playlist.count} 首</span>
+                                    <span className="text-xs text-white/70 mt-1">{playlist.count} {t('playlist.songs')}</span>
                                 </div>
                             </div>
                         ))

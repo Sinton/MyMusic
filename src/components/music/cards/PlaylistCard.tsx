@@ -1,5 +1,6 @@
 import React from 'react';
 import { ListMusic } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Playlist } from '../../../types';
 import PlatformBadge from '../../common/badges/PlatformBadge';
 
@@ -10,6 +11,7 @@ interface PlaylistCardProps {
 }
 
 const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant = 'default' }) => {
+    const { t } = useTranslation();
     const isImage = playlist.cover?.includes('/') || playlist.cover?.includes('.');
 
     const renderSourceBadge = () => {
@@ -55,7 +57,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
                     {renderSourceBadge()}
                 </div>
                 <div className="font-medium text-sm truncate text-[var(--text-main)]">{playlist.title}</div>
-                <div className="text-xs text-[var(--text-secondary)]">{playlist.count}</div>
+                <div className="text-xs text-[var(--text-secondary)]">{playlist.count} {t('playlist.songs')}</div>
             </div>
         );
     }
@@ -81,7 +83,7 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
                 {renderSourceBadge()}
             </div>
             <div className="font-medium text-sm truncate text-[var(--text-main)]">{playlist.title}</div>
-            <div className="text-xs text-[var(--text-secondary)]">{playlist.count}</div>
+            <div className="text-xs text-[var(--text-secondary)]">{playlist.count} {t('playlist.songs')}</div>
         </div>
     );
 };

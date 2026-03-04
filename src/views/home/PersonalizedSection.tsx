@@ -27,7 +27,7 @@ export const PersonalizedSection: React.FC<PersonalizedSectionProps> = ({
                     className="w-5 h-5 rounded-md shadow-[0_2px_10px_rgba(236,65,65,0.25)]"
                 />
                 <h2 className="text-xl font-bold text-[var(--text-main)]">
-                    {t('home.neteaseRecommend', '网易云推荐')}
+                    {t('home.sections.neteaseRecommend')}
                 </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -61,7 +61,7 @@ export const PersonalizedSection: React.FC<PersonalizedSectionProps> = ({
                             </div>
                             <h3 className="font-bold text-[var(--text-main)] truncate">{pl.title}</h3>
                             <p className="text-sm text-[var(--text-secondary)] truncate">
-                                {pl.count} {t('home.tracks', '首')}
+                                {pl.count} {t('playlist.songs')}
                             </p>
                         </div>
                     ))

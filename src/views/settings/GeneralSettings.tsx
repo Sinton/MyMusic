@@ -70,6 +70,7 @@ const GeneralSettings: React.FC = () => {
 };
 
 const ShortcutRecorder: React.FC = () => {
+    const { t } = useTranslation();
     const { globalSearchShortcut, setGlobalSearchShortcut } = useSettingsStore();
     const [isRecording, setIsRecording] = React.useState(false);
     const [preview, setPreview] = React.useState('');
@@ -109,7 +110,7 @@ const ShortcutRecorder: React.FC = () => {
             onKeyDown={handleKeyDown}
             onClick={() => {
                 setIsRecording(true);
-                setPreview('等待按键...');
+                setPreview(t('settings.general.record.waiting'));
             }}
             onBlur={() => {
                 setIsRecording(false);
@@ -121,7 +122,7 @@ const ShortcutRecorder: React.FC = () => {
                 }`}
         >
             <span className={isRecording ? 'animate-pulse' : ''}>
-                {isRecording ? (preview || '录制中...') : globalSearchShortcut || '无'}
+                {isRecording ? (preview || t('settings.general.record.recording')) : globalSearchShortcut || t('settings.general.record.none')}
             </span>
         </button>
     );

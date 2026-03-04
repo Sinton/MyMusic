@@ -17,7 +17,9 @@
         "library": "音乐库",
         "likes": "我喜欢的音乐",
         "settings": "设置",
-        "playlists": "创建的歌单",
+        "playlists": "我的歌单",
+        "createdPlaylists": "创建的歌单",
+        "collectedPlaylists": "收藏的歌单",
         "myPlaylists": "我的歌单",
         "newPlaylist": "新建歌单",
         "createPlaylist": "创建歌单",
@@ -30,13 +32,15 @@
         "searchResultsFor": "搜索结果",
         "resultsFound": "条结果",
         "noResults": "没有找到匹配的歌曲。",
+        "searching": "搜索中...",
         "greeting": "早上好",
         "recentlyPlayed": "最近播放",
         "jumpBackIn": "继续播放",
         "seeAll": "查看全部",
         "sections": {
             "madeForYou": "为你推荐",
-            "newReleases": "新歌首发",
+            "neteaseRecommend": "网易云推荐",
+            "newReleases": "新碟上架",
             "chartToppers": "榜单热歌"
         }
     },
@@ -61,12 +65,18 @@
         "general": {
             "title": "常规",
             "language": "语言",
+            "languageDesc": "选择应用程序界面显示的语言",
             "launchOnLogin": "开机自启",
             "launchOnLoginDesc": "登录时自动启动",
             "searchShortcut": "全局搜索快捷键",
             "searchShortcutDesc": "设置一个快捷键用于快速回到并定位搜索输入框",
             "clipboardMonitor": "剪贴板识别",
-            "clipboardMonitorDesc": "复制汽水音乐分享链接后自动识别并提示播放"
+            "clipboardMonitorDesc": "复制汽水音乐分享链接后自动识别并提示播放",
+            "record": {
+                "waiting": "等待按键...",
+                "recording": "录制中...",
+                "none": "无"
+            }
         },
         "audio": {
             "title": "音频",
@@ -121,13 +131,25 @@
             "songs": "歌曲",
             "playlists": "歌单",
             "albums": "专辑"
-        }
+        },
+        "sections": {
+            "local": "本地",
+            "netease": "网易云音乐",
+            "neteaseLiked": "我喜欢的音乐",
+            "neteaseCreated": "创建的歌单",
+            "neteaseCollected": "收藏的歌单",
+            "qq": "QQ 音乐",
+            "qqCreated": "创建的歌单",
+            "qqCollected": "收藏的歌单"
+        },
+        "empty": "暂无歌单",
+        "noLikedSongs": "暂未实现获取喜欢的音乐 (TODO)"
     },
     "playlist": {
         "label": "歌单",
         "playAll": "播放全部",
         "linkCopied": "链接已复制",
-        "songs": "首歌曲",
+        "songs": "首",
         "titleCol": "标题",
         "albumCol": "专辑",
         "timeCol": "时长",
@@ -136,13 +158,17 @@
         "delete": "删除歌单",
         "deleteConfirmTitle": "确定要删除吗？",
         "deleteConfirmDesc": "这将永久删除 \"{{title}}\"。此操作无法撤销。",
-        "yesDelete": "确认，删除歌单"
+        "yesDelete": "确认，删除歌单",
+        "neteasePlaylist": "网易云歌单",
+        "likedSongs": "我喜欢的音乐",
+        "created": "创建的歌单",
+        "collected": "收藏的歌单"
     },
     "album": {
         "label": "专辑",
         "playAll": "播放全部",
         "playAlbum": "播放整张",
-        "songs": "首歌曲",
+        "songs": "首",
         "ep": "EP",
         "single": "单曲",
         "released": "发行于",
@@ -183,7 +209,55 @@
         "success": "连接成功！",
         "syncing": "正在同步您的音乐库...",
         "privacy": "隐私加密",
-        "passwordLogin": "使用密码登录"
+        "passwordLogin": "使用密码登录",
+        "phone": {
+            "title": "手机号",
+            "desc": "输入手机号，获取验证码登录",
+            "placeholder": "请输入手机号"
+        },
+        "captcha": {
+            "title": "验证码",
+            "placeholder": "验证码",
+            "send": "获取验证码"
+        },
+        "login": "登录",
+        "qr": {
+            "title": "扫码"
+        },
+        "cookie": {
+            "title": "Cookie",
+            "desc": "从浏览器获取 Cookie 登录（最稳定）",
+            "placeholder": "粘贴 Cookie（至少包含 MUSIC_U=xxx）",
+            "verify": "验证并登录",
+            "steps": {
+                "step1": "1. 在浏览器中打开 <button>music.163.com</button> 并登录",
+                "step2": "2. 按 F12 打开开发者工具",
+                "step3": "3. 切换到 Application → Cookies",
+                "step4": "4. 找到 MUSIC_U 对应的值，复制粘贴到下方"
+            }
+        },
+        "scanned": "已扫描",
+        "confirmOnPhone": "请在手机上确认登录",
+        "expired": "二维码已过期",
+        "refresh": "刷新二维码",
+        "error": {
+            "title": "连接失败",
+            "retry": "重试",
+            "invalidCookie": "Cookie 无效或已过期，请重新获取",
+            "pasteValidCookie": "请粘贴有效的 Cookie",
+            "verificationFailed": "验证失败，请检查 Cookie 是否正确",
+            "invalidPhone": "请输入正确的手机号",
+            "phoneCaptchaRequired": "请输入手机号和验证码",
+            "captchaSendFailed": "发送验证码失败",
+            "captchaRetry": "发送失败，请稍后重试",
+            "loginFailed": "登录失败",
+            "loginRetry": "登录失败，请稍后重试",
+            "verifyRequired": "需要人机验证",
+            "verifyNeeded": "需要人机验证，请稍后重试",
+            "verifyOpenBrowser": "已在浏览器中打开验证页面，请完成验证后点击下方按钮重试登录",
+            "verifyComplete": "验证完成，重新登录",
+            "verifyReopen": "重新打开验证页面"
+        }
     },
     "platforms": {
         "netease": "网易云音乐",
@@ -210,7 +284,7 @@
             "share": "分享",
             "sleepTimer": "睡眠定时器",
             "back": "返回",
-            "songs": "首歌曲",
+            "songs": "首",
             "playingFrom": "播放来源"
         }
     },
@@ -226,6 +300,12 @@
         "aggregatedSources": "音源聚合概览",
         "connected": "已聚合",
         "locked": "未解锁",
-        "searchPlaceholder": "在这个艺人的作品中搜索..."
+        "searchPlaceholder": "在这个艺人的作品中搜索...",
+        "noBio": "极简风格的音乐人。"
+    },
+    "clipboard": {
+        "detected": "检测到 {{platform}} 链接",
+        "fetching": "正在获取歌曲信息...",
+        "fetchFailed": "获取失败"
     }
 }

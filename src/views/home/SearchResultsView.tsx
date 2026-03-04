@@ -36,7 +36,7 @@ export const SearchResultsView: React.FC<SearchResultsViewProps> = ({
             {isSearching ? (
                 <div className="h-64 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
                     <Loader2 className="w-12 h-12 animate-spin opacity-30" />
-                    <p className="text-lg">{t('home.searching', '搜索中...')}</p>
+                    <p className="text-lg">{t('home.searching')}</p>
                 </div>
             ) : mergedResults.length > 0 ? (
                 <div className="space-y-2">

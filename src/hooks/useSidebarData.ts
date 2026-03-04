@@ -65,7 +65,7 @@ export const useSidebarData = () => {
             const other = neteaseRemotePlaylists.slice(1);
             result.push({
                 id: 'netease',
-                title: '网易云音乐',
+                title: t('platforms.netease'),
                 type: 'platform',
                 liked,
                 created: other.filter((p: Playlist) => !p.isSubscribed),
@@ -79,7 +79,7 @@ export const useSidebarData = () => {
             const other = qqRemotePlaylists.slice(1);
             result.push({
                 id: 'qq',
-                title: 'QQ 音乐',
+                title: t('platforms.qq'),
                 type: 'platform',
                 liked,
                 created: other.filter((p: Playlist) => !p.isSubscribed),

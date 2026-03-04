@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Music, X, Play, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { QishuiService } from '../../services/QishuiService';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { PlatformBadge } from './badges/PlatformBadge';
@@ -30,6 +31,7 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
     const [visible, setVisible] = useState(false);
     const dismissTimer = useRef<ReturnType<typeof setTimeout>>();
     const { setTrack, setQueue } = usePlayerStore();
+    const { t } = useTranslation();
 
     // Load track info when a new link is detected
     useEffect(() => {
@@ -166,14 +168,14 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
                 <div className="flex-1 min-w-0 pr-2 flex flex-col justify-center h-full py-2">
                     <div className="text-[10px] text-[var(--accent-color)] font-bold mb-0.5 flex items-center gap-1 uppercase tracking-wider">
                         <PlatformBadge name="Soda Music" size="xs" className="scale-90" />
-                        检测到汽水音乐
+                        {t('clipboard.detected', { platform: 'Soda Music' })}
                     </div>
 
                     <div className="h-[36px] flex flex-col justify-center">
                         {loading ? (
                             <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
                                 <Loader2 size={12} className="animate-spin" />
-                                正在获取歌曲信息...
+                                {t('clipboard.fetching')}
                             </div>
                         ) : trackData ? (
                             <>
@@ -191,7 +193,7 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
                                 </div>
                             </>
                         ) : (
-                            <div className="text-sm text-[var(--text-muted)]">获取失败</div>
+                            <div className="text-sm text-[var(--text-muted)]">{t('clipboard.fetchFailed')}</div>
                         )}
                     </div>
                 </div>

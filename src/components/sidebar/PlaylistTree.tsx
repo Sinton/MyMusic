@@ -1,4 +1,4 @@
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SidebarSection } from '../../hooks/useSidebarData';
 import { SidebarTreeItem } from './SidebarTreeItem';
 import { SidebarPlatformHeader } from './SidebarPlatformHeader';
@@ -21,6 +21,7 @@ export const PlaylistTree: React.FC<PlaylistTreeProps> = ({
     onToggleGroup,
     onCreatePlaylist
 }) => {
+    const { t } = useTranslation();
     return (
         <div className="flex-1 px-2 overflow-y-auto custom-scrollbar pt-1 min-h-0" style={{ scrollbarGutter: 'stable' }}>
             <div className="space-y-1.5">
@@ -61,7 +62,7 @@ export const PlaylistTree: React.FC<PlaylistTreeProps> = ({
                                             {section.created && section.created.length > 0 && (
                                                 <>
                                                     <SidebarSubHeader
-                                                        label="创建的歌单"
+                                                        label={t('sidebar.createdPlaylists')}
                                                         isExpanded={isGroupExpanded(`${section.id}_created`)}
                                                         onToggle={() => onToggleGroup(`${section.id}_created`)}
                                                     />
@@ -80,7 +81,7 @@ export const PlaylistTree: React.FC<PlaylistTreeProps> = ({
                                             {section.collected && section.collected.length > 0 && (
                                                 <>
                                                     <SidebarSubHeader
-                                                        label="收藏的歌单"
+                                                        label={t('sidebar.collectedPlaylists')}
                                                         isExpanded={isGroupExpanded(`${section.id}_collected`)}
                                                         onToggle={() => onToggleGroup(`${section.id}_collected`)}
                                                     />

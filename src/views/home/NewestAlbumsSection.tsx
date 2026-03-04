@@ -19,7 +19,7 @@ export const NewestAlbumsSection: React.FC<NewestAlbumsSectionProps> = ({
     return (
         <section className="mb-12">
             <h2 className="text-xl font-bold mb-6 text-[var(--text-main)]">
-                {t('home.newestAlbums', '新碟上架')}
+                {t('home.sections.newReleases')}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                 {isLoading ? (

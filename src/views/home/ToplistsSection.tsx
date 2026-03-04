@@ -24,7 +24,7 @@ export const ToplistsSection: React.FC<ToplistsSectionProps> = ({
             {/* SECTION 3: Toplists (Charts) */}
             <section className="mb-12">
                 <h2 className="text-xl font-bold mb-6 text-[var(--text-main)]">
-                    {t('home.charts', '排行榜')}
+                    {t('explore.charts')}
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {isLoading ? (
@@ -46,7 +46,7 @@ export const ToplistsSection: React.FC<ToplistsSectionProps> = ({
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col justify-end">
                                     <h3 className="font-bold text-white text-lg">{pl.title}</h3>
                                     <p className="text-white/60 text-xs">
-                                        {pl.count} {t('home.tracks', '首')}
+                                        {pl.count} {t('playlist.songs')}
                                     </p>
                                 </div>
                             </div>

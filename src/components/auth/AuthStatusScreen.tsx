@@ -58,9 +58,9 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
                 <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
                     <ShieldCheck className="w-8 h-8 text-amber-500" />
                 </div>
-                <h3 className="text-lg font-bold text-[var(--text-main)]">需要人机验证</h3>
+                <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.error.verifyRequired')}</h3>
                 <p className="text-sm text-[var(--text-secondary)] text-center px-4">
-                    已在浏览器中打开验证页面，请完成验证后点击下方按钮重试登录
+                    {t('auth.error.verifyOpenBrowser')}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
                     <button
@@ -68,14 +68,14 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
                         className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-95 shadow-lg"
                         style={{ background: accentColor }}
                     >
-                        验证完成，重新登录
+                        {t('auth.error.verifyComplete')}
                     </button>
                     {verifyUrl && (
                         <button
                             onClick={() => shellOpen(verifyUrl)}
                             className="w-full py-2.5 rounded-xl font-bold text-sm transition-all bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] text-[var(--text-secondary)]"
                         >
-                            重新打开验证页面
+                            {t('auth.error.verifyReopen')}
                         </button>
                     )}
                 </div>

@@ -17,7 +17,9 @@
         "library": "Library",
         "likes": "Liked Songs",
         "settings": "Settings",
-        "playlists": "Playlists",
+        "playlists": "My Playlists",
+        "createdPlaylists": "Created Playlists",
+        "collectedPlaylists": "Collected Playlists",
         "myPlaylists": "My Playlists",
         "newPlaylist": "New Playlist",
         "createPlaylist": "Create Playlist",
@@ -30,12 +32,14 @@
         "searchResultsFor": "Search Results for",
         "resultsFound": "results found",
         "noResults": "No songs found matching your search.",
+        "searching": "Searching...",
         "greeting": "Good Morning",
         "recentlyPlayed": "Recently Played",
         "jumpBackIn": "Jump Back In",
         "seeAll": "See All",
         "sections": {
             "madeForYou": "Made For You",
+            "neteaseRecommend": "NetEase Recommendations",
             "newReleases": "New Releases",
             "chartToppers": "Chart Toppers"
         }
@@ -61,8 +65,18 @@
         "general": {
             "title": "General",
             "language": "Language",
+            "languageDesc": "Choose your preferred interface language",
             "launchOnLogin": "Launch on login",
-            "launchOnLoginDesc": "Launch on login"
+            "launchOnLoginDesc": "Launch on login automagically",
+            "searchShortcut": "Global Search Shortcut",
+            "searchShortcutDesc": "Set a global shortcut to toggle Vibe search anytime",
+            "clipboardMonitor": "Clipboard Monitor",
+            "clipboardMonitorDesc": "Auto-recognize and suggest playing music links from your clipboard",
+            "record": {
+                "waiting": "Waiting for key...",
+                "recording": "Recording...",
+                "none": "None"
+            }
         },
         "audio": {
             "title": "Audio",
@@ -117,7 +131,19 @@
             "songs": "Songs",
             "playlists": "Playlists",
             "albums": "Albums"
-        }
+        },
+        "sections": {
+            "local": "Local",
+            "netease": "NetEase Cloud",
+            "neteaseLiked": "My Liked Music",
+            "neteaseCreated": "Created Playlists",
+            "neteaseCollected": "Collected Playlists",
+            "qq": "QQ Music",
+            "qqCreated": "Created Playlists",
+            "qqCollected": "Collected Playlists"
+        },
+        "empty": "No Playlists",
+        "noLikedSongs": "Fetching liked songs is not yet implemented (TODO)"
     },
     "playlist": {
         "label": "Playlist",
@@ -132,7 +158,11 @@
         "delete": "Delete Playlist",
         "deleteConfirmTitle": "Are you sure?",
         "deleteConfirmDesc": "This will permanently delete \"{{title}}\". This action cannot be undone.",
-        "yesDelete": "Yes, Delete Playlist"
+        "yesDelete": "Yes, Delete Playlist",
+        "neteasePlaylist": "NetEase Playlist",
+        "likedSongs": "My Liked Music",
+        "created": "Created Playlists",
+        "collected": "Collected Playlists"
     },
     "album": {
         "label": "Album",
@@ -179,7 +209,55 @@
         "success": "Successfully Connected!",
         "syncing": "Syncing your library now...",
         "privacy": "Privacy Encrypted",
-        "passwordLogin": "Login with Password"
+        "passwordLogin": "Login with Password",
+        "phone": {
+            "title": "Mobile Number",
+            "desc": "Enter phone number and get captcha to login",
+            "placeholder": "Enter phone number"
+        },
+        "captcha": {
+            "title": "Captcha",
+            "placeholder": "Captcha",
+            "send": "Get Captcha"
+        },
+        "login": "Login",
+        "qr": {
+            "title": "QR Code"
+        },
+        "cookie": {
+            "title": "Cookie",
+            "desc": "Get Cookie from browser (Most stable)",
+            "placeholder": "Paste Cookie (at least MUSIC_U=xxx)",
+            "verify": "Verify & Login",
+            "steps": {
+                "step1": "1. Open <button>music.163.com</button> in browser and login",
+                "step2": "2. Press F12 to open developer tools",
+                "step3": "3. Switch to Application → Cookies",
+                "step4": "4. Find MUSIC_U value, copy and paste it below"
+            }
+        },
+        "scanned": "Scanned",
+        "confirmOnPhone": "Please confirm login on your phone",
+        "expired": "QR Code expired",
+        "refresh": "Refresh QR Code",
+        "error": {
+            "title": "Connection Failed",
+            "retry": "Retry",
+            "invalidCookie": "Invalid or expired Cookie, please re-fetch",
+            "pasteValidCookie": "Please paste a valid Cookie",
+            "verificationFailed": "Verification failed, please check if Cookie is correct",
+            "invalidPhone": "Please enter a correct phone number",
+            "phoneCaptchaRequired": "Please enter phone number and captcha",
+            "captchaSendFailed": "Failed to send captcha",
+            "captchaRetry": "Send failed, please try again later",
+            "loginFailed": "Login failed",
+            "loginRetry": "Login failed, please try again later",
+            "verifyRequired": "Verification Required",
+            "verifyNeeded": "Verification required, please try again later",
+            "verifyOpenBrowser": "Verification page opened in browser, please complete verification and click button below to retry",
+            "verifyComplete": "Verification complete, Login again",
+            "verifyReopen": "Reopen verification page"
+        }
     },
     "platforms": {
         "netease": "NetEase Cloud",
@@ -222,6 +300,12 @@
         "aggregatedSources": "Aggregated Stream Sources",
         "connected": "Aggregated",
         "locked": "Locked",
-        "searchPlaceholder": "Search songs or albums..."
+        "searchPlaceholder": "Search songs or albums...",
+        "noBio": "A minimalist music artist."
+    },
+    "clipboard": {
+        "detected": "Detected {{platform}} link",
+        "fetching": "Fetching track info...",
+        "fetchFailed": "Fetch failed"
     }
 }

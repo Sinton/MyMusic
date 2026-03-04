@@ -138,7 +138,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                             </div>
                         ) : (
                             <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--glass-border)] rounded-2xl">
-                                暂未实现获取喜欢的音乐 (TODO)
+                                {t('library.noLikedSongs')}
                             </div>
                         )}
                     </div>
@@ -187,7 +187,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                                     <section className={`${userPlaylists.length > 0 ? 'pt-4 border-t border-[var(--glass-border)]' : ''}`}>
                                         {renderSectionHeader(
                                             'netease',
-                                            t('library.sections.netease', '网易云音乐'),
+                                            t('library.sections.netease'),
                                             neteaseRemotePlaylists.length,
                                             '#e60026',
                                             <PlatformBadge name="NetEase" color="#e60026" size="md" />
@@ -270,7 +270,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
                                     <section className={`${(userPlaylists.length > 0 || isLoggedInNetease) ? 'pt-4 border-t border-[var(--glass-border)]' : ''}`}>
                                         {renderSectionHeader(
                                             'qq',
-                                            t('library.sections.qq', 'QQ 音乐'),
+                                            t('library.sections.qq'),
                                             qqRemotePlaylists.length,
                                             '#31c27c',
                                             <PlatformBadge name="QQ Music" color="#31c27c" size="md" />
@@ -330,7 +330,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
 
                                 {!isLoggedInNetease && !isLoggedInQQ && !userPlaylists.length && (
                                     <div className="py-20 text-center text-[var(--text-muted)] bg-[var(--glass-highlight)] rounded-2xl border border-dashed border-[var(--glass-border)]">
-                                        暂无歌单
+                                        {t('library.empty')}
                                     </div>
                                 )}
                             </>

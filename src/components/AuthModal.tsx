@@ -221,7 +221,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const handleCookieLogin = async () => {
         const trimmed = cookieInput.trim();
         if (!trimmed) {
-            setPhoneError('请粘贴有效的 Cookie');
+            setPhoneError(t('auth.error.pasteValidCookie'));
             return;
         }
         setPhoneError('');
@@ -244,11 +244,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     onClose();
                 }, 1500);
             } else {
-                setPhoneError('Cookie 无效或已过期，请重新获取');
+                setPhoneError(t('auth.error.invalidCookie'));
             }
         } catch (err) {
             console.error('Cookie login failed:', err);
-            setPhoneError('验证失败，请检查 Cookie 是否正确');
+            setPhoneError(t('auth.error.verificationFailed'));
         } finally {
             setLoading(false);
         }
@@ -258,7 +258,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const handleQQCookieLogin = async () => {
         const trimmed = cookieInput.trim();
         if (!trimmed) {
-            setPhoneError('请粘贴有效的 Cookie');
+            setPhoneError(t('auth.error.pasteValidCookie'));
             return;
         }
         setPhoneError('');
@@ -276,11 +276,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     onClose();
                 }, 1500);
             } else {
-                setPhoneError('Cookie 无效或已过期，请重新获取');
+                setPhoneError(t('auth.error.invalidCookie'));
             }
         } catch (err) {
             console.error('QQ Cookie login failed:', err);
-            setPhoneError('验证失败，请检查 Cookie 是否正确');
+            setPhoneError(t('auth.error.verificationFailed'));
         } finally {
             setLoading(false);
         }
@@ -289,7 +289,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     /** Send SMS captcha */
     const handleSendCaptcha = async () => {
         if (!phoneNumber || phoneNumber.length < 11) {
-            setPhoneError('请输入正确的手机号');
+            setPhoneError(t('auth.error.invalidPhone'));
             return;
         }
         setPhoneError('');
@@ -315,14 +315,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     setStep('verify');
                     try { await shellOpen(vUrl); } catch (e) { console.warn('Failed to open verify URL:', e); }
                 } else {
-                    setPhoneError('需要人机验证，请稍后重试');
+                    setPhoneError(t('auth.error.verifyNeeded'));
                 }
             } else {
-                setPhoneError(result?.message || '发送验证码失败');
+                setPhoneError(result?.message || t('auth.error.captchaSendFailed'));
             }
         } catch (err: any) {
             console.error('Send captcha failed:', err);
-            setPhoneError('发送失败，请稍后重试');
+            setPhoneError(t('auth.error.captchaRetry'));
         } finally {
             setLoading(false);
         }
@@ -331,7 +331,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     /** Login with phone + captcha */
     const handlePhoneLogin = async () => {
         if (!phoneNumber || !captchaCode) {
-            setPhoneError('请输入手机号和验证码');
+            setPhoneError(t('auth.error.phoneCaptchaRequired'));
             return;
         }
         setPhoneError('');
@@ -380,14 +380,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                         console.warn('Failed to open verify URL:', e);
                     }
                 } else {
-                    setPhoneError('需要人机验证，但无法获取验证链接');
+                    setPhoneError(t('auth.error.verifyNeeded'));
                 }
             } else {
-                setPhoneError(data?.message || data?.msg || '登录失败');
+                setPhoneError(data?.message || data?.msg || t('auth.error.loginFailed'));
             }
         } catch (err: any) {
             console.error('Phone login failed:', err);
-            setPhoneError('登录失败，请稍后重试');
+            setPhoneError(t('auth.error.loginRetry'));
         } finally {
             setLoading(false);
         }
@@ -447,10 +447,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 {isNetease && isFormStep && (
                     <div className="flex mx-8 mt-4 p-1 bg-[var(--glass-highlight)] rounded-lg">
                         {([
-                            { mode: 'phone' as LoginMode, icon: Phone, label: '手机号' },
-                            { mode: 'qr' as LoginMode, icon: QrCode, label: '扫码' },
-                            { mode: 'cookie' as LoginMode, icon: Cookie, label: 'Cookie' },
-                        ]).map(({ mode, icon: Icon, label }) => (
+                            { mode: 'phone' as LoginMode, icon: Phone, labelKey: 'auth.phone.title' },
+                            { mode: 'qr' as LoginMode, icon: QrCode, labelKey: 'auth.qr.title' },
+                            { mode: 'cookie' as LoginMode, icon: Cookie, labelKey: 'auth.cookie.title' },
+                        ]).map(({ mode, icon: Icon, labelKey }) => (
                             <button
                                 key={mode}
                                 onClick={() => switchLoginMode(mode)}
@@ -460,7 +460,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                                     }`}
                             >
                                 <Icon className="w-3.5 h-3.5" />
-                                {label}
+                                {t(labelKey)}
                             </button>
                         ))}
                     </div>

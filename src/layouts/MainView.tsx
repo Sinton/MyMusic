@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
 
@@ -25,11 +26,12 @@ interface MainViewProps {
  * Thin wrapper: fetches Netease album data, then delegates to it.
  */
 const NeteaseAlbumWrapper: React.FC<{ albumId: number | string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
+    const { t } = useTranslation();
     const { album, isLoading } = useNeteaseAlbumDetail(Number(albumId));
 
     const albumObj: Album = album ?? {
         id: Number(albumId),
-        title: '加载中...',
+        title: t('common.loading'),
         artist: '',
         year: new Date().getFullYear(),
         cover: '',
@@ -50,11 +52,12 @@ const NeteaseAlbumWrapper: React.FC<{ albumId: number | string; onBack: () => vo
  * Thin wrapper: fetches QQ album data, then delegates.
  */
 const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumMid, onBack, onNavigate }) => {
+    const { t } = useTranslation();
     const { album, isLoading } = useQQAlbumDetail(albumMid);
 
     const albumObj: Album = album ?? {
         id: albumMid,
-        title: '加载中...',
+        title: t('common.loading'),
         artist: '',
         year: new Date().getFullYear(),
         cover: '',
@@ -75,11 +78,12 @@ const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigat
  * Thin wrapper: fetches Qishui album data, then delegates.
  */
 const SodaAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
+    const { t } = useTranslation();
     const { album, isLoading } = useQishuiAlbumDetail(albumId);
 
     const albumObj: Album = album ?? {
         id: albumId,
-        title: '加载中...',
+        title: t('common.loading'),
         artist: '',
         year: new Date().getFullYear(),
         cover: '',

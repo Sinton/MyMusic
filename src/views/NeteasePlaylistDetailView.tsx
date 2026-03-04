@@ -42,7 +42,7 @@ const NeteasePlaylistDetailView: React.FC<NeteasePlaylistDetailViewProps> = ({ p
                     className="w-3.5 h-3.5 rounded-sm shadow-[0_1px_4px_rgba(236,65,65,0.3)]"
                 />
             )}
-            headerTagText={t('playlist.neteasePlaylist', '网易云歌单')}
+            headerTagText={t('playlist.neteasePlaylist')}
             headerTagColorClass="text-[var(--text-muted)]"
             isEditable={false}
             onPlayAll={handlePlayAll}
