@@ -72,9 +72,7 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
         }
     };
 
-    const hasHiRes = song.sources.some((s) =>
-        s.qualityLabel === 'Hi-Res' || s.qualityLabel === 'Master'
-    );
+    const priorityQuality = song.sources.find(s => ['Master', 'Hi-Res', 'SQ', 'HQ'].includes(s.qualityLabel))?.qualityLabel;
 
     return (
         <div
@@ -104,7 +102,7 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                             togglePlay();
                         } else {
                             // Find best source logic (Hi-Res > standard) or just first one
-                            const bestSource = song.sources.find(s => s.qualityLabel === 'Hi-Res' || s.qualityLabel === 'Master') || song.sources[0];
+                            const bestSource = song.sources.find(s => ['Master', 'Hi-Res', 'SQ', 'HQ'].includes(s.qualityLabel)) || song.sources[0];
                             handleSourceClick(bestSource);
                         }
                     }}
@@ -151,7 +149,6 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                                     platform={song.sources.find(s => s.vip)?.platform}
                                 />
                             )}
-                            {hasHiRes && <QualityBadge label="Hi-Res" />}
                         </div>
                         <div className="text-sm text-[var(--text-secondary)] truncate">
                             {song.artist} • {song.album}

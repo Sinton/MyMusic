@@ -68,7 +68,10 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
     const handleViewArtist = () => {
         if (onNavigate && currentTrack.artist) {
             // Include platform prefix and artistId if available
-            const platform = (currentTrack.source?.toLowerCase().includes('qq')) ? 'qq' : 'netease';
+            let platform = 'netease';
+            if (currentTrack.source?.toLowerCase().includes('qq')) platform = 'qq';
+            if (currentTrack.source === 'soda') platform = 'soda';
+
             const artistIdParam = currentTrack.artistId ? `:${currentTrack.artistId}` : '';
             onNavigate(`Artist:${platform}:${currentTrack.artist}${artistIdParam}`);
             onClose();
@@ -79,7 +82,10 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
 
     const handleViewAlbum = () => {
         if (onNavigate && currentTrack.albumId) {
-            const platform = (currentTrack.source?.toLowerCase().includes('qq')) ? 'qq' : 'netease';
+            let platform = 'netease';
+            if (currentTrack.source?.toLowerCase().includes('qq')) platform = 'qq';
+            if (currentTrack.source === 'soda') platform = 'soda';
+
             onNavigate(`Album:${platform}:${currentTrack.albumId}`);
             onClose();
         } else if (onNavigate) {

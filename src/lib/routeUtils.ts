@@ -44,7 +44,7 @@ export function parseRoute(activeView: string): AppRoute {
             }
             return { type: 'artist', platform, name, id };
         } else if (parts.length === 3) {
-            if (parts[1] === 'qq' || parts[1] === 'netease') {
+            if (parts[1] === 'qq' || parts[1] === 'netease' || parts[1] === 'soda') {
                 return { type: 'artist', platform: parts[1], name: parts[2] };
             }
             const name = parts[1];

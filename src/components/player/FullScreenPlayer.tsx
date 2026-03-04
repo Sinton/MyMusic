@@ -6,6 +6,7 @@ import { usePlaylistStore } from '../../stores/usePlaylistStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useNeteaseLyric } from '../../hooks/useNeteaseData';
 import { useQQLyric } from '../../hooks/useQQData';
+import { useSodaLyric } from '../../hooks/useSodaData';
 import { isNeteasePlatform } from '../../lib/platformUtils';
 
 // Sub-components
@@ -57,15 +58,18 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
 
-    const isNetease = isNeteasePlatform(currentTrack.source);
-    const isQQ = currentTrack.source?.toLowerCase().includes('qq');
+    const isNetease = isNeteasePlatform(currentTrack?.source || '');
+    const isQQ = currentTrack?.source?.toLowerCase().includes('qq') || false;
+    const isSoda = currentTrack?.source?.toLowerCase().includes('soda') || false;
 
-    const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack.id, { enabled: isNetease && !!currentTrack.id });
-    const qqSongMid = String(currentTrack.sourceId || currentTrack.id);
+    const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack?.id, { enabled: isNetease && !!currentTrack?.id });
+    const qqSongMid = String(currentTrack?.sourceId || currentTrack?.id);
     const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: isQQ && !!qqSongMid });
+    const sodaTrackId = String(currentTrack?.id);
+    const { lyrics: sodaLyrics } = useSodaLyric(sodaTrackId, { enabled: isSoda && !!sodaTrackId });
 
     // Use platform-specific lyrics, otherwise fallback to empty
-    const activeLyrics = isNetease ? neteaseLyrics : (isQQ ? qqLyrics : []);
+    const activeLyrics = isNetease ? neteaseLyrics : (isQQ ? qqLyrics : (isSoda ? sodaLyrics : []));
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -111,6 +115,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
         }
     }, [isOpen]);
 
+    if (!currentTrack) return null;
     if (!isVisible) return null;
 
     return (
@@ -152,8 +157,18 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                 {/* Right side - Track Info & Lyrics */}
                 <div className="flex-1 flex flex-col justify-center items-start h-full pl-20 overflow-hidden">
                     <div className="max-w-xl w-full">
-                        <h1 className="text-4xl font-bold text-[var(--text-main)] mb-2">{currentTrack.title}</h1>
-                        <h2 className="text-2xl text-[var(--accent-color)] mb-8">{currentTrack.artist} - {currentTrack.album}</h2>
+                        <h1 className="text-4xl font-bold text-[var(--text-main)] mb-2 flex items-center gap-4">
+                            <span>{currentTrack.title}</span>
+                        </h1>
+                        <h2 className="text-2xl text-[var(--accent-color)] mb-8 flex items-center flex-wrap gap-2">
+                            <span>{currentTrack.artist}</span>
+                            {currentTrack.album && (
+                                <>
+                                    <span className="opacity-50 mx-1">•</span>
+                                    <span>{currentTrack.album}</span>
+                                </>
+                            )}
+                        </h2>
 
                         <LyricsPanel
                             lyrics={activeLyrics}

@@ -216,7 +216,6 @@ export function useQQArtistSongs(artistMid: string, options: { enabled?: boolean
 
 /** Artist's albums with infinite scroll pagination */
 export function useQQArtistAlbums(artistMid: string, options?: { enabled?: boolean }) {
-    const LIMIT = 30;
 
     const query = useInfiniteQuery({
         queryKey: QQ_KEYS.artistAlbums(artistMid),

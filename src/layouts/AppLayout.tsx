@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { TitleBar } from '../components/common/TitleBar';
 import Sidebar from './Sidebar';
@@ -8,7 +8,8 @@ import { AudioEngine } from '../components/AudioEngine';
 import { AuthModal } from '../components';
 import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
-
+import ClipboardMusicToast from '../components/common/ClipboardMusicToast';
+import { useClipboardMonitor, type ClipboardTrackInfo } from '../hooks/useClipboardMonitor';
 
 import { useUIStore } from '../stores/useUIStore';
 
@@ -26,6 +27,15 @@ const AppLayout: React.FC = () => {
 
     const [history, setHistory] = useState<string[]>(['Home']);
     const activeView = history[history.length - 1] || 'Home';
+
+    // Clipboard monitoring
+    const [clipboardInfo, setClipboardInfo] = useState<ClipboardTrackInfo | null>(null);
+
+    const handleClipboardDetect = useCallback((info: ClipboardTrackInfo) => {
+        setClipboardInfo(info);
+    }, []);
+
+    useClipboardMonitor(handleClipboardDetect);
 
     const handleNavigate = (view: string) => {
         const rootViews = ['Home', 'Explore', 'Library', 'Settings'];
@@ -59,10 +69,6 @@ const AppLayout: React.FC = () => {
 
     const handleConnect = (platformName: string) => {
         connectPlatform(platformName);
-        // Modal will close automatically via AuthModal internal logic calling onClose, or we can ensure it closes here if needed.
-        // But AuthModal receives onClose={closeAuthModal} which just toggles state. 
-        // AuthModal internal logic: calling onConnect then onClose.
-        // So this is fine.
     };
 
     return (
@@ -92,9 +98,16 @@ const AppLayout: React.FC = () => {
                     platform={authModalTarget}
                     onConnect={handleConnect}
                 />
+
+                {/* Clipboard Music Toast */}
+                <ClipboardMusicToast
+                    info={clipboardInfo}
+                    onDismiss={() => setClipboardInfo(null)}
+                />
             </main>
         </div>
     );
 };
 
 export default AppLayout;
+

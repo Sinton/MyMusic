@@ -6,7 +6,7 @@ import { Dropdown } from '../../components/index';
 
 const GeneralSettings: React.FC = () => {
     const { t } = useTranslation();
-    const { language, setLanguage, launchOnLogin, toggleLaunchOnLogin } = useSettingsStore();
+    const { language, setLanguage, launchOnLogin, toggleLaunchOnLogin, clipboardMonitor, toggleClipboardMonitor } = useSettingsStore();
 
     const languageOptions = [
         { value: 'zh', label: '中文', icon: <span className="text-xs">🇨🇳</span> },
@@ -47,6 +47,22 @@ const GeneralSettings: React.FC = () => {
                         <span className="text-xs text-[var(--text-muted)]">{t('settings.general.searchShortcutDesc')}</span>
                     </div>
                     <ShortcutRecorder />
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span>{t('settings.general.clipboardMonitor')}</span>
+                        <span className="text-xs text-[var(--text-muted)]">{t('settings.general.clipboardMonitorDesc')}</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={clipboardMonitor}
+                            onChange={toggleClipboardMonitor}
+                        />
+                        <div className="w-11 h-6 bg-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--accent-color)]"></div>
+                    </label>
                 </div>
             </div>
         </div>

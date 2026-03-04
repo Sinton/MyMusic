@@ -61,7 +61,9 @@
             "launchOnLogin": "开机自启",
             "launchOnLoginDesc": "登录时自动启动",
             "searchShortcut": "全局搜索快捷键",
-            "searchShortcutDesc": "设置一个快捷键用于快速回到并定位搜索输入框"
+            "searchShortcutDesc": "设置一个快捷键用于快速回到并定位搜索输入框",
+            "clipboardMonitor": "剪贴板识别",
+            "clipboardMonitorDesc": "复制汽水音乐分享链接后自动识别并提示播放"
         },
         "audio": {
             "title": "音频",

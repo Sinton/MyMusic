@@ -21,6 +21,7 @@ const iconMap: Record<string, string> = {
     'QQ Music': qqIcon,
     'Soda Music': sodaIcon,
     'Soda': sodaIcon,
+    '汽水音乐': sodaIcon,
     'Vibe': vibeLogo,
 };
 

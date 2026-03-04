@@ -47,7 +47,7 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
             blobUrlRef.current = null;
         }
 
-        if (platform !== 'netease' && platform !== 'qq') {
+        if (platform !== 'netease' && platform !== 'qq' && platform !== 'soda') {
             return;
         }
 
@@ -88,6 +88,16 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                         }
                     } catch (qqErr: any) {
                         remoteLog(`[UrlResolver] QQ Music getSongUrl error: ${qqErr?.message || qqErr}`);
+                    }
+                } else if (platform === 'soda') {
+                    // Qishui/Soda: audio URL is already resolved and stored in sourceId
+                    const directUrl = String(currentTrack.sourceId || '');
+                    if (directUrl && directUrl.startsWith('http')) {
+                        url = directUrl;
+                        durationFromApi = parseDuration(currentTrack.duration);
+                        remoteLog(`[UrlResolver] Soda: Using pre-resolved URL (len=${url.length})`);
+                    } else {
+                        remoteLog('[UrlResolver] Soda: No audio URL in sourceId');
                     }
                 }
 

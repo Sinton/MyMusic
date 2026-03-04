@@ -14,6 +14,7 @@ import AlbumDetailView from '../views/AlbumDetailView';
 import ArtistDetailView from '../views/ArtistDetailView';
 import { useNeteaseAlbumDetail } from '../hooks/useNeteaseData';
 import { useQQAlbumDetail } from '../hooks/useQQData';
+import { useQishuiAlbumDetail } from '../hooks/useQishuiData';
 import { parseRoute } from '../lib/routeUtils';
 import type { Album } from '../types';
 
@@ -55,6 +56,31 @@ const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigat
 
     const albumObj: Album = album ?? {
         id: albumMid,
+        title: '加载中...',
+        artist: '',
+        year: new Date().getFullYear(),
+        cover: '',
+    };
+
+    return (
+        <AlbumDetailView
+            album={albumObj}
+            onBack={onBack}
+            onNavigate={onNavigate}
+            externalSongs={album?.songs}
+            externalLoading={isLoading}
+        />
+    );
+};
+
+/**
+ * Thin wrapper: fetches Qishui album data, then delegates to it.
+ */
+const SodaAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
+    const { album, isLoading } = useQishuiAlbumDetail(albumId);
+
+    const albumObj: Album = album ?? {
+        id: albumId,
         title: '加载中...',
         artist: '',
         year: new Date().getFullYear(),
@@ -126,6 +152,16 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                         <QQAlbumWrapper
                             key={activeView}
                             albumMid={String(route.id)}
+                            onBack={() => onNavigate('Home')}
+                            onNavigate={onNavigate}
+                        />
+                    );
+                }
+                if (route.platform === 'soda') {
+                    return (
+                        <SodaAlbumWrapper
+                            key={activeView}
+                            albumId={String(route.id)}
                             onBack={() => onNavigate('Home')}
                             onNavigate={onNavigate}
                         />

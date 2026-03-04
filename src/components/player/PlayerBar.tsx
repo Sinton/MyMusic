@@ -124,9 +124,19 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                             />
                         ) : null}
                     </div>
-                    <div className="min-w-0">
-                        <div className="text-sm font-medium text-[var(--text-main)] truncate">{currentTrack.title}</div>
-                        <div className="text-xs text-[var(--text-secondary)] truncate">{currentTrack.artist}</div>
+                    <div className="min-w-0 flex flex-col justify-center">
+                        <div className="text-sm font-medium text-[var(--text-main)] truncate">
+                            {currentTrack.title}
+                        </div>
+                        <div className="text-xs text-[var(--text-secondary)] truncate mt-0.5 flex items-center">
+                            <span className="truncate">{currentTrack.artist}</span>
+                            {currentTrack.album && (
+                                <>
+                                    <span className="text-[10px] opacity-40 mx-1.5 flex-shrink-0">•</span>
+                                    <span className="truncate">{currentTrack.album}</span>
+                                </>
+                            )}
+                        </div>
                     </div>
                     <button className="btn-icon text-[var(--text-secondary)] hover:text-[var(--accent-color)]">
                         <Heart className="w-4 h-4" />

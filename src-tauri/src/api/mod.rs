@@ -4,6 +4,7 @@ use crate::error::AppError;
 
 pub mod netease;
 pub mod qqmusic;
+pub mod qishui;
 
 pub async fn dispatch(
     client: &HttpClient,
@@ -14,6 +15,7 @@ pub async fn dispatch(
     match provider {
         "netease" => netease::dispatch(client, api_name, options).await,
         "qqmusic" => qqmusic::dispatch(client, api_name, options).await,
+        "qishui" => qishui::dispatch(client, api_name, options).await,
         _ => Err(AppError::Api(format!("Unknown provider: {}", provider))),
     }
 }

@@ -187,9 +187,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
             </div>
 
             {/* Tracklist */}
-            <div className="space-y-1 px-4 md:px-8">
-
-
+            <div className="space-y-4 px-4 md:px-8">
                 {isLoading ? (
                     <ListSkeleton rows={8} />
                 ) : (

@@ -14,6 +14,7 @@ export interface SettingsState {
     exclusiveMode: boolean;
     immersiveHeader: boolean;
     globalSearchShortcut: string;
+    clipboardMonitor: boolean;
 }
 
 export interface SettingsActions {
@@ -26,6 +27,7 @@ export interface SettingsActions {
     toggleExclusiveMode: () => void;
     toggleImmersiveHeader: () => void;
     setGlobalSearchShortcut: (shortcut: string) => void;
+    toggleClipboardMonitor: () => void;
 }
 
 export type SettingsStore = SettingsState & SettingsActions;

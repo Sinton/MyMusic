@@ -34,6 +34,7 @@ export function getPlatformReferer(platform: Platform): string | undefined {
     switch (platform) {
         case 'netease': return 'https://music.163.com/';
         case 'qq': return 'https://y.qq.com/';
+        case 'soda': return 'https://music.douyin.com/';
         default: return undefined;
     }
 }
