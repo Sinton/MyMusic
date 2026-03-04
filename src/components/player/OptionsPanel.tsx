@@ -199,13 +199,13 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({
                                 onClick={() => handleSetSleepTimer(null)}
                                 className={`w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[var(--glass-highlight)] transition-colors text-red-400`}
                             >
-                                <span className="font-medium">{t('fullPlayer.options.turnOffTimer', '关闭定时')}</span>
+                                <span className="font-medium">{t('fullPlayer.options.turnOffTimer')}</span>
                                 {sleepTimer === null && <Check className="w-4 h-4" />}
                             </button>
                         </div>
                     )}
                 </div>
-                <div className="mt-auto pt-8">
+                <div className="mt-auto pt-8 px-8">
                     <div className="p-4 rounded-2xl bg-[var(--glass-highlight)] border border-[var(--glass-border)]">
                         <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">{t('fullPlayer.options.playingFrom')}</div>
                         <div className="text-sm font-medium text-[var(--text-secondary)]">{t(`platforms.${getPlatformI18nKey(currentTrack.source)}`)} — {currentTrack.quality}</div>

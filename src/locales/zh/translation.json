@@ -172,7 +172,8 @@
         "ep": "EP",
         "single": "单曲",
         "released": "发行于",
-        "noTracks": "暂无歌曲"
+        "noTracks": "暂无歌曲",
+        "distributedBy": "发行"
     },
     "explore": {
         "back": "返回发现",
@@ -285,7 +286,8 @@
             "sleepTimer": "睡眠定时器",
             "back": "返回",
             "songs": "首",
-            "playingFrom": "播放来源"
+            "playingFrom": "播放来源",
+            "turnOffTimer": "关闭定时"
         }
     },
     "artist": {

@@ -211,7 +211,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
             {/* Copyright / Footer Info */}
             <div className="mt-12 px-8 text-xs text-[var(--text-muted)] border-t border-[var(--glass-border)] pt-8">
                 <p className="mb-1">{t('album.released')}: {album.year}</p>
-                <p>℗ {album.year} {album.artist} • Distributed by Vibe Music</p>
+                <p>℗ {album.year} {album.artist} • {t('album.distributedBy')} Vibe Music</p>
             </div>
         </div>
     );

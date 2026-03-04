@@ -172,7 +172,8 @@
         "ep": "EP",
         "single": "Single",
         "released": "Released",
-        "noTracks": "No tracks available"
+        "noTracks": "No tracks available",
+        "distributedBy": "Distributed by"
     },
     "explore": {
         "back": "Back to Explore",
@@ -285,7 +286,8 @@
             "sleepTimer": "Sleep Timer",
             "back": "Back to Options",
             "songs": "songs",
-            "playingFrom": "Playing From"
+            "playingFrom": "Playing From",
+            "turnOffTimer": "Turn Off Timer"
         }
     },
     "artist": {

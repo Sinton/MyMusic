@@ -55,7 +55,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
                         </div>
                     ))}
                 </div>
-                <div className="mt-8">
+                <div className="mt-8 px-8">
                     <input type="text" placeholder={t('fullPlayer.comments.addPlaceholder')} className="w-full bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-xl px-4 py-3 text-sm text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
                 </div>
             </div>
