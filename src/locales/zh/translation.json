@@ -59,7 +59,9 @@
             "title": "常规",
             "language": "语言",
             "launchOnLogin": "开机自启",
-            "launchOnLoginDesc": "登录时自动启动"
+            "launchOnLoginDesc": "登录时自动启动",
+            "searchShortcut": "全局搜索快捷键",
+            "searchShortcutDesc": "设置一个快捷键用于快速回到并定位搜索输入框"
         },
         "audio": {
             "title": "音频",

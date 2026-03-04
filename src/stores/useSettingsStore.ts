@@ -14,6 +14,7 @@ export const useSettingsStore = create<SettingsStore>()(
             streamingQuality: 'master',
             exclusiveMode: false,
             immersiveHeader: true,
+            globalSearchShortcut: 'Shift+F',
 
             setThemeMode: (mode) => set({ themeMode: mode }),
             setAccentColor: (color) => set({ accentColor: color }),
@@ -30,6 +31,7 @@ export const useSettingsStore = create<SettingsStore>()(
             setStreamingQuality: (quality) => set({ streamingQuality: quality }),
             toggleExclusiveMode: () => set((state) => ({ exclusiveMode: !state.exclusiveMode })),
             toggleImmersiveHeader: () => set((state) => ({ immersiveHeader: !state.immersiveHeader })),
+            setGlobalSearchShortcut: (shortcut) => set({ globalSearchShortcut: shortcut }),
         }),
         {
             name: 'settings-storage',

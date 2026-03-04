@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 
 interface HomeSearchBarProps {
     searchQuery: string;
@@ -14,6 +15,38 @@ export const HomeSearchBar: React.FC<HomeSearchBarProps> = ({
     setActiveQuery,
 }) => {
     const { t } = useTranslation();
+    const inputRef = useRef<HTMLInputElement>(null);
+    const { globalSearchShortcut } = useSettingsStore();
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!globalSearchShortcut) return;
+
+            const parts = globalSearchShortcut.split('+');
+            const mainKey = parts[parts.length - 1].toUpperCase();
+            const hasCtrl = parts.includes('Ctrl');
+            const hasShift = parts.includes('Shift');
+            const hasAlt = parts.includes('Alt');
+            const hasMeta = parts.includes('Meta');
+
+            const match =
+                e.key.toUpperCase() === mainKey &&
+                e.ctrlKey === hasCtrl &&
+                e.shiftKey === hasShift &&
+                e.altKey === hasAlt &&
+                e.metaKey === hasMeta;
+
+            if (match) {
+                const tag = (document.activeElement as HTMLElement)?.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+                e.preventDefault();
+                inputRef.current?.focus();
+                inputRef.current?.select();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [globalSearchShortcut]);
 
     return (
         <section className="mb-12 pt-4 pb-4">
@@ -23,12 +56,17 @@ export const HomeSearchBar: React.FC<HomeSearchBarProps> = ({
                         }`}
                 />
                 <input
+                    ref={inputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             setActiveQuery(searchQuery);
+                        }
+                        // Escape → blur the search box
+                        if (e.key === 'Escape') {
+                            inputRef.current?.blur();
                         }
                     }}
                     placeholder={t('home.searchPlaceholder')}

@@ -13,6 +13,7 @@ export interface SettingsState {
     streamingQuality: string;
     exclusiveMode: boolean;
     immersiveHeader: boolean;
+    globalSearchShortcut: string;
 }
 
 export interface SettingsActions {
@@ -24,6 +25,7 @@ export interface SettingsActions {
     setStreamingQuality: (quality: string) => void;
     toggleExclusiveMode: () => void;
     toggleImmersiveHeader: () => void;
+    setGlobalSearchShortcut: (shortcut: string) => void;
 }
 
 export type SettingsStore = SettingsState & SettingsActions;
