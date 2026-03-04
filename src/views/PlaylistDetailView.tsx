@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2 } from 'lucide-react';
-import { PlaylistShell } from '../components/common/PlaylistShell';
+import { PlaylistShell } from '../components/playlist/PlaylistShell';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { songToTrack } from '../lib/trackUtils';
@@ -61,7 +61,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
             creator={playlist.creator}
             isEditable={true}
             onPlayAll={handlePlayAll}
-            onEditTitle={(newTitle) => updatePlaylistTitle(playlist.id, newTitle)}
+            onEditTitle={(newTitle: string) => { updatePlaylistTitle(playlist.id, newTitle); }}
             onCycleCover={handleCycleCover}
             onDelete={handleDelete}
             renderExtraAction={(song: Song) => (

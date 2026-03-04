@@ -1,10 +1,10 @@
 import React from 'react';
 import { Music } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { SongRow } from './index';
-import { usePlayerStore } from '../stores/usePlayerStore';
-import { songToTrack } from '../lib/trackUtils';
-import type { Song, AudioSource } from '../types';
+import SongRow from './SongRow';
+import { usePlayerStore } from '../../stores/usePlayerStore';
+import { songToTrack } from '../../lib/trackUtils';
+import type { Song, AudioSource } from '../../types';
 
 interface SongListProps {
     songs: Song[];

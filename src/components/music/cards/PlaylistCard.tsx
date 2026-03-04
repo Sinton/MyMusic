@@ -1,7 +1,7 @@
 import React from 'react';
 import { ListMusic } from 'lucide-react';
-import type { Playlist } from '../types';
-import PlatformBadge from './PlatformBadge';
+import type { Playlist } from '../../../types';
+import PlatformBadge from '../../common/badges/PlatformBadge';
 
 interface PlaylistCardProps {
     playlist: Playlist;

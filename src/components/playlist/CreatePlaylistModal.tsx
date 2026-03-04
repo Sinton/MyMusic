@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { usePlaylistStore } from '../stores/usePlaylistStore';
-import { Modal } from './index';
+import { Modal } from '../common/Modal';
+import { usePlaylistStore } from '../../stores/usePlaylistStore';
 
 interface CreatePlaylistModalProps {
     isOpen: boolean;
@@ -68,8 +68,8 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({ isOpen, onClo
                                 key={gradient}
                                 onClick={() => setSelectedGradient(gradient)}
                                 className={`w-8 h-8 rounded-full ${gradient} relative transition-all duration-300 hover:scale-110 hover:shadow-lg active:scale-95 ${selectedGradient === gradient
-                                        ? 'ring-2 ring-white ring-offset-1 ring-offset-black/10 scale-105'
-                                        : 'border border-white/10 hover:border-white/30'
+                                    ? 'ring-2 ring-white ring-offset-1 ring-offset-black/10 scale-105'
+                                    : 'border border-white/10 hover:border-white/30'
                                     }`}
                             >
                                 {selectedGradient === gradient && (

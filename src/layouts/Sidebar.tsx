@@ -2,7 +2,7 @@ import React from 'react';
 import { Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlatformStore } from '../stores/usePlatformStore';
-import CreatePlaylistModal from '../components/CreatePlaylistModal';
+import { CreatePlaylistModal } from '../components';
 import { useSidebarData } from '../hooks/useSidebarData';
 import type { Platform } from '../types';
 

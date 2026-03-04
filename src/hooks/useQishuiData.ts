@@ -112,7 +112,7 @@ export function useQishuiAlbumDetail(albumId: string, options: { enabled?: boole
         artist: qishuiAlbum.data.artists?.[0]?.name || 'Unknown',
         cover: qishuiAlbum.data.cover,
         year: qishuiAlbum.data.releaseDate ? new Date(qishuiAlbum.data.releaseDate * 1000).getFullYear() : new Date().getFullYear(),
-        count: qishuiAlbum.data.countTracks || qishuiAlbum.data.trackCount || qishuiAlbum.data.trackList?.length || 0,
+        count: qishuiAlbum.data.countTracks || qishuiAlbum.data.trackList?.length || 0,
         songs: qishuiAlbum.data.trackList.map(item => ({
             id: String(item.id),
             title: item.name,

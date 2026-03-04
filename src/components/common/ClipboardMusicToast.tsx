@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Music, X, Play, Loader2 } from 'lucide-react';
 import { QishuiService } from '../../services/QishuiService';
 import { usePlayerStore } from '../../stores/usePlayerStore';
-import PlatformBadge from '../PlatformBadge';
+import { PlatformBadge } from './badges/PlatformBadge';
 import type { ClipboardTrackInfo } from '../../hooks/useClipboardMonitor';
 import type { Track } from '../../types';
 
@@ -221,7 +221,7 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
                     <X size={12} />
                 </button>
             </div>
-        </div >
+        </div>
     );
 };
 

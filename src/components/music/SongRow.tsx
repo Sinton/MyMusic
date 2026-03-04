@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Play, ChevronDown } from 'lucide-react';
-import { QualityBadge, VipBadge } from './index';
-import type { Song, AudioSource } from '../types';
-import { useSongActions } from '../hooks/useSongActions';
-import { usePlayerStore } from '../stores/usePlayerStore';
-import { SongRowActions } from './song-row/SongRowActions';
-import { SongSourceList } from './song-row/SongSourceList';
+import { QualityBadge, VipBadge } from '../common';
+import type { Song, AudioSource } from '../../types';
+import { useSongActions } from '../../hooks/useSongActions';
+import { usePlayerStore } from '../../stores/usePlayerStore';
+import { SongRowActions } from '../song-row/SongRowActions';
+import { SongSourceList } from '../song-row/SongSourceList';
 
 interface SongRowProps {
     song: Song;
@@ -71,8 +71,6 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
             handlePlaySource(source);
         }
     };
-
-    const priorityQuality = song.sources.find(s => ['Master', 'Hi-Res', 'SQ', 'HQ'].includes(s.qualityLabel))?.qualityLabel;
 
     return (
         <div

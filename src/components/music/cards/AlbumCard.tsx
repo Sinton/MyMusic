@@ -1,7 +1,7 @@
 import React from 'react';
 import { Play, Disc } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { Album } from '../types';
+import type { Album } from '../../../types';
 
 interface AlbumCardProps {
     album: Album;

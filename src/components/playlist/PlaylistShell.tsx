@@ -2,10 +2,10 @@ import React, { useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Play, Music, Cloud, Edit2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Skeleton, ListSkeleton } from './Skeleton';
-import ShareButton from './ShareButton';
-import { Modal } from '../index';
-import SongRow from '../SongRow';
+import { Skeleton, ListSkeleton } from '../common/Skeleton';
+import ShareButton from '../common/ShareButton';
+import { Modal } from '../common/Modal';
+import SongRow from '../music/SongRow';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { songToTrack } from '../../lib/trackUtils';
 import type { Song, AudioSource } from '../../types';
@@ -321,3 +321,5 @@ export const PlaylistShell: React.FC<PlaylistShellProps> = ({
         </div>
     );
 };
+
+export default PlaylistShell;

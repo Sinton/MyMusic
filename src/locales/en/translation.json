@@ -1,7 +1,10 @@
 {
     "common": {
         "loading": "Loading...",
-        "error": "Error",
+        "error": {
+            "title": "Error",
+            "notFound": "Content not found"
+        },
         "save": "Save",
         "cancel": "Cancel",
         "confirm": "Confirm",

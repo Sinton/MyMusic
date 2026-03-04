@@ -1,12 +1,10 @@
 import React, { Suspense, useEffect, useRef } from 'react';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { LoadingFallback } from '../components/common/LoadingFallback';
 
 import HomeView from '../views/HomeView';
 import ExploreView from '../views/ExploreView';
 import LibraryView from '../views/LibraryView';
-
 import SettingsView from '../views/SettingsView';
 import PlaylistDetailView from '../views/PlaylistDetailView';
 import NeteasePlaylistDetailView from '../views/NeteasePlaylistDetailView';
@@ -24,7 +22,7 @@ interface MainViewProps {
 }
 
 /**
- * Thin wrapper: fetches Netease album data, then delegates to the shared AlbumDetailView.
+ * Thin wrapper: fetches Netease album data, then delegates to it.
  */
 const NeteaseAlbumWrapper: React.FC<{ albumId: number | string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
     const { album, isLoading } = useNeteaseAlbumDetail(Number(albumId));
@@ -49,7 +47,7 @@ const NeteaseAlbumWrapper: React.FC<{ albumId: number | string; onBack: () => vo
 };
 
 /**
- * Thin wrapper: fetches QQ album data, then delegates to it.
+ * Thin wrapper: fetches QQ album data, then delegates.
  */
 const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumMid, onBack, onNavigate }) => {
     const { album, isLoading } = useQQAlbumDetail(albumMid);
@@ -74,7 +72,7 @@ const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigat
 };
 
 /**
- * Thin wrapper: fetches Qishui album data, then delegates to it.
+ * Thin wrapper: fetches Qishui album data, then delegates.
  */
 const SodaAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
     const { album, isLoading } = useQishuiAlbumDetail(albumId);
@@ -179,10 +177,10 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                 return (
                     <ArtistDetailView
                         key={activeView}
+                        artistId={route.id ? String(route.id) : undefined}
                         artistName={route.name}
-                        artistId={route.id}
                         platform={route.platform}
-                        onBack={() => onNavigate('Library')}
+                        onBack={() => onNavigate('Home')}
                         onNavigate={onNavigate}
                     />
                 );
@@ -214,7 +212,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                 ref={scrollContainerRef}
                 className={`w-full h-full overflow-y-auto pt-16 px-8 relative scroll-smooth main-scroller transition-all duration-700 ease-out ${hasTrack ? 'pb-32' : 'pb-8'}`}
             >
-                <Suspense fallback={<LoadingFallback />}>
+                <Suspense fallback={<div className="animate-pulse flex flex-col gap-4 p-8"><div className="h-64 bg-white/5 rounded-3xl" /><div className="h-12 bg-white/5 rounded-3xl w-1/2" /></div>}>
                     {renderContent()}
                 </Suspense>
             </div>

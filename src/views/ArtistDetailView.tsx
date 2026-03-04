@@ -1,39 +1,43 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Play, Pause, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { SongRow } from '../components';
-import AlbumCard from '../components/AlbumCard';
+import { SongRow, AlbumCard } from '../components';
 import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/useNeteaseData';
 import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/useQQData';
 import { useQishuiArtistDetail, useQishuiArtistSongs, useQishuiArtistAlbums } from '../hooks/useQishuiData';
+import { songToTrack } from '../lib/trackUtils';
 import type { Artist, Track, Album } from '../types';
 
 interface ArtistDetailViewProps {
-    artistName: string;
+    artistName?: string;
     artistId?: string | number;
     platform?: string;
     onBack: () => void;
     onNavigate?: (view: string) => void;
+    // Old props compatibility
+    id?: string;
 }
 
 const ArtistDetailView: React.FC<ArtistDetailViewProps> = (props) => {
+    // Handle old prop 'id' for compatibility
+    const artistId = props.artistId || props.id;
     const platform = props.platform || 'netease';
 
     if (platform === 'qq') {
-        return <QQArtistContainer {...props} artistMid={String(props.artistId)} />;
+        return <QQArtistContainer {...props} artistId={artistId} artistMid={String(artistId)} />;
     }
     if (platform === 'soda') {
-        return <SodaArtistContainer {...props} artistId={String(props.artistId)} />;
+        return <SodaArtistContainer {...props} artistId={artistId} />;
     }
 
-    return <NeteaseArtistContainer {...props} artistId={Number(props.artistId)} />;
+    return <NeteaseArtistContainer {...props} artistId={artistId} />;
 };
 
-const NeteaseArtistContainer: React.FC<ArtistDetailViewProps & { artistId: number }> = (props) => {
-    const { artistId } = props;
+const NeteaseArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
+    const artistId = props.artistId || props.id || '';
     const { artist: metadata, isLoading: isDetailLoading } = useNeteaseArtistDetail(artistId, { enabled: !!artistId });
     const { songs, isLoading: isSongsLoading } = useNeteaseArtistSongs(artistId, { enabled: !!artistId });
     const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useNeteaseArtistAlbums(artistId, { enabled: !!artistId });
@@ -41,6 +45,7 @@ const NeteaseArtistContainer: React.FC<ArtistDetailViewProps & { artistId: numbe
     return (
         <ArtistDetailContent
             {...props}
+            artistName={props.artistName || metadata?.name || ''}
             metadata={metadata}
             songs={songs}
             albums={albums}
@@ -59,6 +64,7 @@ const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }>
     return (
         <ArtistDetailContent
             {...props}
+            artistName={props.artistName || metadata?.name || ''}
             metadata={metadata}
             songs={songs}
             albums={albums}
@@ -68,8 +74,8 @@ const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }>
     );
 };
 
-const SodaArtistContainer: React.FC<ArtistDetailViewProps & { artistId: string }> = (props) => {
-    const { artistId } = props;
+const SodaArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
+    const artistId = String(props.artistId || props.id || '');
     const { artist: metadata, isLoading: isDetailLoading } = useQishuiArtistDetail(artistId, { enabled: !!artistId });
     const { songs, isLoading: isSongsLoading } = useQishuiArtistSongs(artistId, { enabled: !!artistId });
     const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useQishuiArtistAlbums(artistId, { enabled: !!artistId });
@@ -77,6 +83,7 @@ const SodaArtistContainer: React.FC<ArtistDetailViewProps & { artistId: string }
     return (
         <ArtistDetailContent
             {...props}
+            artistName={props.artistName || metadata?.name || ''}
             metadata={metadata}
             songs={songs}
             albums={albums}
@@ -138,8 +145,8 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
     // Construct artist object
     const artistData: Artist = useMemo(() => {
         return {
-            id: 0, // Placeholder
-            name: artistName,
+            id: metadata?.id || 0,
+            name: artistName || metadata?.name || '',
             avatar: metadata?.avatar || '',
             bio: metadata?.bio || t('artist.noBio', '极简风格的音乐人。'),
             genres: ['Pop', 'R&B', 'Electronic', 'Acoustic'],
@@ -148,14 +155,14 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
             songCount: metadata?.songCount || 0,
             albumCount: metadata?.albumCount || 0,
         };
-    }, [artistName, metadata, songs, albums]);
+    }, [artistName, metadata, songs, albums, t]);
 
     // Filtering logic
     const filteredSongs = useMemo(() => {
         const list = songs || [];
         if (!searchQuery) {
             // In 'all' tab, show only top 10 popular songs; in 'songs' tab show more
-            return activeTab === 'all' ? list.slice(0, 10) : list.slice(0, 50);
+            return activeTab === 'all' ? list.slice(0, 10) : list;
         }
         return list.filter(s =>
             s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -173,18 +180,7 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
 
     const handlePlayAll = () => {
         if (filteredSongs.length > 0) {
-            const tracks: Track[] = filteredSongs.map(song => ({
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                artistId: song.artistId,
-                album: song.album,
-                albumId: song.albumId,
-                duration: song.duration,
-                currentTime: '0:00',
-                source: song.bestSource,
-                quality: song.sources[0]?.qualityLabel || 'Standard',
-            }));
+            const tracks: Track[] = filteredSongs.map(song => songToTrack(song));
 
             setQueue(tracks);
             setTrack(tracks[0]);
@@ -336,7 +332,7 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
                                         <AlbumCard
                                             key={album.id}
                                             album={album}
-                                            onClick={(a) => onNavigate && onNavigate(`Album:${a.source || 'netease'}:${a.id}`)}
+                                            onClick={() => onNavigate && onNavigate(`Album:${album.source || 'netease'}:${album.id}`)}
                                         />
                                     ))
                                 )}

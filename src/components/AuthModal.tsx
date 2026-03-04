@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Phone, QrCode, Cookie } from 'lucide-react';
 import { open as shellOpen } from '@tauri-apps/plugin-shell';
-import PlatformBadge from './PlatformBadge';
+import { PlatformBadge } from './common/badges/PlatformBadge';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { getPlatformI18nKey } from '../lib/platformUtils';

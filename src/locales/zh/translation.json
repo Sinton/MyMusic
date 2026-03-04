@@ -1,7 +1,10 @@
 {
     "common": {
         "loading": "加载中...",
-        "error": "错误",
+        "error": {
+            "title": "错误",
+            "notFound": "未找到相关内容"
+        },
         "save": "保存",
         "cancel": "取消",
         "confirm": "确认",

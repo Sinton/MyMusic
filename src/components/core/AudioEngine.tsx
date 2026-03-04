@@ -1,6 +1,6 @@
-import { useAudioPlayer } from '../hooks/useAudioPlayer';
-import { useTrackUrlResolver } from '../hooks/useTrackUrlResolver';
-import { useAudioSync } from '../hooks/useAudioSync';
+import { useAudioPlayer } from '../../hooks/useAudioPlayer';
+import { useTrackUrlResolver } from '../../hooks/useTrackUrlResolver';
+import { useAudioSync } from '../../hooks/useAudioSync';
 
 /**
  * AudioEngine — thin orchestrator component.
@@ -12,7 +12,7 @@ import { useAudioSync } from '../hooks/useAudioSync';
  *
  * Renders nothing (returns null).
  */
-export function AudioEngine() {
+export default function AudioEngine() {
     const audioRef = useAudioPlayer();
     const { currentUrlRef } = useTrackUrlResolver(audioRef);
     useAudioSync(audioRef, currentUrlRef);

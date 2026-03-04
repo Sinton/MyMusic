@@ -1,11 +1,11 @@
 import React from 'react';
 import { Music } from 'lucide-react';
-import neteaseIcon from '../assets/netease_music.png';
-import qqIcon from '../assets/qq_music.png';
-import sodaIcon from '../assets/soda_music.png';
-import vibeLogo from '../assets/logo_bg.png';
+import neteaseIcon from '../../../assets/netease_music.png';
+import qqIcon from '../../../assets/qq_music.png';
+import sodaIcon from '../../../assets/soda_music.png';
+import vibeLogo from '../../../assets/logo_bg.png';
 
-interface PlatformBadgeProps {
+export interface PlatformBadgeProps {
     name: string;
     color?: string;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -25,7 +25,7 @@ const iconMap: Record<string, string> = {
     'Vibe': vibeLogo,
 };
 
-const PlatformBadge: React.FC<PlatformBadgeProps> = ({
+export const PlatformBadge: React.FC<PlatformBadgeProps> = ({
     name,
     color = 'var(--accent-color)',
     size = 'md',
@@ -67,7 +67,7 @@ const PlatformBadge: React.FC<PlatformBadgeProps> = ({
             {useIcon && icon ? (
                 <img src={icon} alt={name} className="w-full h-full object-cover" />
             ) : showInitial ? (
-                name[0]
+                name?.[0] || '?'
             ) : (
                 <Music className={iconSizes[size]} />
             )}

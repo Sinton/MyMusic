@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { HomeSearchBar } from './home/HomeSearchBar';
 import { SearchResultsView } from './home/SearchResultsView';
 import { PersonalizedSection } from './home/PersonalizedSection';
@@ -6,7 +6,7 @@ import { NewestAlbumsSection } from './home/NewestAlbumsSection';
 import { ToplistsSection } from './home/ToplistsSection';
 import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/useNeteaseData';
 import { useQQSearch } from '../hooks/useQQData';
-import type { Playlist, Song } from '../types';
+import type { Song } from '../types';
 
 interface HomeViewProps {
     onNavigate?: (view: string) => void;
@@ -83,12 +83,6 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
         return merged;
     }, [activeQuery, neteaseResults, qqResults]);
 
-    const handlePlayPlaylist = useCallback((playlist: Playlist) => {
-        if (onNavigate) {
-            onNavigate(`Playlist:${playlist.id}`);
-        }
-    }, [onNavigate]);
-
     const isSearching = (isNeteaseSearching || isQQSearching) && !!activeQuery.trim();
 
     return (
@@ -117,7 +111,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                     <NewestAlbumsSection albums={newestAlbums} isLoading={isNewestAlbumsLoading} onNavigate={onNavigate} />
 
                     {/* SECTION 3: Toplists (Charts) and Recent Plays */}
-                    <ToplistsSection toplists={toplists} isLoading={isToplistLoading} onNavigate={onNavigate} handlePlayPlaylist={handlePlayPlaylist} />
+                    <ToplistsSection toplists={toplists} isLoading={isToplistLoading} onNavigate={onNavigate} />
                 </>
             )}
         </div>

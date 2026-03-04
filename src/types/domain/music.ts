@@ -30,10 +30,12 @@ export interface Playlist {
     id: string | number;
     title: string;
     count: number;
+    songCount?: number; // UI alias
     creator: string;
     cover: string;
     songs?: Song[];
     source?: string;
+    platform?: string; // Platform identifier
     isSubscribed?: boolean;
     creatorId?: string | number;
 }
@@ -45,12 +47,14 @@ export interface Album {
     artist: string;
     artistId?: string | number;
     year: number;
+    releaseDate?: string; // UI alias / formatted string
     cover: string;
     artistAvatar?: string;
     songs?: Song[];
     count?: number;
     genre?: string;
     source?: string;
+    platform?: string; // Platform identifier
 }
 
 // ================== ARTIST ==================
