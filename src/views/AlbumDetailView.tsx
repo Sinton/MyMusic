@@ -6,7 +6,9 @@ import { ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import ShareButton from '../components/common/ShareButton';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import type { Album, Song, Track } from '../types';
+import { useAlbumActions } from '../hooks/useAlbumActions';
+import { getPlatformAdapter } from '../lib/platform';
+import type { Album, Song } from '../types';
 
 interface AlbumDetailViewProps {
     album: Album;
@@ -19,44 +21,15 @@ interface AlbumDetailViewProps {
 
 const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, externalSongs, externalLoading }) => {
     const { t } = useTranslation();
-    const { setTrack, play, isPlaying, currentTrack, setQueue } = usePlayerStore();
+    const { isPlaying, currentTrack } = usePlayerStore();
+    const { playAll, getTotalDuration } = useAlbumActions();
     const albumSongs = externalSongs ?? [];
     const isLoading = externalLoading ?? false;
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;
 
-    const handlePlayAll = () => {
-        if (albumSongs.length > 0) {
-            const tracks: Track[] = albumSongs.map(song => ({
-                id: song.id,
-                title: song.title,
-                artist: song.artist,
-                artistId: song.artistId,
-                album: song.album,
-                albumId: song.albumId,
-                duration: song.duration,
-                currentTime: '0:00',
-                source: song.bestSource,
-                quality: song.sources[0]?.qualityLabel || 'Standard',
-            }));
-
-            setQueue(tracks);
-            setTrack(tracks[0]);
-            play();
-        }
-    };
-
-    // Calculate total duration
-    const getTotalDuration = () => {
-        let totalSeconds = 0;
-        albumSongs.forEach(song => {
-            const [mins, secs] = song.duration.split(':').map(Number);
-            totalSeconds += (mins * 60) + (secs || 0);
-        });
-        const totalMins = Math.floor(totalSeconds / 60);
-        return `${totalMins} ${t('common.min')}`;
-    };
+    const handlePlayAll = () => playAll(albumSongs);
 
     const getAlbumTypeLabel = () => {
         if (albumSongs.length === 1) return t('album.single');
@@ -90,7 +63,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
 
                         {/* The Sleeve */}
                         <div className="relative w-full h-full rounded-xl shadow-[0_30px_60px_-12px_rgba(0,0,0,0.8)] overflow-hidden z-10 transition-all duration-500 group-hover:-translate-x-6 group-hover:rotate-[-2deg]">
-                            {album.cover.startsWith('bg-') ? (
+                            {album.cover?.startsWith('bg-') ? (
                                 <div className={`w-full h-full ${album.cover} flex items-center justify-center`}>
                                     <Disc className="w-32 h-32 text-white/20" />
                                 </div>
@@ -127,10 +100,8 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                             <button
                                 onClick={() => {
                                     if (onNavigate) {
-                                        // Determine platform from album data
-                                        const platform = (album as any).source === 'qq' || album.cover?.includes('gtimg.cn') ? 'qq' : 'netease';
-                                        const artistIdParam = album.artistId ? `:${album.artistId}` : '';
-                                        onNavigate(`Artist:${platform}:${album.artist}${artistIdParam}`);
+                                        const adapter = getPlatformAdapter(album.platform);
+                                        onNavigate(adapter.getArtistPath(album.artistId || '', album.artist));
                                     }
                                 }}
                                 className="flex items-center gap-4 group/artist"
@@ -154,7 +125,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, ex
                                 </span>
                                 <span className="flex items-center gap-3">
                                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] shadow-[0_0_8px_var(--accent-color)]" />
-                                    {getTotalDuration()}
+                                    {getTotalDuration(albumSongs, t('common.min'))}
                                 </span>
                             </div>
                         </div>

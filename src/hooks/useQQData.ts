@@ -1,14 +1,14 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { QQMusicService } from '../services/QQMusicService';
 import { useQQStore } from '../stores/useQQStore';
-import type { Song, AudioSource, Playlist, Album } from '../types';
+import { parseLrc } from '../lib/lrcParser';
+import type { Song, AudioSource, Playlist, Album, Artist } from '../types';
 
 // ================== TYPE CONVERTERS ==================
 
-/** Convert a QQ Music song item (2025.9 API format) to our app's Song type */
 /** Convert a QQ Music song item (2025.10 API format) to our app's Song type */
 function qqToSong(item: any): Song {
-    if (!item) return { id: 0, title: 'Unknown', artist: 'Unknown', album: 'Unknown', duration: '0:00', sources: [], bestSource: 'qq' };
+    if (!item) return { id: 0, title: 'Unknown', platform: 'qq', artist: 'Unknown', album: 'Unknown', duration: '0:00', sources: [], bestSource: 'qq' };
 
     // Support both mid and id, but prefer mid for QQ Music URLs
     const songMid = item.mid || item.songmid || String(item.id || '');
@@ -24,7 +24,7 @@ function qqToSong(item: any): Song {
     const seconds = Math.floor((durationMs % 60000) / 1000);
 
     const source: AudioSource = {
-        platform: 'QQ Music',
+        platform: 'qq',
         quality: 'hq',
         qualityLabel: 'HQ',
         vip: item.pay?.pay_play === 1 || item.pay?.pay_month === 1,
@@ -39,6 +39,7 @@ function qqToSong(item: any): Song {
     return {
         id: songMid,
         title: songTitle,
+        platform: 'qq',
         artist: artistName,
         artistId: artistMid,
         album: albumName,
@@ -66,12 +67,12 @@ function qqToAlbum(item: any): Album {
     return {
         id: mid,
         title: item.albumName || item.album_name || item.name || item.title || 'Unknown Album',
+        platform: 'qq',
         artist: item.singerName || item.singer_name || (item.singer?.[0]?.name) || (item.singer_list?.[0]?.name) || 'Unknown Artist',
         artistId: item.singerMid || item.singer_mid || (item.singer?.[0]?.mid) || (item.singer_list?.[0]?.mid),
         year: year,
         cover: mid ? `https://y.gtimg.cn/music/photo_new/T002R300x300M000${mid}.jpg` : '',
         count: item.totalNum || item.songNum || item.song_count || item.total_song || item.total || item.song_num || (item.albumType === 'Single' ? 1 : 0),
-        source: 'qq'
     };
 }
 
@@ -80,11 +81,24 @@ function qqToPlaylist(item: any): Playlist {
     return {
         id: item.dissid,
         title: item.dissname,
+        platform: 'qq',
         count: item.song_cnt || 0,
         creator: '', // Not easily available in result
         cover: item.imgurl || '',
-        source: 'qq',
         isSubscribed: item.dirid !== 0, // dirid 0 usually means self created
+    };
+}
+
+/** Convert QQ artist data */
+function qqToArtist(mid: string, info: any, bio: string, reqData: any): Artist {
+    return {
+        id: mid,
+        name: info.name || info.singer_name || info.SingerName || info.singerName,
+        platform: 'qq',
+        avatar: `https://y.gtimg.cn/music/photo_new/T001R300x300M000${mid}.jpg`,
+        bio: bio.replace(/<br>/g, '\n').trim(),
+        songCount: reqData?.total_song || info.song_count || info.songNum || info.total_song || 0,
+        albumCount: reqData?.total_album || info.album_count || info.albumNum || info.total_album || 0,
     };
 }
 
@@ -102,13 +116,13 @@ const QQ_KEYS = {
 // ================== HOOKS ==================
 
 /** Global search for QQ Music */
-export function useQQSearch(query: string, options = { enabled: true }) {
+export function useQQSearch(query_str: string, options = { enabled: true }) {
     const { cookie } = useQQStore();
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: QQ_KEYS.search(query),
+    const query = useQuery({
+        queryKey: QQ_KEYS.search(query_str),
         queryFn: async () => {
-            const res = await QQMusicService.searchMusic(query, cookie);
+            const res = await QQMusicService.searchMusic(query_str, cookie);
             const data = res as any;
             const node = data.req?.data || data.req_0?.data || data.pc_search?.data || data.search?.data || data.query?.data || data.data || data;
 
@@ -119,13 +133,15 @@ export function useQQSearch(query: string, options = { enabled: true }) {
             const songList = node?.body?.song?.list || node?.song?.list || node?.list || [];
             return songList.map(qqToSong);
         },
-        enabled: options.enabled && !!query,
+        enabled: options.enabled && !!query_str,
+        retry: 2,
     });
 
     return {
-        songs: data || [],
-        isLoading,
-        error,
+        ...query,
+        songs: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
     };
 }
 
@@ -133,22 +149,23 @@ export function useQQSearch(query: string, options = { enabled: true }) {
 export function useQQUserPlaylists(options = { enabled: true }) {
     const { cookie } = useQQStore();
 
-    const { data, isLoading, error } = useQuery({
+    const query = useQuery({
         queryKey: QQ_KEYS.userPlaylists(cookie),
         queryFn: async () => {
             const res = await QQMusicService.getUserPlaylists(cookie);
             console.log('[useQQUserPlaylists] res:', res);
-            // playlist.UserDissListServer returns req.data.v_diss
             const list = (res as any).req?.data?.v_diss || (res as any).data?.v_diss || (res as any).data?.list || [];
             return list.map(qqToPlaylist);
         },
         enabled: options.enabled && !!cookie,
+        retry: 2,
     });
 
     return {
-        playlists: data || [],
-        isLoading,
-        error,
+        ...query,
+        playlists: query.data || [],
+        isLoading: query.isLoading,
+        error: query.error?.message || null,
     };
 }
 
@@ -171,14 +188,7 @@ export function useQQArtistDetail(artistMid: string, options = { enabled: true }
             // Bio can be in reqData directly or info
             const bio = reqData?.singer_brief || info.desc || info.singer_desc || info.singer_brief || info.brief || info.SingerDesc || '';
 
-            return {
-                mid: mid,
-                name: info.name || info.singer_name || info.SingerName || info.singerName,
-                avatar: `https://y.gtimg.cn/music/photo_new/T001R300x300M000${mid}.jpg`,
-                bio: bio.replace(/<br>/g, '\n').trim(),
-                songCount: reqData?.total_song || info.song_count || info.songNum || info.total_song || 0,
-                albumCount: reqData?.total_album || info.album_count || info.albumNum || info.total_album || 0,
-            };
+            return qqToArtist(mid, info, bio, reqData);
         },
         enabled: options.enabled && !!artistMid && artistMid !== 'undefined',
     });
@@ -281,6 +291,7 @@ export function useQQAlbumDetail(albumMid: string, options = { enabled: true }) 
             const album: Album = {
                 id: mid,
                 title: info.albumName || info.album_name || info.name || 'Unknown Album',
+                platform: 'qq',
                 artist: info.singerName || info.singer_name ||
                     reqData.singerName || reqData.singer_name ||
                     reqData.singer?.singerList?.[0]?.name ||
@@ -291,7 +302,6 @@ export function useQQAlbumDetail(albumMid: string, options = { enabled: true }) 
                 artistAvatar: artistMid ? `https://y.gtimg.cn/music/photo_new/T001R300x300M000${artistMid}.jpg` : undefined,
                 cover: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${mid}.jpg`,
                 songs: songs,
-                source: 'qq' as const,
                 year: info.publishDate ? parseInt(info.publishDate.split('-')[0]) : (info.publicTime ? parseInt(info.publicTime.split('-')[0]) : (info.pub_time ? parseInt(info.pub_time.split('-')[0]) : 0)),
                 count: req1Data?.totalNum || req1Data?.total || songs.length || 0,
             };
@@ -323,7 +333,8 @@ export function useQQLyric(songmid: string, options = { enabled: true }) {
             };
         },
         enabled: options.enabled && !!songmid && songmid !== 'undefined',
-        staleTime: 24 * 60 * 60 * 1000, // Lyrics are very stable
+        staleTime: 24 * 60 * 60 * 1000,
+        retry: 1,
     });
 
     return {
@@ -334,25 +345,3 @@ export function useQQLyric(songmid: string, options = { enabled: true }) {
     };
 }
 
-/** Parse LRC format lyrics into { time, text } array (Helper copied from NetEase) */
-function parseLrc(lrc: string): { time: number; text: string }[] {
-    if (!lrc) return [];
-    const lines = lrc.split('\n');
-    const result: { time: number; text: string }[] = [];
-
-    for (const line of lines) {
-        const match = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/);
-        if (match) {
-            const minutes = parseInt(match[1], 10);
-            const seconds = parseInt(match[2], 10);
-            const ms = parseInt(match[3], 10);
-            const time = minutes * 60 + seconds + ms / (match[3].length === 3 ? 1000 : 100);
-            const text = match[4].trim();
-            if (text) {
-                result.push({ time, text });
-            }
-        }
-    }
-
-    return result.sort((a, b) => a.time - b.time);
-}

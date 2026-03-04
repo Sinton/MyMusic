@@ -6,6 +6,7 @@ import { getNextIndex, getPreviousIndex } from '../lib/playerUtils';
 const EMPTY_TRACK: Track = {
     id: 0,
     title: 'Loading...',
+    platform: 'unknown',
     artist: '...',
     album: '',
     duration: '0:00',

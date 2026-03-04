@@ -18,6 +18,7 @@ export function songToTrack(
     return {
         id: song.id,
         title: song.title,
+        platform: song.platform,
         artist: song.artist,
         artistId: song.artistId,
         album: song.album,

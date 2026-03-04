@@ -1,6 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
+import { parseLrc } from '../lib/lrcParser';
 import type { Song, Playlist, Track, AudioSource, Album, Artist, NeteaseSongItem, NeteasePlaylistItem, NeteaseAlbumFull } from '../types';
 
 // ================== TYPE CONVERTERS ==================
@@ -15,7 +16,7 @@ function neteaseToSong(item: NeteaseSongItem): Song {
     const seconds = Math.floor((durationMs % 60000) / 1000);
 
     const source: AudioSource = {
-        platform: 'NetEase Cloud',
+        platform: 'netease',
         quality: (item.privilege?.maxbr ?? 0) >= 999000 ? 'lossless' : 'hq',
         qualityLabel: (item.privilege?.maxbr ?? 0) >= 999000 ? 'SQ' : 'HQ',
         vip: item.fee === 1,
@@ -28,13 +29,14 @@ function neteaseToSong(item: NeteaseSongItem): Song {
     return {
         id: item.id,
         title: item.name,
+        platform: 'netease',
         artist: artistName,
         artistId: artists[0]?.id,
         album: album.name || '',
         albumId: album.id,
         duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
         sources: [source],
-        bestSource: 'NetEase Cloud',
+        bestSource: 'netease',
         genre: undefined,
         cover: cover || undefined,
     };
@@ -54,13 +56,14 @@ function neteaseToTrack(item: NeteaseSongItem): Track {
     return {
         id: item.id,
         title: item.name,
+        platform: 'netease',
         artist: artistName,
         artistId: artists[0]?.id,
         album: album.name || '',
         albumId: album.id,
         duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
         currentTime: '0:00',
-        source: 'NetEase Cloud',
+        source: 'netease',
         quality: (item.privilege?.maxbr ?? 0) >= 999000 ? 'SQ' : 'HQ',
         cover: cover || undefined,
     };
@@ -71,10 +74,10 @@ function neteaseToPlaylist(item: NeteasePlaylistItem): Playlist {
     return {
         id: item.id,
         title: item.name,
+        platform: 'netease',
         count: item.trackCount || 0,
         creator: item.nickname || item.creator?.nickname || '',
         cover: item.coverImgUrl || item.picUrl || '',
-        source: 'netease',
         isSubscribed: !!item.subscribed,
         creatorId: item.creator?.userId,
     };
@@ -85,11 +88,25 @@ function neteaseToAlbum(item: NeteaseAlbumFull): Album {
     return {
         id: item.id,
         title: item.name,
+        platform: 'netease',
         artist: item.artist?.name || item.artists?.[0]?.name || '',
         artistId: item.artist?.id || item.artists?.[0]?.id,
         year: item.publishTime ? new Date(item.publishTime).getFullYear() : new Date().getFullYear(),
         cover: item.picUrl || item.blurPicUrl || '',
         count: item.size || 0,
+    };
+}
+
+/** Convert NetEase artist */
+function neteaseToArtist(artist: any, identify?: any): Artist {
+    return {
+        id: artist.id,
+        name: artist.name,
+        platform: 'netease',
+        avatar: artist.picUrl || artist.cover || identify?.imageTag || '',
+        bio: artist.briefDesc || '',
+        songCount: artist.musicSize || 0,
+        albumCount: artist.albumSize || 0,
     };
 }
 
@@ -130,6 +147,7 @@ export const useNeteaseSearch = (keywords: string, options?: { enabled?: boolean
         },
         enabled: (options?.enabled !== false) && !!keywords,
         staleTime: 60_000,
+        retry: 2,
     });
 
     return {
@@ -155,6 +173,7 @@ export const useNeteaseUserPlaylists = (uid: number, options?: { enabled?: boole
         },
         enabled: (options?.enabled !== false) && !!uid,
         staleTime: 60_000,
+        retry: 2,
     });
 
     return {
@@ -183,8 +202,9 @@ export const useNeteasePlaylistDetail = (id: number, options?: { enabled?: boole
             return { ...converted, songs: tracks };
         },
         enabled: (options?.enabled !== false) && !!id,
-        staleTime: 1000 * 60 * 15, // 15 minutes (data is considered fresh)
-        gcTime: 1000 * 60 * 60,    // 1 hour (keep in cache for 1 hour before garbage collection)
+        staleTime: 1000 * 60 * 15,
+        gcTime: 1000 * 60 * 60,
+        retry: 2,
     });
 
     return {
@@ -209,7 +229,8 @@ export const useNeteasePersonalized = (options?: { enabled?: boolean }) => {
             return result.map(neteaseToPlaylist);
         },
         enabled: options?.enabled !== false,
-        staleTime: 300_000, // 5 min cache
+        staleTime: 300_000,
+        retry: 2,
     });
 
     return {
@@ -235,6 +256,7 @@ export const useNeteaseNewestAlbums = (options?: { enabled?: boolean }) => {
         },
         enabled: options?.enabled !== false,
         staleTime: 300_000,
+        retry: 2,
     });
 
     return {
@@ -261,6 +283,7 @@ export const useNeteaseAlbumDetail = (id: number, options?: { enabled?: boolean 
             const album: Album = {
                 id: albumInfo.id,
                 title: albumInfo.name,
+                platform: 'netease',
                 artist: albumInfo.artist?.name || albumInfo.artists?.[0]?.name || '',
                 artistId: albumInfo.artist?.id || albumInfo.artists?.[0]?.id,
                 year: albumInfo.publishTime ? new Date(albumInfo.publishTime).getFullYear() : new Date().getFullYear(),
@@ -281,6 +304,7 @@ export const useNeteaseAlbumDetail = (id: number, options?: { enabled?: boolean 
         },
         enabled: (options?.enabled !== false) && !!id,
         staleTime: 120_000,
+        retry: 2,
     });
 
     return {
@@ -306,6 +330,7 @@ export const useNeteaseToplist = (options?: { enabled?: boolean }) => {
         },
         enabled: options?.enabled !== false,
         staleTime: 300_000,
+        retry: 2,
     });
 
     return {
@@ -330,20 +355,11 @@ export const useNeteaseArtistDetail = (id: number | string, options?: { enabled?
             if (!artist) return null;
 
             const identify = data?.identify || data?.data?.identify;
-
-            const converted: Artist = {
-                id: artist.id,
-                name: artist.name,
-                // Some artists have picUrl, others have cover, or identify tag
-                avatar: artist.picUrl || artist.cover || identify?.imageTag || '',
-                bio: artist.briefDesc || '',
-                songCount: artist.musicSize || 0,
-                albumCount: artist.albumSize || 0,
-            };
-            return converted;
+            return neteaseToArtist(artist, identify);
         },
         enabled: (options?.enabled !== false) && !!id,
         staleTime: 300_000,
+        retry: 2,
     });
 
     return {
@@ -378,6 +394,7 @@ export const useNeteaseArtistSongs = (id: number | string, options?: { enabled?:
         },
         enabled: (options?.enabled !== false) && !!id,
         staleTime: 300_000,
+        retry: 2,
     });
 
     return {
@@ -410,6 +427,7 @@ export const useNeteaseArtistAlbums = (id: number | string, options?: { enabled?
         getNextPageParam: (lastPage) => lastPage.nextOffset,
         enabled: (options?.enabled !== false) && !!id,
         staleTime: 300_000,
+        retry: 2,
     });
 
     const allAlbums = query.data ? query.data.pages.flatMap(page => page.albums) : [];
@@ -441,6 +459,7 @@ export const useNeteaseRecommendSongs = (options?: { enabled?: boolean }) => {
         },
         enabled: (options?.enabled !== false) && isLoggedIn,
         staleTime: 300_000,
+        retry: 2,
     });
 
     return {
@@ -465,7 +484,8 @@ export const useNeteaseSongUrl = (id: number, options?: { enabled?: boolean }) =
             return urlData.url as string | null;
         },
         enabled: (options?.enabled !== false) && !!id,
-        staleTime: 600_000, // 10 min cache (URLs expire)
+        staleTime: 600_000,
+        retry: 2,
     });
 
     return {
@@ -491,7 +511,8 @@ export const useNeteaseLyric = (id: string | number, options?: { enabled?: boole
             return parseLrc(lrcText);
         },
         enabled: (options?.enabled !== false) && !!id,
-        staleTime: Infinity, // Lyrics don't change
+        staleTime: Infinity,
+        retry: 1,
     });
 
     return {
@@ -502,30 +523,6 @@ export const useNeteaseLyric = (id: string | number, options?: { enabled?: boole
     };
 };
 
-// ================== HELPERS ==================
-
-/** Parse LRC format lyrics into { time, text } array */
-function parseLrc(lrc: string): { time: number; text: string }[] {
-    if (!lrc) return [];
-    const lines = lrc.split('\n');
-    const result: { time: number; text: string }[] = [];
-
-    for (const line of lines) {
-        const match = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/);
-        if (match) {
-            const minutes = parseInt(match[1], 10);
-            const seconds = parseInt(match[2], 10);
-            const ms = parseInt(match[3], 10);
-            const time = minutes * 60 + seconds + ms / (match[3].length === 3 ? 1000 : 100);
-            const text = match[4].trim();
-            if (text) {
-                result.push({ time, text });
-            }
-        }
-    }
-
-    return result.sort((a, b) => a.time - b.time);
-}
 
 /** Export converters for use elsewhere */
 export { neteaseToSong, neteaseToTrack, neteaseToPlaylist, neteaseToAlbum };

@@ -8,10 +8,10 @@ interface ToplistsSectionProps {
     toplists: Playlist[];
     isLoading: boolean;
     onNavigate?: (view: string) => void;
-    handlePlayPlaylist: (playlist: Playlist) => void;
+    handlePlayPlaylist?: (playlist: Playlist) => void;
 }
 
-export const ToplistsSection: React.FC<ToplistsSectionProps> = ({
+export const ToplistsSection: React.FC<ToplistsSectionProps> = React.memo(({
     toplists,
     isLoading,
     onNavigate,
@@ -79,7 +79,7 @@ export const ToplistsSection: React.FC<ToplistsSectionProps> = ({
                                 key={pl.id}
                                 playlist={pl}
                                 variant="compact"
-                                onClick={() => handlePlayPlaylist(pl)}
+                                onClick={() => handlePlayPlaylist?.(pl)}
                             />
                         ))
                     )}
@@ -104,7 +104,7 @@ export const ToplistsSection: React.FC<ToplistsSectionProps> = ({
                             <div
                                 key={pl.id}
                                 className="group cursor-pointer"
-                                onClick={() => handlePlayPlaylist(pl)}
+                                onClick={() => handlePlayPlaylist?.(pl)}
                             >
                                 <div
                                     className={`w-full aspect-square rounded-xl mb-3 hover:scale-105 transition-transform shadow-lg shadow-black/20`}
@@ -126,4 +126,4 @@ export const ToplistsSection: React.FC<ToplistsSectionProps> = ({
             </section>
         </>
     );
-};
+});

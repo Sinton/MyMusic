@@ -39,7 +39,7 @@ export const SearchResultsView: React.FC<SearchResultsViewProps> = ({
                     <p className="text-lg">{t('home.searching')}</p>
                 </div>
             ) : mergedResults.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-4">
                     {mergedResults.map((song) => (
                         <SongRow key={`${song.id}-${song.bestSource}`} song={song} />
                     ))}

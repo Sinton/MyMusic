@@ -55,7 +55,7 @@ const SongList: React.FC<SongListProps> = ({
     );
 
     return (
-        <div className="space-y-3 pb-20">
+        <div className="space-y-4 pb-20">
             {showHeader && renderHeader()}
 
             {!songs || songs.length === 0 ? (

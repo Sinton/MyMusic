@@ -1,8 +1,9 @@
-// ================== AUDIO SOURCE ==================
+// ================== SHARED ==================
 export type RepeatMode = 'off' | 'all' | 'one';
+export type MusicPlatform = 'netease' | 'qq' | 'soda' | 'local' | 'unknown';
 
 export interface AudioSource {
-    platform: string;
+    platform: MusicPlatform;
     quality: string;
     qualityLabel: string;
     vip: boolean;
@@ -10,57 +11,53 @@ export interface AudioSource {
     sourceId?: string | number;
 }
 
-// ================== SONG ==================
-export interface Song {
+// ================== BASE ITEM ==================
+export interface MusicItem {
     id: string | number;
     title: string;
+    platform: MusicPlatform;
+    cover?: string;
+}
+
+// ================== SONG ==================
+export interface Song extends MusicItem {
     artist: string;
     artistId?: string | number;
     album: string;
     albumId?: string | number;
     duration: string;
     sources: AudioSource[];
-    bestSource: string;
+    bestSource: string; // Legacy field for playback
     genre?: string;
-    cover?: string;
 }
 
 // ================== PLAYLIST ==================
-export interface Playlist {
-    id: string | number;
-    title: string;
+export interface Playlist extends MusicItem {
     count: number;
     songCount?: number; // UI alias
     creator: string;
-    cover: string;
     songs?: Song[];
-    source?: string;
-    platform?: string; // Platform identifier
     isSubscribed?: boolean;
     creatorId?: string | number;
 }
 
 // ================== ALBUM ==================
-export interface Album {
-    id: string | number;
-    title: string;
+export interface Album extends MusicItem {
     artist: string;
     artistId?: string | number;
     year: number;
     releaseDate?: string; // UI alias / formatted string
-    cover: string;
     artistAvatar?: string;
     songs?: Song[];
     count?: number;
     genre?: string;
-    source?: string;
-    platform?: string; // Platform identifier
 }
 
 // ================== ARTIST ==================
 export interface Artist {
     id: string | number;
     name: string;
+    platform: MusicPlatform;
     avatar: string;
     bio?: string;
     genres?: string[];
@@ -72,17 +69,15 @@ export interface Artist {
 }
 
 // ================== TRACK (Currently Playing) ==================
-export interface Track {
-    id: string | number;
-    title: string;
+export interface Track extends MusicItem {
     artist: string;
     artistId?: string | number;
     album: string;
     albumId?: string | number;
     duration: string;
     currentTime: string;
-    source: string;
     quality: string;
-    cover?: string;
     sourceId?: string | number;
+    // For legacy support during migration
+    source: string;
 }

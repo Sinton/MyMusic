@@ -15,7 +15,7 @@ export const SidebarTreeItem: React.FC<SidebarTreeItemProps> = ({
     isNested = false
 }) => {
     const isSelected = activeView === `Playlist:${playlist.id}`;
-    const source = playlist.source || 'vibe';
+    const source = playlist.platform || 'local';
 
     return (
         <button
@@ -27,7 +27,7 @@ export const SidebarTreeItem: React.FC<SidebarTreeItemProps> = ({
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-[var(--glass-highlight)]'
                 }`}
         >
-            <div className={`${isNested ? 'w-1 h-1' : 'w-1.5 h-1.5'} rounded-full flex-shrink-0 ${source === 'vibe' ? playlist.cover : 'bg-[var(--text-muted)] opacity-30 group-hover:opacity-60'
+            <div className={`${isNested ? 'w-1 h-1' : 'w-1.5 h-1.5'} rounded-full flex-shrink-0 ${source === 'local' ? playlist.cover : 'bg-[var(--text-muted)] opacity-30 group-hover:opacity-60'
                 }`} />
             <span className="truncate flex-1 text-left">{playlist.title}</span>
         </button>

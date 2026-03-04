@@ -4,6 +4,7 @@ import { SearchResultsView } from './home/SearchResultsView';
 import { PersonalizedSection } from './home/PersonalizedSection';
 import { NewestAlbumsSection } from './home/NewestAlbumsSection';
 import { ToplistsSection } from './home/ToplistsSection';
+import QueryErrorBanner from '../components/common/QueryErrorBanner';
 import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/useNeteaseData';
 import { useQQSearch } from '../hooks/useQQData';
 import type { Song } from '../types';
@@ -28,13 +29,13 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     });
 
     // Feature 1: Personalized Playlists (Made For You)
-    const { playlists: personalizedPlaylists, isLoading: isPersonalizedLoading } = useNeteasePersonalized();
+    const { playlists: personalizedPlaylists, isLoading: isPersonalizedLoading, isError: isPersonalizedError, refetch: refetchPersonalized } = useNeteasePersonalized();
 
     // Feature 2: Newest Albums
-    const { albums: newestAlbums, isLoading: isNewestAlbumsLoading } = useNeteaseNewestAlbums();
+    const { albums: newestAlbums, isLoading: isNewestAlbumsLoading, isError: isAlbumsError, refetch: refetchAlbums } = useNeteaseNewestAlbums();
 
     // Feature 3: Toplists (Charts)
-    const { playlists: toplists, isLoading: isToplistLoading } = useNeteaseToplist();
+    const { playlists: toplists, isLoading: isToplistLoading, isError: isToplistError, refetch: refetchToplist } = useNeteaseToplist();
 
     // Combine NetEase and QQ results, merging songs with same title and artist
     const mergedResults = useMemo(() => {
@@ -104,14 +105,19 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             ) : (
                 /* Default Home View */
                 <>
+                    {/* Error banners (only show if not loading and has error) */}
+                    {isPersonalizedError && <QueryErrorBanner onRetry={refetchPersonalized} className="mx-2" />}
+                    {isAlbumsError && <QueryErrorBanner onRetry={refetchAlbums} className="mx-2" />}
+                    {isToplistError && <QueryErrorBanner onRetry={refetchToplist} className="mx-2" />}
+
                     {/* SECTION 1: Personalized Playlists (Made For You) */}
-                    <PersonalizedSection playlists={personalizedPlaylists} isLoading={isPersonalizedLoading} onNavigate={onNavigate} />
+                    {!isPersonalizedError && <PersonalizedSection playlists={personalizedPlaylists} isLoading={isPersonalizedLoading} onNavigate={onNavigate} />}
 
                     {/* SECTION 2: Newest Albums */}
-                    <NewestAlbumsSection albums={newestAlbums} isLoading={isNewestAlbumsLoading} onNavigate={onNavigate} />
+                    {!isAlbumsError && <NewestAlbumsSection albums={newestAlbums} isLoading={isNewestAlbumsLoading} onNavigate={onNavigate} />}
 
                     {/* SECTION 3: Toplists (Charts) and Recent Plays */}
-                    <ToplistsSection toplists={toplists} isLoading={isToplistLoading} onNavigate={onNavigate} />
+                    {!isToplistError && <ToplistsSection toplists={toplists} isLoading={isToplistLoading} onNavigate={onNavigate} />}
                 </>
             )}
         </div>

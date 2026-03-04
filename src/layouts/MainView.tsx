@@ -32,6 +32,7 @@ const NeteaseAlbumWrapper: React.FC<{ albumId: number | string; onBack: () => vo
     const albumObj: Album = album ?? {
         id: Number(albumId),
         title: t('common.loading'),
+        platform: 'netease',
         artist: '',
         year: new Date().getFullYear(),
         cover: '',
@@ -58,6 +59,7 @@ const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigat
     const albumObj: Album = album ?? {
         id: albumMid,
         title: t('common.loading'),
+        platform: 'qq',
         artist: '',
         year: new Date().getFullYear(),
         cover: '',
@@ -84,6 +86,7 @@ const SodaAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNaviga
     const albumObj: Album = album ?? {
         id: albumId,
         title: t('common.loading'),
+        platform: 'soda',
         artist: '',
         year: new Date().getFullYear(),
         cover: '',

@@ -33,17 +33,17 @@ const LibraryView: React.FC<LibraryViewProps> = ({ initialTab = 'Songs', onNavig
     // NetEase Store & Data
     const neteaseUser = useNeteaseStore(state => state.user);
     const isLoggedInNetease = useNeteaseStore(state => state.isLoggedIn);
-    const { playlists: neteaseRemotePlaylists, isLoading: isNeteaseLoading } = useNeteaseUserPlaylists(neteaseUser?.userId || 0, {
+    const { playlists: neteaseRemotePlaylists, isLoading: isNeteaseLoading, isError: _isNeteaseError, refetch: _refetchNetease } = useNeteaseUserPlaylists(neteaseUser?.userId || 0, {
         enabled: activeTab === 'Playlists' && isLoggedInNetease
     });
 
     // QQ Store & Data
     const isLoggedInQQ = useQQStore(state => state.isLoggedIn);
-    const { playlists: qqRemotePlaylists, isLoading: isQQLoading } = useQQUserPlaylists({
+    const { playlists: qqRemotePlaylists, isLoading: isQQLoading, isError: _isQQError, refetch: _refetchQQ } = useQQUserPlaylists({
         enabled: activeTab === 'Playlists' && isLoggedInQQ
     });
 
-    const { albums, isLoading: isAlbumsLoading } = useNeteaseNewestAlbums({ enabled: activeTab === 'Albums' });
+    const { albums, isLoading: isAlbumsLoading, isError: _isAlbumsError, refetch: _refetchAlbums } = useNeteaseNewestAlbums({ enabled: activeTab === 'Albums' });
 
     const { userPlaylists } = usePlaylistStore();
 

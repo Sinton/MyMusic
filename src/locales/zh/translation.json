@@ -3,7 +3,9 @@
         "loading": "加载中...",
         "error": {
             "title": "错误",
-            "notFound": "未找到相关内容"
+            "notFound": "未找到相关内容",
+            "loadFailed": "加载失败",
+            "retryButton": "重试"
         },
         "save": "保存",
         "cancel": "取消",
@@ -274,7 +276,10 @@
             "addPlaceholder": "添加评论..."
         },
         "queue": {
-            "nextUp": "接下来播放"
+            "nextUp": "接下来播放",
+            "empty": "队列为空",
+            "scrollToActive": "定位当前播放",
+            "clearAll": "清空队列"
         },
         "options": {
             "title": "选项",

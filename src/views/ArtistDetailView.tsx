@@ -9,12 +9,13 @@ import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums }
 import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/useQQData';
 import { useQishuiArtistDetail, useQishuiArtistSongs, useQishuiArtistAlbums } from '../hooks/useQishuiData';
 import { songToTrack } from '../lib/trackUtils';
-import type { Artist, Track, Album } from '../types';
+import { getPlatformAdapter } from '../lib/platform';
+import type { Artist, Track, Album, MusicPlatform, Song } from '../types';
 
 interface ArtistDetailViewProps {
     artistName?: string;
     artistId?: string | number;
-    platform?: string;
+    platform?: MusicPlatform;
     onBack: () => void;
     onNavigate?: (view: string) => void;
     // Old props compatibility
@@ -47,10 +48,10 @@ const NeteaseArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
             {...props}
             artistName={props.artistName || metadata?.name || ''}
             metadata={metadata}
-            songs={songs}
-            albums={albums}
+            songs={songs || []}
+            albums={albums || []}
             isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
-            pagination={{ hasNextPage, isFetchingNextPage, fetchNextPage }}
+            pagination={{ hasNextPage: !!hasNextPage, isFetchingNextPage: !!isFetchingNextPage, fetchNextPage }}
         />
     );
 };
@@ -66,10 +67,10 @@ const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }>
             {...props}
             artistName={props.artistName || metadata?.name || ''}
             metadata={metadata}
-            songs={songs}
-            albums={albums}
+            songs={songs || []}
+            albums={albums || []}
             isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
-            pagination={{ hasNextPage, isFetchingNextPage, fetchNextPage }}
+            pagination={{ hasNextPage: !!hasNextPage, isFetchingNextPage: !!isFetchingNextPage, fetchNextPage: () => fetchNextPage?.() }}
         />
     );
 };
@@ -85,24 +86,25 @@ const SodaArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
             {...props}
             artistName={props.artistName || metadata?.name || ''}
             metadata={metadata}
-            songs={songs}
-            albums={albums}
+            songs={songs || []}
+            albums={albums || []}
             isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
-            pagination={{ hasNextPage, isFetchingNextPage, fetchNextPage }}
+            pagination={{ hasNextPage: !!hasNextPage, isFetchingNextPage: !!isFetchingNextPage, fetchNextPage: () => fetchNextPage?.() }}
         />
     );
 };
 
 interface ContentProps extends ArtistDetailViewProps {
-    metadata: any;
-    songs: any[];
-    albums: any[];
+    metadata: Partial<Artist> | null | undefined;
+    songs: Song[];
+    albums: Album[];
     isLoading: { detail: boolean; songs: boolean; albums: boolean };
     pagination: { hasNextPage: boolean; isFetchingNextPage: boolean; fetchNextPage: () => void };
 }
 
 const ArtistDetailContent: React.FC<ContentProps> = ({
     artistName,
+    platform = 'netease',
     onNavigate,
     metadata,
     songs,
@@ -147,15 +149,16 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
         return {
             id: metadata?.id || 0,
             name: artistName || metadata?.name || '',
+            platform,
             avatar: metadata?.avatar || '',
-            bio: metadata?.bio || t('artist.noBio', '极简风格的音乐人。'),
+            bio: metadata?.bio || t('artist.about'),
             genres: ['Pop', 'R&B', 'Electronic', 'Acoustic'],
             popularSongs: songs,
             albums: albums,
             songCount: metadata?.songCount || 0,
             albumCount: metadata?.albumCount || 0,
         };
-    }, [artistName, metadata, songs, albums, t]);
+    }, [artistName, metadata, songs, albums, t, platform]);
 
     // Filtering logic
     const filteredSongs = useMemo(() => {
@@ -332,7 +335,12 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
                                         <AlbumCard
                                             key={album.id}
                                             album={album}
-                                            onClick={() => onNavigate && onNavigate(`Album:${album.source || 'netease'}:${album.id}`)}
+                                            onClick={() => {
+                                                if (onNavigate) {
+                                                    const adapter = getPlatformAdapter(album.platform);
+                                                    onNavigate(adapter.getAlbumPath(album.id));
+                                                }
+                                            }}
                                         />
                                     ))
                                 )}

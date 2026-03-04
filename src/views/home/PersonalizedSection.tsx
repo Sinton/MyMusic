@@ -11,7 +11,7 @@ interface PersonalizedSectionProps {
     onNavigate?: (view: string) => void;
 }
 
-export const PersonalizedSection: React.FC<PersonalizedSectionProps> = ({
+export const PersonalizedSection: React.FC<PersonalizedSectionProps> = React.memo(({
     playlists,
     isLoading,
     onNavigate,
@@ -69,4 +69,4 @@ export const PersonalizedSection: React.FC<PersonalizedSectionProps> = ({
             </div>
         </section>
     );
-};
+});

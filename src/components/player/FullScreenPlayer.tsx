@@ -7,7 +7,6 @@ import { useUIStore } from '../../stores/useUIStore';
 import { useNeteaseLyric } from '../../hooks/useNeteaseData';
 import { useQQLyric } from '../../hooks/useQQData';
 import { useSodaLyric } from '../../hooks/useSodaData';
-import { isNeteasePlatform } from '../../lib/platformUtils';
 
 // Sub-components
 import VinylVisualizer from './VinylVisualizer';
@@ -58,18 +57,19 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
 
-    const isNetease = isNeteasePlatform(currentTrack?.source || '');
-    const isQQ = currentTrack?.source?.toLowerCase().includes('qq') || false;
-    const isSoda = currentTrack?.source?.toLowerCase().includes('soda') || false;
+    const platform = currentTrack?.platform;
 
-    const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack?.id, { enabled: isNetease && !!currentTrack?.id });
+    const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack?.id, { enabled: platform === 'netease' && !!currentTrack?.id });
     const qqSongMid = String(currentTrack?.sourceId || currentTrack?.id);
-    const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: isQQ && !!qqSongMid });
+    const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: platform === 'qq' && !!qqSongMid });
     const sodaTrackId = String(currentTrack?.id);
-    const { lyrics: sodaLyrics } = useSodaLyric(sodaTrackId, { enabled: isSoda && !!sodaTrackId });
+    const { lyrics: sodaLyrics } = useSodaLyric(sodaTrackId, { enabled: platform === 'soda' && !!sodaTrackId });
 
-    // Use platform-specific lyrics, otherwise fallback to empty
-    const activeLyrics = isNetease ? neteaseLyrics : (isQQ ? qqLyrics : (isSoda ? sodaLyrics : []));
+    // Use platform-specific lyrics
+    const activeLyrics = platform === 'netease' ? neteaseLyrics
+        : platform === 'qq' ? qqLyrics
+            : platform === 'soda' ? sodaLyrics
+                : [];
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();

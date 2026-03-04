@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Play, ChevronDown } from 'lucide-react';
-import { QualityBadge, VipBadge } from '../common';
+import { VipBadge } from '../common';
 import type { Song, AudioSource } from '../../types';
 import { useSongActions } from '../../hooks/useSongActions';
 import { usePlayerStore } from '../../stores/usePlayerStore';

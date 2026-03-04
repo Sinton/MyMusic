@@ -15,8 +15,8 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
     const isImage = playlist.cover?.includes('/') || playlist.cover?.includes('.');
 
     const renderSourceBadge = () => {
-        if (!playlist.source) return null;
-        if (playlist.source === 'vibe' || playlist.source === 'Local') {
+        if (!playlist.platform) return null;
+        if (playlist.platform === 'local') {
             return (
                 <PlatformBadge
                     name="Vibe"
@@ -28,8 +28,8 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
         }
         return (
             <PlatformBadge
-                name={playlist.source === 'netease' ? 'NetEase' : playlist.source}
-                color={playlist.source === 'netease' ? '#e60026' : '#333'}
+                name={playlist.platform}
+                color={playlist.platform === 'netease' ? '#e60026' : '#333'}
                 size="sm"
                 className="absolute bottom-2 right-2 shadow-lg border border-white/10 z-20"
             />
@@ -88,4 +88,4 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, onClick, variant 
     );
 };
 
-export default PlaylistCard;
+export default React.memo(PlaylistCard);

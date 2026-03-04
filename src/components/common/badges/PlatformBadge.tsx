@@ -16,12 +16,16 @@ export interface PlatformBadgeProps {
 }
 
 const iconMap: Record<string, string> = {
+    'netease': neteaseIcon,
     'NetEase Cloud': neteaseIcon,
     'NetEase': neteaseIcon,
+    'qq': qqIcon,
     'QQ Music': qqIcon,
+    'soda': sodaIcon,
     'Soda Music': sodaIcon,
     'Soda': sodaIcon,
     '汽水音乐': sodaIcon,
+    'local': vibeLogo,
     'Vibe': vibeLogo,
 };
 

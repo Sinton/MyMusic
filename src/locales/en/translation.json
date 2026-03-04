@@ -3,7 +3,9 @@
         "loading": "Loading...",
         "error": {
             "title": "Error",
-            "notFound": "Content not found"
+            "notFound": "Content not found",
+            "loadFailed": "Failed to load",
+            "retryButton": "Retry"
         },
         "save": "Save",
         "cancel": "Cancel",
@@ -274,7 +276,10 @@
             "addPlaceholder": "Add a comment..."
         },
         "queue": {
-            "nextUp": "Next Up"
+            "nextUp": "Next Up",
+            "empty": "Queue is empty",
+            "scrollToActive": "Scroll to Current",
+            "clearAll": "Clear All"
         },
         "options": {
             "title": "Options",

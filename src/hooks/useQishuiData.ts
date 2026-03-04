@@ -16,11 +16,13 @@ export function useQishuiArtistDetail(artistId: string, options: { enabled?: boo
         queryFn: () => QishuiService.getArtistDetail(artistId),
         enabled: options.enabled,
         staleTime: 5 * 60 * 1000,
+        retry: 2,
     });
 
     const artist: Artist | null = qishuiArtist?.data ? {
         id: qishuiArtist.data.artistId,
         name: qishuiArtist.data.name,
+        platform: 'soda',
         avatar: qishuiArtist.data.avatar,
         // Try intro, content, brief, or other possible fields for bio
         bio: qishuiArtist.data.profile?.intro || qishuiArtist.data.profile?.content || qishuiArtist.data.profile?.brief || qishuiArtist.data.profile?.content_brief || '',
@@ -40,12 +42,14 @@ export function useQishuiArtistSongs(artistId: string, options: { enabled?: bool
         queryFn: () => QishuiService.getArtistDetail(artistId),
         enabled: options.enabled,
         staleTime: 5 * 60 * 1000,
+        retry: 2,
     });
 
     const songs: Song[] = qishuiArtist?.data?.trackList?.map(item => {
         return {
             id: String(item.id),
             title: item.name,
+            platform: 'soda',
             artist: qishuiArtist.data.name,
             artistId,
             album: item.album?.name || '',
@@ -53,14 +57,13 @@ export function useQishuiArtistSongs(artistId: string, options: { enabled?: bool
             duration: formatDuration(item.duration_ms),
             bestSource: 'soda',
             sources: [{
-                platform: '汽水音乐',
+                platform: 'soda',
                 quality: 'hq',
                 qualityLabel: 'HQ',
                 vip: false,
                 color: '#00d084',
                 sourceId: String(item.id)
             }],
-            source: 'soda',
             cover: item.cover || '', // Use pre-computed cover from backend
         };
     }) || [];
@@ -74,17 +77,18 @@ export function useQishuiArtistAlbums(artistId: string, options: { enabled?: boo
         queryFn: () => QishuiService.getArtistDetail(artistId),
         enabled: options.enabled,
         staleTime: 5 * 60 * 1000,
+        retry: 2,
     });
 
     const albums: Album[] = qishuiArtist?.data?.albumList?.map(item => {
         return {
             id: String(item.id),
             title: item.name,
+            platform: 'soda',
             artist: qishuiArtist.data.name,
             cover: item.cover || '', // Use pre-computed cover from backend
             year: new Date(item.release_date * 1000).getFullYear(),
             count: item.count_tracks || item.track_count || item.countTracks || item.trackCount || item.song_count || 0,
-            source: 'soda',
         };
     }) || [];
 
@@ -104,11 +108,13 @@ export function useQishuiAlbumDetail(albumId: string, options: { enabled?: boole
         queryFn: () => QishuiService.getAlbumDetail(albumId),
         enabled: options.enabled,
         staleTime: 5 * 60 * 1000,
+        retry: 2,
     });
 
     const album: Album | null = qishuiAlbum?.data ? {
         id: String(qishuiAlbum.data.albumId),
         title: qishuiAlbum.data.name,
+        platform: 'soda',
         artist: qishuiAlbum.data.artists?.[0]?.name || 'Unknown',
         cover: qishuiAlbum.data.cover,
         year: qishuiAlbum.data.releaseDate ? new Date(qishuiAlbum.data.releaseDate * 1000).getFullYear() : new Date().getFullYear(),
@@ -116,13 +122,14 @@ export function useQishuiAlbumDetail(albumId: string, options: { enabled?: boole
         songs: qishuiAlbum.data.trackList.map(item => ({
             id: String(item.id),
             title: item.name,
+            platform: 'soda',
             artist: qishuiAlbum.data.artists?.[0]?.name || 'Unknown',
             album: qishuiAlbum.data.name,
             albumId: String(qishuiAlbum.data.albumId),
             duration: formatDuration(item.duration_ms),
             bestSource: 'soda',
             sources: [{
-                platform: '汽水音乐',
+                platform: 'soda',
                 quality: 'hq',
                 qualityLabel: 'HQ',
                 vip: false,
@@ -131,7 +138,6 @@ export function useQishuiAlbumDetail(albumId: string, options: { enabled?: boole
             }],
             cover: qishuiAlbum.data.cover,
         }) as Song),
-        source: 'soda',
     } : null;
 
     return { album, isLoading, error };

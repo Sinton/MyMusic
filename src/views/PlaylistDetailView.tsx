@@ -42,7 +42,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
             'bg-gradient-to-br from-fuchsia-500 to-pink-600',
             'bg-gradient-to-br from-violet-500 to-fuchsia-500'
         ];
-        const currentIndex = gradients.indexOf(playlist.cover);
+        const currentIndex = gradients.indexOf(playlist.cover || '');
         const nextIndex = (currentIndex + 1) % gradients.length;
         updatePlaylistCover(playlist.id, gradients[nextIndex]);
     };
@@ -56,7 +56,7 @@ const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ playlist, onBac
         <PlaylistShell
             isLoading={isLoading}
             title={playlist.title}
-            cover={playlist.cover}
+            cover={playlist.cover || ''}
             songs={playlist.songs || []}
             creator={playlist.creator}
             isEditable={true}

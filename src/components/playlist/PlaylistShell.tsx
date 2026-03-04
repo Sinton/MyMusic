@@ -73,7 +73,7 @@ export const PlaylistShell: React.FC<PlaylistShellProps> = ({
     const rowVirtualizer = useVirtualizer({
         count: songs.length,
         getScrollElement: () => scrollRef.current,
-        estimateSize: () => 64, // Estimated height 56px + 8px
+        estimateSize: () => 88, // Estimated height 72px + 16px gap
         overscan: 10,
     });
 
@@ -262,7 +262,7 @@ export const PlaylistShell: React.FC<PlaylistShellProps> = ({
                                     left: 0,
                                     width: '100%',
                                     transform: `translateY(${virtualItem.start}px)`,
-                                    paddingBottom: '8px'
+                                    paddingBottom: '16px'
                                 }}
                             >
                                 <SongRow

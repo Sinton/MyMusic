@@ -1,11 +1,13 @@
+import type { MusicPlatform } from '../types';
+
 export type AppRoute =
     | { type: 'home' }
     | { type: 'explore' }
     | { type: 'library', tab: 'Songs' | 'Playlists' | 'Albums' }
     | { type: 'settings' }
     | { type: 'playlist', id: string | number }
-    | { type: 'album', id: string | number, platform: string }
-    | { type: 'artist', name: string, id?: string | number, platform: string };
+    | { type: 'album', id: string | number, platform: MusicPlatform }
+    | { type: 'artist', name: string, id?: string | number, platform: MusicPlatform };
 
 export function parseRoute(activeView: string): AppRoute {
     if (activeView.startsWith('Playlist:')) {
@@ -17,7 +19,7 @@ export function parseRoute(activeView: string): AppRoute {
     if (activeView.startsWith('Album:')) {
         const parts = activeView.split(':');
         if (parts.length === 3) {
-            const platform = parts[1];
+            const platform = parts[1] as MusicPlatform;
             const id = parts[2];
             // Only parse as numeric if platform is netease and it's a pure number
             if (platform === 'netease' && /^\d+$/.test(id)) {
@@ -36,7 +38,7 @@ export function parseRoute(activeView: string): AppRoute {
     if (activeView.startsWith('Artist:')) {
         const parts = activeView.split(':');
         if (parts.length === 4) {
-            const platform = parts[1];
+            const platform = parts[1] as MusicPlatform;
             const name = parts[2];
             const id = parts[3];
             if (platform === 'netease' && /^\d+$/.test(id)) {
@@ -45,7 +47,7 @@ export function parseRoute(activeView: string): AppRoute {
             return { type: 'artist', platform, name, id };
         } else if (parts.length === 3) {
             if (parts[1] === 'qq' || parts[1] === 'netease' || parts[1] === 'soda') {
-                return { type: 'artist', platform: parts[1], name: parts[2] };
+                return { type: 'artist', platform: parts[1] as MusicPlatform, name: parts[2] };
             }
             const name = parts[1];
             const id = parts[2];

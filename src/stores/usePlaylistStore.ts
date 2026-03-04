@@ -27,11 +27,11 @@ export const usePlaylistStore = create<PlaylistStore>()(
                 const newPlaylist: Playlist = {
                     id: Date.now(),
                     title,
+                    platform: 'local',
                     count: 0,
                     creator: 'Yan',
                     cover: selectedCover,
                     songs: [],
-                    source: 'vibe'
                 };
                 return { userPlaylists: [...state.userPlaylists, newPlaylist] };
             }),

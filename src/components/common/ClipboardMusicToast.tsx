@@ -118,6 +118,7 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
             const track: Track = {
                 id: info.trackId,
                 title: trackData.title,
+                platform: 'soda',
                 artist: trackData.artist,
                 artistId: trackData.artistId,
                 album: trackData.album || '',

@@ -9,7 +9,7 @@ interface NewestAlbumsSectionProps {
     onNavigate?: (view: string) => void;
 }
 
-export const NewestAlbumsSection: React.FC<NewestAlbumsSectionProps> = ({
+export const NewestAlbumsSection: React.FC<NewestAlbumsSectionProps> = React.memo(({
     albums,
     isLoading,
     onNavigate,
@@ -55,4 +55,4 @@ export const NewestAlbumsSection: React.FC<NewestAlbumsSectionProps> = ({
             </div>
         </section>
     );
-};
+});
