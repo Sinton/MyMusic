@@ -115,52 +115,50 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                     return;
                 }
 
-                // Step 2: Download via Rust byte bridge (if needed)
+                // Step 2: Stream via Local Axum Proxy
                 try {
                     const platform = detectPlatform(currentTrack.source);
-
-                    remoteLog(`[UrlResolver] Downloading bytes via bridge...`);
                     const referer = getPlatformReferer(platform);
-                    const bytesArray = await invoke('request_bytes', { url, referer }) as number[];
 
-                    if (!bytesArray || bytesArray.length < 1000) {
-                        throw new Error(`Downloaded bytes too small (${bytesArray?.length}), likely an error page`);
+                    // Fetch dynamic proxy port
+                    const proxyPort = await invoke<number>('get_proxy_port');
+
+                    remoteLog(`[UrlResolver] Fetching stream via proxy on port ${proxyPort}...`);
+
+                    const proxyUrl = new URL(`http://127.0.0.1:${proxyPort}/proxy`);
+                    proxyUrl.searchParams.set('url', url);
+                    if (referer) {
+                        proxyUrl.searchParams.set('referer', referer);
                     }
 
-                    const uint8 = new Uint8Array(bytesArray);
-
-                    let mimeType = 'audio/mpeg'; // default mp3
-                    if (url.includes('.m4a') || url.includes('.m4a?')) mimeType = 'audio/mp4';
-                    else if (url.includes('.flac') || url.includes('.flac?')) mimeType = 'audio/flac';
-
-                    const blob = new Blob([uint8], { type: mimeType });
-                    const blobUrl = URL.createObjectURL(blob);
-
-                    // Clean up previous Blob URL
-                    if (blobUrlRef.current) {
-                        URL.revokeObjectURL(blobUrlRef.current);
-                    }
-                    blobUrlRef.current = blobUrl;
+                    const finalStreamUrl = proxyUrl.toString();
+                    remoteLog(`[UrlResolver] Using local proxy stream URL: ${finalStreamUrl}`);
 
                     const autoPlay = usePlayerStore.getState().isPlaying;
-                    remoteLog(`[UrlResolver] Loading Blob URL. isPlaying: ${autoPlay}`);
+                    currentUrlRef.current = finalStreamUrl;
 
-                    currentUrlRef.current = blobUrl;
-                    audio.src = blobUrl;
+                    // Assign directly to audio source (Real streaming capability)
+                    audio.src = finalStreamUrl;
                     audio.load();
 
                     if (autoPlay) {
-                        audio.play().catch(e => remoteLog(`[UrlResolver] Blob play failed: ${e}`));
+                        const playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(e => remoteLog(`[UrlResolver] Proxy stream play failed: ${e}`));
+                        }
                     }
                 } catch (err) {
-                    // Step 3: Fallback to direct URL if byte bridge fails
-                    remoteLog(`[UrlResolver] Byte bridge failed: ${err}. Falling back to direct URL.`);
+                    // Step 3: Fallback to direct URL if proxy setup fails entirely
+                    remoteLog(`[UrlResolver] Proxy setup failed: ${err}. Falling back to direct URL.`);
                     const autoPlay = usePlayerStore.getState().isPlaying;
                     currentUrlRef.current = url;
                     audio.src = url;
                     audio.load();
                     if (autoPlay) {
-                        audio.play().catch(e => remoteLog(`[UrlResolver] Fallback play failed: ${e}`));
+                        const playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(e => remoteLog(`[UrlResolver] Fallback play failed: ${e}`));
+                        }
                     }
                 }
 
@@ -169,14 +167,6 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
 
                 if (finalDuration > 0) {
                     usePlayerStore.setState({ durationSec: finalDuration });
-                }
-
-                if (usePlayerStore.getState().isPlaying) {
-                    remoteLog('[UrlResolver] Triggering audio.play()');
-                    const playPromise = audio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(e => remoteLog(`[UrlResolver] Play failed: ${e}`));
-                    }
                 }
             } catch (err) {
                 remoteLog(`[UrlResolver] Failed to fetch song URL: ${err}`);

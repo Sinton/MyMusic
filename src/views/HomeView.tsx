@@ -7,6 +7,7 @@ import { ToplistsSection } from './home/ToplistsSection';
 import QueryErrorBanner from '../components/common/QueryErrorBanner';
 import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/netease';
 import { useQQSearch } from '../hooks/qq';
+import { useSodaSearch } from '../hooks/soda';
 import type { Song } from '../types';
 
 interface HomeViewProps {
@@ -16,7 +17,6 @@ interface HomeViewProps {
 const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
-    // NetEase state
     // Use activeQuery instead of debouncedQuery for search triggering
     const [activeQuery, setActiveQuery] = useState('');
 
@@ -25,6 +25,10 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     });
 
     const { songs: qqResults, isLoading: isQQSearching } = useQQSearch(activeQuery, {
+        enabled: !!activeQuery.trim(),
+    });
+
+    const { songs: sodaResults, isLoading: isSodaSearching } = useSodaSearch(activeQuery, {
         enabled: !!activeQuery.trim(),
     });
 
@@ -37,20 +41,19 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     // Feature 3: Toplists (Charts)
     const { playlists: toplists, isLoading: isToplistLoading, isError: isToplistError, refetch: refetchToplist } = useNeteaseToplist();
 
-    // Combine NetEase and QQ results, merging songs with same title and artist
+    // Combine NetEase, QQ and Soda results, merging songs with same title and artist
     const mergedResults = useMemo(() => {
         if (!activeQuery.trim()) return [];
 
         const merged: Song[] = [];
 
-        // Interleave the results so that rank #1 from NetEase is followed by rank #1 from QQ, etc.
-        // This ensures the top results from both platforms appear at the top of the combined list
-        // instead of all NetEase results showing up before any QQ results.
+        // Interleave the results so that rank #1 from all platforms appear at the top
         const combined: Song[] = [];
-        const maxLength = Math.max(neteaseResults.length, qqResults.length);
+        const maxLength = Math.max(neteaseResults.length, qqResults.length, sodaResults.length);
         for (let i = 0; i < maxLength; i++) {
             if (i < neteaseResults.length) combined.push(neteaseResults[i]);
             if (i < qqResults.length) combined.push(qqResults[i]);
+            if (i < sodaResults.length) combined.push(sodaResults[i]);
         }
 
         // Helper to normalize strings for comparison (ignore case, spaces, parens)
@@ -84,7 +87,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
         return merged;
     }, [activeQuery, neteaseResults, qqResults]);
 
-    const isSearching = (isNeteaseSearching || isQQSearching) && !!activeQuery.trim();
+    const isSearching = (isNeteaseSearching || isQQSearching || isSodaSearching) && !!activeQuery.trim();
 
     return (
         <div className="space-y-8 animate-fade-in pb-12">

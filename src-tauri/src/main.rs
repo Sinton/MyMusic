@@ -10,6 +10,7 @@ mod query;
 mod http;
 mod error;
 mod stream;
+mod proxy;
 
 use http::{HttpClient, HttpResponse};
 
@@ -123,6 +124,11 @@ async fn request_api(
     }
 }
 
+#[tauri::command]
+async fn get_proxy_port(proxy_port: tauri::State<'_, u16>) -> Result<u16, ()> {
+    Ok(*proxy_port)
+}
+
 fn main() {
     // Initialize unified logging
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
@@ -143,10 +149,23 @@ fn main() {
             let client = HttpClient::new(cookie_path);
             app.manage(client);
 
+            // Spawn the Axum proxy server
+            tauri::async_runtime::block_on(async move {
+                match proxy::start_proxy_server().await {
+                    Ok(port) => {
+                        log::info!("Started local audio proxy on port: {}", port);
+                        app.manage(port); // Manage the port so frontend can query it
+                    }
+                    Err(e) => {
+                        log::error!("Failed to start local audio proxy: {}", e);
+                    }
+                }
+            });
+
             println!("[Main] Registering musiclocal:// protocol handler (Temporarily disabled)");
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![request_api, request_bytes, log_info])
+        .invoke_handler(tauri::generate_handler![request_api, request_bytes, log_info, get_proxy_port])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

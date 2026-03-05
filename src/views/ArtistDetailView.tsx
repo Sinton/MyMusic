@@ -1,15 +1,16 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Play, Pause, Info, Search, Music, LayoutGrid, ListMusic } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Play, Pause, Search, Music } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { SongRow, AlbumCard } from '../components';
-import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
+import { Skeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
+import { ArtistSongsTab } from './artist/ArtistSongsTab';
+import { ArtistAlbumsTab } from './artist/ArtistAlbumsTab';
+import { ArtistAboutTab } from './artist/ArtistAboutTab';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/netease';
 import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/qq';
 import { useSodaArtistDetail, useSodaArtistSongs, useSodaArtistAlbums } from '../hooks/soda';
 import { songToTrack } from '../lib/trackUtils';
-import { getPlatformAdapter } from '../lib/platform';
 import type { Artist, Track, Album, MusicPlatform, Song } from '../types';
 
 interface ArtistDetailViewProps {
@@ -117,32 +118,6 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
 
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'all' | 'songs' | 'albums' | 'about'>('all');
-
-    // Infinite Scroll Logic
-    const loadMoreRef = useRef<HTMLDivElement>(null);
-    const { hasNextPage, isFetchingNextPage, fetchNextPage } = pagination;
-
-    useEffect(() => {
-        if (!hasNextPage || isFetchingNextPage) return;
-
-        // Find the actual scroll container (.main-scroller) as IntersectionObserver root
-        const scrollContainer = loadMoreRef.current?.closest('.main-scroller') as HTMLElement | null;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting) {
-                    fetchNextPage();
-                }
-            },
-            { threshold: 0.1, rootMargin: '300px', root: scrollContainer }
-        );
-
-        if (loadMoreRef.current) {
-            observer.observe(loadMoreRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     // Construct artist object
     const artistData: Artist = useMemo(() => {
@@ -295,87 +270,26 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
                 <div className="space-y-24">
                     {/* 1. Popular Tracks - Clean List */}
                     {(activeTab === 'all' || activeTab === 'songs') && (
-                        <section className="animate-fade-in w-full">
-                            <h2 className="text-xl font-bold mb-8 flex items-center gap-4 text-[var(--text-main)] tracking-tight">
-                                <ListMusic className="w-6 h-6 text-[var(--accent-color)]" />
-                                {searchQuery ? t('home.searchResultsFor') : t('artist.popularTracks')}
-                            </h2>
-                            <div className="space-y-4">
-                                {isLoading.songs ? (
-                                    <ListSkeleton rows={5} />
-                                ) : (
-                                    filteredSongs.map((song) => (
-                                        <div key={song.id} className="group relative">
-                                            <SongRow song={song} />
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </section>
+                        <ArtistSongsTab
+                            searchQuery={searchQuery}
+                            songs={filteredSongs}
+                            isLoading={isLoading.songs}
+                        />
                     )}
 
                     {/* 2. All Albums - Pure Grid */}
                     {(activeTab === 'all' || activeTab === 'albums') && (
-                        <section className="animate-fade-in w-full">
-                            <h2 className="text-xl font-bold mb-10 flex items-center gap-4 text-[var(--text-main)] tracking-tight">
-                                <LayoutGrid className="w-6 h-6 text-[var(--accent-color)]" />
-                                {t('artist.albums')}
-                            </h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-16">
-                                {isLoading.albums ? (
-                                    Array.from({ length: 4 }).map((_, i) => (
-                                        <div key={i} className="space-y-3">
-                                            <Skeleton className="w-full aspect-square rounded-2xl" />
-                                            <Skeleton className="w-3/4 h-4 rounded" />
-                                            <Skeleton className="w-1/2 h-3 rounded" />
-                                        </div>
-                                    ))
-                                ) : (
-                                    filteredAlbums.map((album: Album) => (
-                                        <AlbumCard
-                                            key={album.id}
-                                            album={album}
-                                            onClick={() => {
-                                                if (onNavigate) {
-                                                    const adapter = getPlatformAdapter(album.platform);
-                                                    onNavigate(adapter.getAlbumPath(album.id));
-                                                }
-                                            }}
-                                        />
-                                    ))
-                                )}
-                            </div>
-
-                            {/* Infinite Scroll Sentinel */}
-                            {pagination.hasNextPage && (
-                                <div ref={loadMoreRef} className="mt-16 py-10 flex justify-center">
-                                    {pagination.isFetchingNextPage && (
-                                        <div className="flex items-center gap-3 text-[var(--text-secondary)]">
-                                            <div className="w-5 h-5 border-2 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin" />
-                                            <span className="text-xs font-bold uppercase tracking-widest opacity-60">
-                                                {t('common.loading')}...
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </section>
+                        <ArtistAlbumsTab
+                            albums={filteredAlbums}
+                            isLoading={isLoading.albums}
+                            onNavigate={onNavigate}
+                            pagination={pagination}
+                        />
                     )}
 
                     {/* 3. About Section */}
                     {(activeTab === 'all' || activeTab === 'about') && (
-                        <section className="animate-fade-in w-full pt-8">
-                            <h2 className="text-xl font-bold mb-10 flex items-center gap-4 text-[var(--text-main)] tracking-tight">
-                                <Info className="w-6 h-6 text-[var(--accent-color)]" />
-                                {t('artist.about')}
-                            </h2>
-
-                            <div className="relative pl-12 border-l-2 border-[var(--accent-color)]/20 ml-2">
-                                <div className="text-[var(--text-secondary)] text-base md:text-lg leading-relaxed opacity-90 mb-10 max-w-4xl whitespace-pre-wrap">
-                                    {artistData.bio}
-                                </div>
-                            </div>
-                        </section>
+                        <ArtistAboutTab artistData={artistData} />
                     )}
                 </div>
             </main>

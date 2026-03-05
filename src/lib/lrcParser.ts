@@ -1,6 +1,6 @@
 /**
  * Parse LRC format lyrics into a sorted array of { time, text } objects.
- * Consolidates the duplicated parseLrc logic from useNeteaseData, useQQData, and useSodaData.
+ * Consolidates the duplicated parseLrc logic from useNeteaseLyric, useQQLyric, and useSodaLyric.
  */
 export function parseLrc(lrc: string): { time: number; text: string }[] {
     if (!lrc) return [];
