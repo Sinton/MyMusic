@@ -1,7 +1,9 @@
 use crate::http::{HttpClient, HttpResponse, HttpResult};
 use crate::Options;
 use crate::error::AppError;
+use self::base::ApiProvider;
 
+pub mod base;
 pub mod netease;
 pub mod qqmusic;
 pub mod qishui;
@@ -13,9 +15,9 @@ pub async fn dispatch(
     options: Options,
 ) -> HttpResult<HttpResponse> {
     match provider {
-        "netease" => netease::dispatch(client, api_name, options).await,
-        "qqmusic" => qqmusic::dispatch(client, api_name, options).await,
-        "qishui" => qishui::dispatch(client, api_name, options).await,
+        "netease" => netease::NeteaseProvider.dispatch(client, api_name, options).await,
+        "qqmusic" => qqmusic::QQMusicProvider.dispatch(client, api_name, options).await,
+        "qishui" => qishui::QishuiProvider.dispatch(client, api_name, options).await,
         _ => Err(AppError::Api(format!("Unknown provider: {}", provider))),
     }
 }

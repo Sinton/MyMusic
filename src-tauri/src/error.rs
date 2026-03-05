@@ -20,6 +20,12 @@ pub enum AppError {
 
     #[error("Missing parameter: {0}")]
     MissingParam(String),
+
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("Proxy error: {0}")]
+    Proxy(String),
 }
 
 // Implement Serialize so we can return AppError from Tauri commands

@@ -71,6 +71,31 @@ impl HttpClient {
         Ok(())
     }
 
+    fn build_common_headers(&self, headers_list: Vec<(String, String)>, referer: Option<String>) -> HeaderMap {
+        let mut headers = HeaderMap::new();
+        
+        // Default UA
+        headers.insert(
+            reqwest::header::USER_AGENT,
+            HeaderValue::from_static(crate::config::DEFAULT_USER_AGENT)
+        );
+
+        if let Some(r) = referer {
+            if let Ok(val) = HeaderValue::from_str(&r) {
+                headers.insert(reqwest::header::REFERER, val);
+            }
+        }
+
+        for (k, v) in headers_list {
+            if let Ok(hname) = k.parse::<reqwest::header::HeaderName>() {
+                if let Ok(hval) = HeaderValue::from_str(&v) {
+                    headers.insert(hname, hval);
+                }
+            }
+        }
+        headers
+    }
+
     pub async fn request(
         &self,
         method: &str,
@@ -79,16 +104,8 @@ impl HttpClient {
         body: String,
         trace_id: Option<String>,
     ) -> HttpResult<HttpResponse> {
-        let mut headers = HeaderMap::new();
         let current_trace_id = trace_id.unwrap_or_else(|| "no-trace".to_string());
-        
-        for (k, v) in headers_list {
-            if let Ok(hname) = k.parse::<reqwest::header::HeaderName>() {
-                if let Ok(hval) = HeaderValue::from_str(&v) {
-                    headers.insert(hname, hval);
-                }
-            }
-        }
+        let headers = self.build_common_headers(headers_list, None);
 
         let builder = match method.to_uppercase().as_str() {
             "GET" => self.internal.get(url),
@@ -102,7 +119,6 @@ impl HttpClient {
              curl.push_str(&format!(" -H '{}: {}'", k, v.to_str().unwrap_or("").replace("'", "'\\''")));
         }
 
-        // Add cookies from the store to the curl command for a complete reproduction string
         if let Ok(url_obj) = reqwest::Url::parse(url) {
             if let Ok(store) = self.cookie_store.lock() {
                 let cookies: Vec<String> = store.get_request_values(&url_obj)
@@ -132,8 +148,6 @@ impl HttpClient {
         println!("[HTTP RESPONSE {}][{}] {}\n", status, current_trace_id, url);
         log::debug!("[HTTP] Response Status: {} (Trace: {})", status, current_trace_id);
 
-        
-        // Extract headers
         let mut resp_headers = std::collections::HashMap::new();
         for (k, v) in resp.headers() {
              if let Ok(val) = v.to_str() {
@@ -141,12 +155,6 @@ impl HttpClient {
              }
         }
 
-        // Also extract Set-Cookie specifically if multiple?
-        // reqwest headers iteration iterates over all values. 
-        // But HashMap overwrites. 
-        // For login, we might need all Set-Cookie values joined?
-        // NeteaseService expects "Set-Cookie" or "set-cookie".
-        // Let's manually collect Set-Cookie.
         let cookie_headers: Vec<String> = resp.headers()
             .get_all(SET_COOKIE)
             .iter()
@@ -154,21 +162,11 @@ impl HttpClient {
             .collect();
         
         if !cookie_headers.is_empty() {
-            resp_headers.insert("set-cookie".to_string(), cookie_headers.join(";;")); // custom separator? or just first?
-            // Frontend logic: .map(c => c.split(';')[0]).join('; ')
-            // NeteaseService.ts handles list if it's an array, or string.
-            // But we return HashMap<String, String>. We can't return array.
-            // Let's join with `;;` and frontend can split if needed, or just standard `; ` logic?
-            // Actually, `reqwest` cookie store handles the cookies for NEXT requests automatically.
-            // The frontend only needs it to save to localStorage. 
-            // Valid valid.
-            // Let's just join them.
              resp_headers.insert("set-cookie".to_string(), cookie_headers.join(", ")); 
         }
 
-                let text = resp.text().await.map_err(AppError::from)?;
+        let text = resp.text().await.map_err(AppError::from)?;
         
-        // Try parsing as JSON
         let body_json = match serde_json::from_str::<Value>(&text) {
             Ok(json) => json,
             Err(_) => {
@@ -180,7 +178,6 @@ impl HttpClient {
             }
         };
 
-        // Save cookies to file
         let _ = self.save_cookies();
 
         Ok(HttpResponse {
@@ -188,5 +185,48 @@ impl HttpClient {
             headers: resp_headers,
             body: body_json,
         })
+    }
+
+    pub async fn request_bytes(
+        &self,
+        url: &str,
+        referer: Option<String>,
+        cookie: Option<String>,
+        method: Option<String>,
+        body: Option<String>,
+        content_type: Option<String>,
+        trace_id: Option<String>,
+    ) -> AppResult<Vec<u8>> {
+        let current_trace_id = trace_id.unwrap_or_else(|| "no-trace".to_string());
+        let is_post = method.as_deref() == Some("POST");
+        
+        let mut headers_list = Vec::new();
+        if let Some(c) = cookie {
+            headers_list.push(("Cookie".to_string(), c));
+        }
+        if let Some(ct) = content_type {
+            headers_list.push(("Content-Type".to_string(), ct));
+        }
+
+        let headers = self.build_common_headers(headers_list, referer);
+
+        let mut req = if is_post {
+            self.internal.post(url)
+        } else {
+            self.internal.get(url)
+        };
+
+        if let Some(b) = body {
+            req = req.body(b);
+        }
+
+        println!("[HTTP BYTES REQUEST][{}] Trace: {}", url, current_trace_id);
+        let resp = req.headers(headers).send().await.map_err(AppError::from)?;
+
+        let status = resp.status().as_u16();
+        println!("[HTTP BYTES RESPONSE {}][{}] {}", status, current_trace_id, url);
+
+        let bytes = resp.bytes().await.map_err(AppError::from)?.to_vec();
+        Ok(bytes)
     }
 }

@@ -9,6 +9,7 @@ mod query;
 
 mod http;
 mod error;
+mod config;
 mod stream;
 mod proxy;
 
@@ -34,47 +35,9 @@ async fn request_bytes(
     content_type: Option<String>,
     trace_id: Option<String>,
 ) -> Result<Vec<u8>, String> {
-    let is_post = method.as_deref() == Some("POST");
-    let current_trace_id = trace_id.unwrap_or_else(|| "no-trace".to_string());
-    
-    let mut req = if is_post {
-        client.internal.post(&url)
-    } else {
-        client.internal.get(&url)
-    };
-
-    req = req.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-
-    if let Some(r) = referer {
-        req = req.header("Referer", r);
-    }
-
-    if let Some(c) = cookie {
-        req = req.header("Cookie", c);
-    }
-
-    if let Some(ct) = content_type {
-        req = req.header("Content-Type", ct);
-    }
-
-    if let Some(b) = body {
-        req = req.body(b);
-    }
-
-    println!("[HTTP BYTES REQUEST][{}] Trace: {}", url, current_trace_id);
-    let resp = req.send()
+    client.request_bytes(&url, referer, cookie, method, body, content_type, trace_id)
         .await
-        .map_err(|e| e.to_string())?;
-
-    let status = resp.status().as_u16();
-    println!("[HTTP BYTES RESPONSE {}][{}] {}", status, current_trace_id, url);
-
-    let bytes = resp.bytes()
-        .await
-        .map_err(|e| e.to_string())?
-        .to_vec();
-    
-    Ok(bytes)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -104,7 +67,7 @@ async fn request_api(
     trace_id: Option<String>,
 ) -> Result<HttpResponse, crate::error::AppError> {
     let current_trace_id = trace_id.clone().unwrap_or_else(|| "no-trace".to_string());
-    log::info!("[API] Request: {} (Trace: {})", api_name, current_trace_id);
+    log::info!("[API] Request: {} Provider: {} (Trace: {})", api_name, provider, current_trace_id);
     
     let options = Options {
         params,

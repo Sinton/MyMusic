@@ -1,5 +1,6 @@
 use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::error::AppError;
+use super::base::ApiProvider;
 use serde_json::{json, Value};
 use self::crypto::Crypto;
 use crate::Options;
@@ -61,7 +62,7 @@ pub(crate) fn prepare_request(
     let ua = if crypto == "linuxapi" {
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
     } else {
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+        crate::config::DEFAULT_USER_AGENT
     };
     headers.push(("user-agent".to_string(), ua.to_string()));
 
@@ -70,8 +71,8 @@ pub(crate) fn prepare_request(
     }
 
     if url.contains("music.163.com") {
-        headers.push(("referer".to_string(), "https://music.163.com".to_string()));
-        headers.push(("origin".to_string(), "https://music.163.com".to_string()));
+        headers.push(("referer".to_string(), crate::config::netease::REFERER.to_string()));
+        headers.push(("origin".to_string(), crate::config::netease::BASE_URL.to_string()));
         headers.push(("host".to_string(), "music.163.com".to_string()));
     }
 
@@ -132,45 +133,64 @@ pub(crate) async fn linuxapi(client: &HttpClient, url: &str, params: Value, opti
     request_handler(client, url, "linuxapi", params, &cookies, json!({}), options.trace_id.clone()).await
 }
 
-pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<HttpResponse> {
-    match api_name {
-        // Login
-        "login_qr_key" => login::qr_key(client, options).await,
-        "login_qr_create" => login::qr_create(client, options).await,
-        "login_qr_check" => login::qr_check(client, options).await,
-        "login_status" => login::status(client, options).await,
-        "login_refresh" => login::refresh(client, options).await,
-        "logout" => login::logout(client, options).await,
-        
-        // Song
-        "song_url" => song::url(client, options).await,
-        "song_url_v1" => song::url_v1(client, options).await,
-        "song_detail" => song::detail(client, options).await,
-        "lyric" => song::lyric(client, options).await,
-        
-        // Playlist
-        "user_playlist" => playlist::user(client, options).await,
-        "playlist_detail" => playlist::detail(client, options).await,
-        
-        // Search
-        "search" => search::get(client, options).await,
-        
-        // Discover
-        "personalized" => discover::personalized(client, options).await,
-        "album_newest" => discover::album_newest(client, options).await,
-        "album_detail" => discover::album_detail(client, options).await,
-        "toplist" => discover::toplist(client, options).await,
-        "recommend_resource" => discover::recommend_resource(client, options).await,
-        "recommend_songs" => discover::recommend_songs(client, options).await,
-        
-        // Artist
-        "artist_detail" => artist::detail(client, options).await,
-        "artist_songs" => artist::songs(client, options).await,
-        "artist_album" => artist::albums(client, options).await,
-        
-        // User
-        "user_account" => user::account(client, options).await,
-        
-                _ => Err(AppError::Api(format!("Unknown API: {}", api_name))),
+pub struct NeteaseProvider;
+
+#[async_trait::async_trait]
+impl super::base::ApiProvider for NeteaseProvider {
+    fn id(&self) -> &'static str {
+        "netease"
+    }
+
+    async fn dispatch(
+        &self,
+        client: &HttpClient,
+        api_name: &str,
+        options: Options,
+    ) -> HttpResult<HttpResponse> {
+        match api_name {
+            // Login
+            "login_qr_key" => login::qr_key(client, options).await,
+            "login_qr_create" => login::qr_create(client, options).await,
+            "login_qr_check" => login::qr_check(client, options).await,
+            "login_status" => login::status(client, options).await,
+            "login_refresh" => login::refresh(client, options).await,
+            "logout" => login::logout(client, options).await,
+            
+            // Song
+            "song_url" => song::url(client, options).await,
+            "song_url_v1" => song::url_v1(client, options).await,
+            "song_detail" => song::detail(client, options).await,
+            "lyric" => song::lyric(client, options).await,
+            
+            // Playlist
+            "user_playlist" => playlist::user(client, options).await,
+            "playlist_detail" => playlist::detail(client, options).await,
+            
+            // Search
+            "search" => search::get(client, options).await,
+            
+            // Discover
+            "personalized" => discover::personalized(client, options).await,
+            "album_newest" => discover::album_newest(client, options).await,
+            "album_detail" => discover::album_detail(client, options).await,
+            "toplist" => discover::toplist(client, options).await,
+            "recommend_resource" => discover::recommend_resource(client, options).await,
+            "recommend_songs" => discover::recommend_songs(client, options).await,
+            
+            // Artist
+            "artist_detail" => artist::detail(client, options).await,
+            "artist_songs" => artist::songs(client, options).await,
+            "artist_album" => artist::albums(client, options).await,
+            
+            // User
+            "user_account" => user::account(client, options).await,
+            
+            _ => Err(AppError::Api(format!("Unknown Netease API: {}", api_name))),
+        }
     }
 }
+
+pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<HttpResponse> {
+    NeteaseProvider.dispatch(client, api_name, options).await
+}
+
