@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { getPlatformI18nKey } from '../../lib/platformUtils';
 import VolumeControl from '../player/VolumeControl';
-import { MiniQueuePopup } from '../player-bar/MiniQueuePopup';
+import { MiniQueuePopup } from './MiniQueuePopup';
 
 interface PlayerBarProps {
     onExpand: () => void;
