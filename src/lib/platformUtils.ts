@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Centralized platform detection utilities.
  *
  * All platform-related string matching lives here so the rest of the codebase
  * can just call `detectPlatform(source)` instead of hand-writing includes checks.
  */
 
-export type Platform = 'netease' | 'qq' | 'soda' | 'local' | 'unknown';
+export type Platform = 'netease' | 'qq' | 'qishui' | 'local' | 'unknown';
 
 /** Detect which music platform a track source string refers to. */
 export function detectPlatform(source: string | undefined): Platform {
@@ -14,7 +14,7 @@ export function detectPlatform(source: string | undefined): Platform {
 
     if (lower.includes('netease') || lower.includes('网易')) return 'netease';
     if (lower.includes('qq')) return 'qq';
-    if (lower.includes('soda') || lower.includes('汽水')) return 'soda';
+    if (lower.includes('qishui') || lower.includes('汽水')) return 'qishui';
     if (lower.includes('local') || lower.includes('本地')) return 'local';
 
     return 'unknown';
@@ -34,7 +34,7 @@ export function getPlatformReferer(platform: Platform): string | undefined {
     switch (platform) {
         case 'netease': return 'https://music.163.com/';
         case 'qq': return 'https://y.qq.com/';
-        case 'soda': return 'https://music.douyin.com/';
+        case 'qishui': return 'https://music.douyin.com/';
         default: return undefined;
     }
 }

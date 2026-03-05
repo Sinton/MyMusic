@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { open as shellOpen } from '@tauri-apps/plugin-shell';
 import { NeteaseService } from '../services/NeteaseService';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
-import { QQMusicService } from '../services/QQMusicService';
+import { QQService } from '../services/QQService';
 import { useQQStore } from '../stores/useQQStore';
 import type { Platform } from '../types';
 import type { AuthStep, LoginMode } from '../components/auth/authTypes';
@@ -253,7 +253,7 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         setLoading(true);
         try {
             qqStore.setCookie(trimmed);
-            const user = await QQMusicService.getLoginStatus(trimmed);
+            const user = await QQService.getLoginStatus(trimmed);
 
             if (user) {
                 qqStore.setUser(user);

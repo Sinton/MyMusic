@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { QQMusicService } from '../../services/QQMusicService';
+﻿import { useQuery } from '@tanstack/react-query';
+import { QQService } from '../../services/QQService';
 import { qqToSong } from './converters';
 import { QQ_KEYS } from './queryKeys';
 import type { Album } from '../../types';
@@ -9,7 +9,7 @@ export function useQQAlbumDetail(albumMid: string, options = { enabled: true }) 
     const { data, isLoading, error } = useQuery({
         queryKey: QQ_KEYS.albumDetail(albumMid),
         queryFn: async () => {
-            const data = await QQMusicService.getAlbumDetail(albumMid);
+            const data = await QQService.getAlbumDetail(albumMid);
             console.log('[useQQAlbumDetail] Raw:', data);
 
             // music.musichallAlbum.AlbumInfoServer returns req.data

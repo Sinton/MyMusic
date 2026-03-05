@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { QQMusicService } from '../../services/QQMusicService';
+﻿import { useQuery } from '@tanstack/react-query';
+import { QQService } from '../../services/QQService';
 import { useQQStore } from '../../stores/useQQStore';
 import { qqToSong } from './converters';
 import { QQ_KEYS } from './queryKeys';
@@ -11,7 +11,7 @@ export function useQQSearch(query_str: string, options = { enabled: true }) {
     const query = useQuery({
         queryKey: QQ_KEYS.search(query_str),
         queryFn: async () => {
-            const res = await QQMusicService.searchMusic(query_str, cookie);
+            const res = await QQService.searchMusic(query_str, cookie);
             const data = res as any;
             const node = data.req?.data || data.req_0?.data || data.pc_search?.data || data.search?.data || data.query?.data || data.data || data;
 

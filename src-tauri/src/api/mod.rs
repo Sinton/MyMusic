@@ -4,8 +4,9 @@ use crate::error::AppError;
 use self::base::ApiProvider;
 
 pub mod base;
+pub mod models;
 pub mod netease;
-pub mod qqmusic;
+pub mod qq;
 pub mod qishui;
 
 pub async fn dispatch(
@@ -16,8 +17,22 @@ pub async fn dispatch(
 ) -> HttpResult<HttpResponse> {
     match provider {
         "netease" => netease::NeteaseProvider.dispatch(client, api_name, options).await,
-        "qqmusic" => qqmusic::QQMusicProvider.dispatch(client, api_name, options).await,
+        "qq" => qq::QQProvider.dispatch(client, api_name, options).await,
         "qishui" => qishui::QishuiProvider.dispatch(client, api_name, options).await,
+        _ => Err(AppError::Api(format!("Unknown provider: {}", provider))),
+    }
+}
+
+pub async fn dispatch_unified(
+    client: &HttpClient,
+    provider: &str,
+    api_name: &str,
+    options: Options,
+) -> HttpResult<models::UnifiedResponse> {
+    match provider {
+        "netease" => netease::NeteaseProvider.dispatch_unified(client, api_name, options).await,
+        "qq" => qq::QQProvider.dispatch_unified(client, api_name, options).await,
+        "qishui" => qishui::QishuiProvider.dispatch_unified(client, api_name, options).await,
         _ => Err(AppError::Api(format!("Unknown provider: {}", provider))),
     }
 }

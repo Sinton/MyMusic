@@ -5,6 +5,7 @@ use serde_json::{json, Value};
 use self::crypto::Crypto;
 use crate::Options;
 use std::collections::HashMap;
+use super::models::UnifiedResponse;
 
 pub mod login;
 pub mod song;
@@ -15,6 +16,7 @@ pub mod user;
 pub mod artist;
 pub mod dto;
 pub mod crypto;
+pub mod mapper;
 
 /// Parse a query-string-style params string into a HashMap
 pub(crate) fn parse_params(params: &str) -> HashMap<String, String> {
@@ -188,9 +190,46 @@ impl super::base::ApiProvider for NeteaseProvider {
             _ => Err(AppError::Api(format!("Unknown Netease API: {}", api_name))),
         }
     }
+
+    async fn dispatch_unified(
+        &self,
+        client: &HttpClient,
+        api_name: &str,
+        options: Options,
+    ) -> HttpResult<UnifiedResponse> {
+        match api_name {
+            "search" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_search_response(&resp.body);
+                Ok(UnifiedResponse::SearchBatch(unified))
+            }
+            "playlist_detail" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_playlist_detail(&resp.body);
+                Ok(UnifiedResponse::Playlist(unified))
+            }
+            "artist_detail" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_artist_detail(&resp.body);
+                Ok(UnifiedResponse::ArtistDetail(unified))
+            }
+            "album_detail" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_album_detail(&resp.body);
+                Ok(UnifiedResponse::AlbumDetail(unified))
+            }
+            _ => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                Ok(UnifiedResponse::Raw(resp.body))
+            }
+        }
+    }
 }
 
 pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<HttpResponse> {
     NeteaseProvider.dispatch(client, api_name, options).await
 }
 
+pub async fn dispatch_unified(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<UnifiedResponse> {
+    NeteaseProvider.dispatch_unified(client, api_name, options).await
+}

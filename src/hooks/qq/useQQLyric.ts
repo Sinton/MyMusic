@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { QQMusicService } from '../../services/QQMusicService';
+﻿import { useQuery } from '@tanstack/react-query';
+import { QQService } from '../../services/QQService';
 import { useQQStore } from '../../stores/useQQStore';
 import { parseLrc } from '../../lib/lrcParser';
 import { QQ_KEYS } from './queryKeys';
@@ -11,7 +11,7 @@ export function useQQLyric(songmid: string, options = { enabled: true }) {
     const { data, isLoading, error } = useQuery({
         queryKey: QQ_KEYS.lyric(songmid),
         queryFn: async () => {
-            const raw = await QQMusicService.getLyric(songmid, cookie);
+            const raw = await QQService.getLyric(songmid, cookie);
             const parsed = parseLrc(raw.lyric);
             return {
                 lyrics: parsed,

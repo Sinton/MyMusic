@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { HomeSearchBar } from './home/HomeSearchBar';
 import { SearchResultsView } from './home/SearchResultsView';
 import { PersonalizedSection } from './home/PersonalizedSection';
@@ -7,7 +7,7 @@ import { ToplistsSection } from './home/ToplistsSection';
 import QueryErrorBanner from '../components/common/QueryErrorBanner';
 import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/netease';
 import { useQQSearch } from '../hooks/qq';
-import { useSodaSearch } from '../hooks/soda';
+import { useQishuiSearch } from '../hooks/qishui';
 import type { Song } from '../types';
 
 interface HomeViewProps {
@@ -28,7 +28,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
         enabled: !!activeQuery.trim(),
     });
 
-    const { songs: sodaResults, isLoading: isSodaSearching } = useSodaSearch(activeQuery, {
+    const { songs: qishuiResults, isLoading: isQishuiSearching } = useQishuiSearch(activeQuery, {
         enabled: !!activeQuery.trim(),
     });
 
@@ -41,7 +41,7 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     // Feature 3: Toplists (Charts)
     const { playlists: toplists, isLoading: isToplistLoading, isError: isToplistError, refetch: refetchToplist } = useNeteaseToplist();
 
-    // Combine NetEase, QQ and Soda results, merging songs with same title and artist
+    // Combine NetEase, QQ and Qishui results, merging songs with same title and artist
     const mergedResults = useMemo(() => {
         if (!activeQuery.trim()) return [];
 
@@ -49,11 +49,11 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
 
         // Interleave the results so that rank #1 from all platforms appear at the top
         const combined: Song[] = [];
-        const maxLength = Math.max(neteaseResults.length, qqResults.length, sodaResults.length);
+        const maxLength = Math.max(neteaseResults.length, qqResults.length, qishuiResults.length);
         for (let i = 0; i < maxLength; i++) {
             if (i < neteaseResults.length) combined.push(neteaseResults[i]);
             if (i < qqResults.length) combined.push(qqResults[i]);
-            if (i < sodaResults.length) combined.push(sodaResults[i]);
+            if (i < qishuiResults.length) combined.push(qishuiResults[i]);
         }
 
         // Helper to normalize strings for comparison (ignore case, spaces, parens)
@@ -85,9 +85,9 @@ const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
         merged.sort((a, b) => b.sources.length - a.sources.length);
 
         return merged;
-    }, [activeQuery, neteaseResults, qqResults]);
+    }, [activeQuery, neteaseResults, qqResults, qishuiResults]);
 
-    const isSearching = (isNeteaseSearching || isQQSearching || isSodaSearching) && !!activeQuery.trim();
+    const isSearching = (isNeteaseSearching || isQQSearching || isQishuiSearching) && !!activeQuery.trim();
 
     return (
         <div className="space-y-8 animate-fade-in pb-12">

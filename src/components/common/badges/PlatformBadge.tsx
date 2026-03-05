@@ -1,8 +1,8 @@
-import React from 'react';
+﻿import React from 'react';
 import { Music } from 'lucide-react';
 import neteaseIcon from '../../../assets/netease_music.png';
 import qqIcon from '../../../assets/qq_music.png';
-import sodaIcon from '../../../assets/soda_music.png';
+import qishuiIcon from '../../../assets/qishui_music.png';
 import vibeLogo from '../../../assets/logo_bg.png';
 
 export interface PlatformBadgeProps {
@@ -21,10 +21,10 @@ const iconMap: Record<string, string> = {
     'NetEase': neteaseIcon,
     'qq': qqIcon,
     'QQ Music': qqIcon,
-    'soda': sodaIcon,
-    'Soda Music': sodaIcon,
-    'Soda': sodaIcon,
-    '汽水音乐': sodaIcon,
+    'qishui': qishuiIcon,
+    'Qishui Music': qishuiIcon,
+    'Qishui': qishuiIcon,
+    '汽水音乐': qishuiIcon,
     'local': vibeLogo,
     'Vibe': vibeLogo,
 };

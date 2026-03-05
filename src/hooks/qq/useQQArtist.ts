@@ -1,5 +1,5 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { QQMusicService } from '../../services/QQMusicService';
+﻿import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { QQService } from '../../services/QQService';
 import { qqToSong, qqToAlbum, qqToArtist } from './converters';
 import { QQ_KEYS } from './queryKeys';
 
@@ -8,7 +8,7 @@ export function useQQArtistDetail(artistMid: string, options = { enabled: true }
     const { data, isLoading, error } = useQuery({
         queryKey: QQ_KEYS.artistDetail(artistMid),
         queryFn: async () => {
-            const data = await QQMusicService.getArtistDetail(artistMid);
+            const data = await QQService.getArtistDetail(artistMid);
             console.log('[useQQArtistDetail] Raw:', data);
 
             const reqData = (data as any).req?.data || (data as any).header?.data || (data as any).data;
@@ -39,7 +39,7 @@ export function useQQArtistSongs(artistMid: string, options: { enabled?: boolean
     const { data, isLoading, error } = useQuery({
         queryKey: QQ_KEYS.artistSongs(artistMid, options.page || 0),
         queryFn: async () => {
-            const data = await QQMusicService.getArtistSongs(artistMid, options.page);
+            const data = await QQService.getArtistSongs(artistMid, options.page);
             console.log('[useQQArtistSongs] Raw:', data);
 
             const reqData = (data as any).req?.data || (data as any).data;
@@ -64,7 +64,7 @@ export function useQQArtistAlbums(artistMid: string, options?: { enabled?: boole
     const query = useInfiniteQuery({
         queryKey: QQ_KEYS.artistAlbums(artistMid),
         queryFn: async ({ pageParam = 0 }) => {
-            const data = await QQMusicService.getArtistAlbums(artistMid, pageParam);
+            const data = await QQService.getArtistAlbums(artistMid, pageParam);
             console.log('[useQQArtistAlbums] Raw:', data);
 
             const reqData = (data as any).req?.data || (data as any).data;

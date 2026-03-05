@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Music, X, Play, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { QishuiService } from '../../services/QishuiService';
@@ -118,14 +118,14 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
             const track: Track = {
                 id: info.trackId,
                 title: trackData.title,
-                platform: 'soda',
+                platform: 'qishui',
                 artist: trackData.artist,
                 artistId: trackData.artistId,
                 album: trackData.album || '',
                 albumId: trackData.albumId,
                 duration: durationStr,
                 currentTime: '0:00',
-                source: 'soda',           // Platform identifier for detectPlatform()
+                source: 'qishui',           // Platform identifier for detectPlatform()
                 sourceId: trackData.url,   // Actual audio URL used by useTrackUrlResolver
                 quality: trackData.qualityLabel === 'SQ' ? 'SQ' : 'HQ',
                 cover: trackData.cover,
@@ -168,8 +168,8 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
                 {/* Text */}
                 <div className="flex-1 min-w-0 pr-2 flex flex-col justify-center h-full py-2">
                     <div className="text-[10px] text-[var(--accent-color)] font-bold mb-0.5 flex items-center gap-1 uppercase tracking-wider">
-                        <PlatformBadge name="Soda Music" size="xs" className="scale-90" />
-                        {t('clipboard.detected', { platform: 'Soda Music' })}
+                        <PlatformBadge name="Qishui Music" size="xs" className="scale-90" />
+                        {t('clipboard.detected', { platform: 'Qishui Music' })}
                     </div>
 
                     <div className="h-[36px] flex flex-col justify-center">

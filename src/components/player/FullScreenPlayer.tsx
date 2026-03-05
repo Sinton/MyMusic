@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ChevronDown, MoreHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
@@ -6,7 +6,7 @@ import { usePlaylistStore } from '../../stores/usePlaylistStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useNeteaseLyric } from '../../hooks/netease';
 import { useQQLyric } from '../../hooks/qq';
-import { useSodaLyric } from '../../hooks/soda';
+import { useQishuiLyric } from '../../hooks/qishui';
 
 // Sub-components
 import VinylVisualizer from './VinylVisualizer';
@@ -62,13 +62,13 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack?.id, { enabled: platform === 'netease' && !!currentTrack?.id });
     const qqSongMid = String(currentTrack?.sourceId || currentTrack?.id);
     const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: platform === 'qq' && !!qqSongMid });
-    const sodaTrackId = String(currentTrack?.id);
-    const { lyrics: sodaLyrics } = useSodaLyric(sodaTrackId, { enabled: platform === 'soda' && !!sodaTrackId });
+    const qishuiTrackId = String(currentTrack?.id);
+    const { lyrics: qishuiLyrics } = useQishuiLyric(qishuiTrackId, { enabled: platform === 'qishui' && !!qishuiTrackId });
 
     // Use platform-specific lyrics
     const activeLyrics = platform === 'netease' ? neteaseLyrics
         : platform === 'qq' ? qqLyrics
-            : platform === 'soda' ? sodaLyrics
+            : platform === 'qishui' ? qishuiLyrics
                 : [];
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {

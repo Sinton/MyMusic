@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { NeteaseService } from '../services/NeteaseService';
 import { detectPlatform, getPlatformReferer } from '../lib/platformUtils';
-import { QQMusicService } from '../services/QQMusicService';
+import { QQService } from '../services/QQService';
 import { useQQStore } from '../stores/useQQStore';
 import { remoteLog, parseDuration } from '../lib/audioUtils';
 
@@ -47,7 +47,7 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
             blobUrlRef.current = null;
         }
 
-        if (platform !== 'netease' && platform !== 'qq' && platform !== 'soda') {
+        if (platform !== 'netease' && platform !== 'qq' && platform !== 'qishui') {
             return;
         }
 
@@ -81,7 +81,7 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                     remoteLog(`[UrlResolver] QQ Music: Resolving URL for songmid=${songmid}, cookie=${qqCookie ? 'present' : 'empty'}`);
                     try {
                         // Call getSongUrl and log everything
-                        const urls = await QQMusicService.getSongUrl(songmid, qqCookie);
+                        const urls = await QQService.getSongUrl(songmid, qqCookie);
                         remoteLog(`[UrlResolver] QQ Music: Got ${urls.length} URLs: ${JSON.stringify(urls).substring(0, 300)}`);
                         if (urls.length > 0) {
                             url = urls[0];
@@ -89,15 +89,15 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                     } catch (qqErr: any) {
                         remoteLog(`[UrlResolver] QQ Music getSongUrl error: ${qqErr?.message || qqErr}`);
                     }
-                } else if (platform === 'soda') {
-                    // Qishui/Soda: audio URL is already resolved and stored in sourceId
+                } else if (platform === 'qishui') {
+                    // Qishui/Qishui: audio URL is already resolved and stored in sourceId
                     const directUrl = String(currentTrack.sourceId || '');
                     if (directUrl && directUrl.startsWith('http')) {
                         url = directUrl;
                         durationFromApi = parseDuration(currentTrack.duration);
-                        remoteLog(`[UrlResolver] Soda: Using pre-resolved URL (len=${url.length})`);
+                        remoteLog(`[UrlResolver] Qishui: Using pre-resolved URL (len=${url.length})`);
                     } else {
-                        remoteLog('[UrlResolver] Soda: No audio URL in sourceId');
+                        remoteLog('[UrlResolver] Qishui: No audio URL in sourceId');
                     }
                 }
 

@@ -1,4 +1,4 @@
-use crate::http::{HttpClient, HttpResult, HttpResponse};
+﻿use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::Options;
 use serde_json::json;
 use crate::api::netease::parse_params;
@@ -7,7 +7,7 @@ use super::musicu_request;
 pub async fn detail(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let params = parse_params(&options.params);
     let mid = params.get("id").or(params.get("mid")).cloned().unwrap_or_default();
-    println!("[QQMusic] artist_detail mid: {}", mid);
+    println!("[qq] artist_detail mid: {}", mid);
 
     let payload = json!({
         "comm": { "ct": "19", "cv": "1859", "uin": "0" },
@@ -24,7 +24,7 @@ pub async fn detail(client: &HttpClient, options: Options) -> HttpResult<HttpRes
 pub async fn songs(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let params = parse_params(&options.params);
     let mid = params.get("id").or(params.get("mid")).cloned().unwrap_or_default();
-    println!("[QQMusic] artist_songs mid: {}", mid);
+    println!("[qq] artist_songs mid: {}", mid);
     let begin = params.get("page").and_then(|p| p.parse::<i32>().ok()).unwrap_or(0) * 50;
     
     let payload = json!({
@@ -42,7 +42,7 @@ pub async fn songs(client: &HttpClient, options: Options) -> HttpResult<HttpResp
 pub async fn albums(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let params = parse_params(&options.params);
     let mid = params.get("id").or(params.get("mid")).cloned().unwrap_or_default();
-    println!("[QQMusic] artist_albums mid: {}", mid);
+    println!("[qq] artist_albums mid: {}", mid);
     let begin = params.get("begin").and_then(|p| p.parse::<i32>().ok()).unwrap_or(0);
     
     let payload = json!({

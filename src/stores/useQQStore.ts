@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { QQUser } from '../types/api/qqmusic';
+import type { QQUser } from '../types/api/qq';
 
 interface QQStore {
     cookie: string;

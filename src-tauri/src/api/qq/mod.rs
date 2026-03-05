@@ -1,7 +1,8 @@
-use crate::http::{HttpClient, HttpResult, HttpResponse};
+﻿use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::error::AppError;
 use super::base::ApiProvider;
 use serde_json::{json, Value};
+use crate::api::models::UnifiedResponse;
 use crate::Options;
 
 pub mod artist;
@@ -10,6 +11,7 @@ pub mod search;
 pub mod song;
 pub mod playlist;
 pub mod lyric;
+pub mod mapper;
 
 pub(crate) async fn musicu_request(
     client: &HttpClient,
@@ -17,12 +19,12 @@ pub(crate) async fn musicu_request(
     cookie: &str,
     trace_id: Option<String>,
 ) -> HttpResult<HttpResponse> {
-    let url = crate::config::qqmusic::MUSICU_URL;
+    let url = crate::config::qq::MUSICU_URL;
     let body = payload.to_string();
 
     let mut headers = Vec::new();
     headers.push(("User-Agent".to_string(), crate::config::DEFAULT_USER_AGENT.to_string()));
-    headers.push(("Referer".to_string(), crate::config::qqmusic::REFERER.to_string()));
+    headers.push(("Referer".to_string(), crate::config::qq::REFERER.to_string()));
     headers.push(("Content-Type".to_string(), "application/json".to_string()));
 
     if !cookie.is_empty() {
@@ -32,12 +34,12 @@ pub(crate) async fn musicu_request(
     client.request("POST", url, headers, body, trace_id).await
 }
 
-pub struct QQMusicProvider;
+pub struct QQProvider;
 
 #[async_trait::async_trait]
-impl super::base::ApiProvider for QQMusicProvider {
+impl super::base::ApiProvider for QQProvider {
     fn id(&self) -> &'static str {
-        "qqmusic"
+        "qq"
     }
 
     async fn dispatch(
@@ -55,7 +57,36 @@ impl super::base::ApiProvider for QQMusicProvider {
             "artist_songs" => artist::songs(client, options).await,
             "artist_albums" => artist::albums(client, options).await,
             "album_detail" => album::detail(client, options).await,
-            _ => Err(AppError::Api(format!("Unknown QQMusic API: {}", api_name))),
+            _ => Err(AppError::Api(format!("Unknown QQ API: {}", api_name))),
+        }
+    }
+
+    async fn dispatch_unified(
+        &self,
+        client: &HttpClient,
+        api_name: &str,
+        options: Options,
+    ) -> HttpResult<UnifiedResponse> {
+        match api_name {
+            "search" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_search_response(&resp.body);
+                Ok(UnifiedResponse::SearchBatch(unified))
+            }
+            "artist_detail" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_artist_detail(&resp.body);
+                Ok(UnifiedResponse::ArtistDetail(unified))
+            }
+            "album_detail" => {
+                 let resp = self.dispatch(client, api_name, options).await?;
+                 let unified = mapper::map_album_detail(&resp.body);
+                 Ok(UnifiedResponse::AlbumDetail(unified))
+            }
+            _ => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                Ok(UnifiedResponse::Raw(resp.body))
+            }
         }
     }
 }
@@ -65,5 +96,5 @@ pub async fn dispatch(
     api_name: &str,
     options: Options,
 ) -> HttpResult<HttpResponse> {
-    QQMusicProvider.dispatch(client, api_name, options).await
+    QQProvider.dispatch(client, api_name, options).await
 }

@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { QQMusicService } from '../../services/QQMusicService';
+﻿import { useQuery } from '@tanstack/react-query';
+import { QQService } from '../../services/QQService';
 import { useQQStore } from '../../stores/useQQStore';
 import { qqToPlaylist } from './converters';
 import { QQ_KEYS } from './queryKeys';
@@ -11,7 +11,7 @@ export function useQQUserPlaylists(options = { enabled: true }) {
     const query = useQuery({
         queryKey: QQ_KEYS.userPlaylists(cookie),
         queryFn: async () => {
-            const res = await QQMusicService.getUserPlaylists(cookie);
+            const res = await QQService.getUserPlaylists(cookie);
             console.log('[useQQUserPlaylists] res:', res);
             const list = (res as any).req?.data?.v_diss || (res as any).data?.v_diss || (res as any).data?.list || [];
             return list.map(qqToPlaylist);

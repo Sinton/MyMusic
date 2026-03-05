@@ -1,7 +1,7 @@
-import { invoke } from '@tauri-apps/api/core';
-import type { QQSearchResponse, QQMusicuResponse, QQUser } from '../types/api/qqmusic';
+﻿import { invoke } from '@tauri-apps/api/core';
+import type { QQSearchResponse, QQuResponse, QQUser } from '../types/api/qq';
 
-export const QQMusicService = {
+export const QQService = {
     /**
      * Call QQ Music API via Rust backend provider
      */
@@ -11,17 +11,17 @@ export const QQMusicService = {
             .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
             .join('&');
 
-        console.log(`[QQMusicService][${traceId}] Requesting API: ${apiName}`, params);
+        console.log(`[QQService][${traceId}] Requesting API: ${apiName}`, params);
 
         const res = await invoke<any>('request_api', {
-            provider: 'qqmusic',
+            provider: 'qq',
             apiName,
             params: paramString,
             cookie,
             traceId
         });
 
-        // invoke('log_info', { message: `[QQMusicService][${traceId}] API: ${apiName} Response: ${JSON.stringify(res.body).slice(0, 100)}...` });
+        // invoke('log_info', { message: `[QQService][${traceId}] API: ${apiName} Response: ${JSON.stringify(res.body).slice(0, 100)}...` });
         return res.body as T;
     },
 
@@ -30,7 +30,7 @@ export const QQMusicService = {
      */
     _getCookieVals(cookie: string): { guid: string, uin: string } {
         const guidMatch = cookie.match(/(?:^|;\s*)(?:pgv_pvid|guid)=([^;]+)/);
-        const uinMatch = cookie.match(/(?:^|;\s*)(?:qqmusic_uin|wxuin|pt2gguin|uin)=o?([^;]+)/);
+        const uinMatch = cookie.match(/(?:^|;\s*)(?:qq_uin|wxuin|pt2gguin|uin)=o?([^;]+)/);
 
         let guid = guidMatch ? guidMatch[1] : '1000000000';
         let uin = uinMatch ? uinMatch[1] : '0';
@@ -54,7 +54,7 @@ export const QQMusicService = {
      * Get real playable mp3/m4a URLs via vkey
      */
     async getSongUrl(songmid: string, cookie: string = ''): Promise<string[]> {
-        const data = await this._requestApi<QQMusicuResponse>('song_url', { id: songmid }, cookie);
+        const data = await this._requestApi<QQuResponse>('song_url', { id: songmid }, cookie);
 
         if (!data?.req_1?.data?.midurlinfo || data.req_1.data.midurlinfo.length === 0) {
             return [];
@@ -64,8 +64,8 @@ export const QQMusicService = {
         if (!validInfo) return [];
 
         const sips = data.req_1.data.sip || [
-            "http://ws.stream.qqmusic.qq.com/",
-            "http://dl.stream.qqmusic.qq.com/"
+            "http://ws.stream.qq.qq.com/",
+            "http://dl.stream.qq.qq.com/"
         ];
 
         return sips.map(sip => `${sip}${validInfo.purl}`);

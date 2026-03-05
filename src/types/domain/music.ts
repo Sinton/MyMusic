@@ -1,6 +1,6 @@
-// ================== SHARED ==================
+﻿// ================== SHARED ==================
 export type RepeatMode = 'off' | 'all' | 'one';
-export type MusicPlatform = 'netease' | 'qq' | 'soda' | 'local' | 'unknown';
+export type MusicPlatform = 'netease' | 'qq' | 'qishui' | 'local' | 'unknown';
 
 export interface AudioSource {
     platform: MusicPlatform;

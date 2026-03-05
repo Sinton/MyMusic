@@ -1,18 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { QishuiService } from '../../services/QishuiService';
-import { sodaToSong } from './converters';
-import { SODA_KEYS } from './queryKeys';
-import type { Playlist, Song } from '../../types';
+import { qishuiToSong } from './converters';
+import { QISHUI_KEYS } from './queryKeys';
+import type { Playlist } from '../../types';
 
 /**
- * Hook to fetch playlist detail from Soda (Qishui).
- * In Qishui, this often means resolving a share link that contains multiple tracks 
+ * Hook to fetch playlist detail from qishui (qishui).
+ * In qishui, this often means resolving a share link that contains multiple tracks 
  * or a single track being treated as a "playlist" of one.
  */
-export const useSodaPlaylistDetail = (id: string, options?: { enabled?: boolean }) => {
+export const useQishuiPlaylistDetail = (id: string, options?: { enabled?: boolean }) => {
     const query = useQuery({
-        // We use the same 'all' soda key but split by playlist type
-        queryKey: [...SODA_KEYS.all, 'playlist', 'detail', id],
+        // We use the same 'all' qishui key but split by playlist type
+        queryKey: [...QISHUI_KEYS.all, 'playlist', 'detail', id],
         queryFn: async () => {
             if (!id) return null;
 
@@ -22,18 +22,19 @@ export const useSodaPlaylistDetail = (id: string, options?: { enabled?: boolean 
             const data = await QishuiService.getTrackDetail(id);
             if (!data?.data) return null;
 
-            const song = sodaToSong(
+            const song = qishuiToSong(
                 data.data,
-                data.data.artists?.[0]?.name || 'Unknown',
-                data.data.artists?.[0]?.artistId || ''
+                data.data.artist || 'Unknown',
+                data.data.artistId || ''
             );
 
             const playlist: Playlist = {
-                id: `soda:${id}`,
+                id: `qishui:${id}`,
                 title: song.title,
-                platform: 'soda',
+                platform: 'qishui',
                 cover: song.cover,
-                author: song.artist,
+                creator: song.artist,
+                count: 1,
                 songCount: 1,
                 songs: [song]
             };

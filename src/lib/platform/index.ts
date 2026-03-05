@@ -1,14 +1,14 @@
-import { MusicPlatform } from '../../types';
+﻿import { MusicPlatform } from '../../types';
 import { IPlatformAdapter } from './base';
 import { NeteaseAdapter } from './netease';
 import { QQAdapter } from './qq';
-import { SodaAdapter } from './soda';
+import { QishuiAdapter } from './qishui';
 import { detectPlatform } from '../platformUtils';
 
 const adapters: Record<MusicPlatform, IPlatformAdapter> = {
     netease: new NeteaseAdapter(),
     qq: new QQAdapter(),
-    soda: new SodaAdapter(),
+    qishui: new QishuiAdapter(),
     local: {
         id: 'local',
         name: '本地音乐',

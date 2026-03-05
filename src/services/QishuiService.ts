@@ -3,7 +3,7 @@ import type { QishuiTrackDetail, QishuiLyricResponse, QishuiValidateResponse, Qi
 
 /**
  * Service layer for Qishui Music (汽水音乐) — Phase 1: SSR page parsing.
- * Follows the same pattern as QQMusicService.ts.
+ * Follows the same pattern as QQService.ts.
  */
 export const QishuiService = {
     /**

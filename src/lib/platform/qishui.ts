@@ -1,10 +1,10 @@
 import { BasePlatformAdapter } from './base';
 import { MusicPlatform } from '../../types';
 
-export class SodaAdapter extends BasePlatformAdapter {
-    readonly id: MusicPlatform = 'soda';
+export class QishuiAdapter extends BasePlatformAdapter {
+    readonly id: MusicPlatform = 'qishui';
     readonly name = '汽水音乐';
-    readonly baseUrl = 'https://music.douyin.com/';
+    readonly baseUrl = 'https://qishui.douyin.com/';
 
     getReferer(): string | undefined {
         return this.baseUrl;

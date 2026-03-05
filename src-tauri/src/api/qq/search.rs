@@ -1,4 +1,4 @@
-use crate::http::{HttpClient, HttpResult, HttpResponse};
+﻿use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::Options;
 use serde_json::json;
 use crate::api::netease::parse_params;
@@ -16,7 +16,7 @@ pub async fn get(client: &HttpClient, options: Options) -> HttpResult<HttpRespon
         .map(|(_, v)| v.into_owned())
         .unwrap_or(keyword_raw.clone());
 
-    println!("[QQMusic] Search keyword: raw='{}' decoded='{}'", keyword_raw, keyword);
+    println!("[QQ] Search keyword: raw='{}' decoded='{}'", keyword_raw, keyword);
 
     let payload = json!({
         "comm": { "ct": "19", "cv": "1859", "uin": "0" },

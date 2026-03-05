@@ -9,7 +9,7 @@ import { ArtistAboutTab } from './artist/ArtistAboutTab';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/netease';
 import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/qq';
-import { useSodaArtistDetail, useSodaArtistSongs, useSodaArtistAlbums } from '../hooks/soda';
+import { useQishuiArtistDetail, useQishuiArtistSongs, useQishuiArtistAlbums } from '../hooks/qishui';
 import { songToTrack } from '../lib/trackUtils';
 import type { Artist, Track, Album, MusicPlatform, Song } from '../types';
 
@@ -31,8 +31,8 @@ const ArtistDetailView: React.FC<ArtistDetailViewProps> = (props) => {
     if (platform === 'qq') {
         return <QQArtistContainer {...props} artistId={artistId} artistMid={String(artistId)} />;
     }
-    if (platform === 'soda') {
-        return <SodaArtistContainer {...props} artistId={artistId} />;
+    if (platform === 'qishui') {
+        return <QishuiArtistContainer {...props} artistId={artistId} />;
     }
 
     return <NeteaseArtistContainer {...props} artistId={artistId} />;
@@ -76,11 +76,11 @@ const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }>
     );
 };
 
-const SodaArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
+const QishuiArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
     const artistId = String(props.artistId || props.id || '');
-    const { artist: metadata, isLoading: isDetailLoading } = useSodaArtistDetail(artistId, { enabled: !!artistId });
-    const { songs, isLoading: isSongsLoading } = useSodaArtistSongs(artistId, { enabled: !!artistId });
-    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useSodaArtistAlbums(artistId, { enabled: !!artistId });
+    const { artist: metadata, isLoading: isDetailLoading } = useQishuiArtistDetail(artistId, { enabled: !!artistId });
+    const { songs, isLoading: isSongsLoading } = useQishuiArtistSongs(artistId, { enabled: !!artistId });
+    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useQishuiArtistAlbums(artistId, { enabled: !!artistId });
 
     return (
         <ArtistDetailContent

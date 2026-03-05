@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef } from 'react';
+﻿import React, { Suspense, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
@@ -13,7 +13,7 @@ import AlbumDetailView from '../views/AlbumDetailView';
 import ArtistDetailView from '../views/ArtistDetailView';
 import { useNeteaseAlbumDetail } from '../hooks/netease';
 import { useQQAlbumDetail } from '../hooks/qq';
-import { useSodaAlbumDetail } from '../hooks/soda';
+import { useQishuiAlbumDetail } from '../hooks/qishui';
 import { parseRoute } from '../lib/routeUtils';
 import type { Album } from '../types';
 
@@ -79,14 +79,14 @@ const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigat
 /**
  * Thin wrapper: fetches Qishui album data, then delegates.
  */
-const SodaAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
+const QishuiAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
     const { t } = useTranslation();
-    const { album, isLoading } = useSodaAlbumDetail(albumId);
+    const { album, isLoading } = useQishuiAlbumDetail(albumId);
 
     const albumObj: Album = album ?? {
         id: albumId,
         title: t('common.loading'),
-        platform: 'soda',
+        platform: 'qishui',
         artist: '',
         year: new Date().getFullYear(),
         cover: '',
@@ -162,9 +162,9 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                         />
                     );
                 }
-                if (route.platform === 'soda') {
+                if (route.platform === 'qishui') {
                     return (
-                        <SodaAlbumWrapper
+                        <QishuiAlbumWrapper
                             key={activeView}
                             albumId={String(route.id)}
                             onBack={() => onNavigate('Home')}

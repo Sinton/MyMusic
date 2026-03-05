@@ -1,4 +1,4 @@
-{
+﻿{
     "common": {
         "loading": "Loading...",
         "error": {
@@ -265,7 +265,7 @@
     "platforms": {
         "netease": "NetEase Cloud",
         "qq": "QQ Music",
-        "soda": "Soda Music"
+        "qishui": "Qishui Music"
     },
     "fullPlayer": {
         "nowPlaying": "Now Playing",

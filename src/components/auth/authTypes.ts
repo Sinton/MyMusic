@@ -8,7 +8,7 @@ export type LoginMode = 'qr' | 'phone' | 'cookie';
 export const PLATFORM_COLORS: Record<string, string> = {
     'NetEase Cloud': '#e60026',
     'QQ Music': '#31c27c',
-    'Soda Music': '#ffde00',
+    'Qishui Music': '#ffde00',
 };
 
 export interface LoginFormProps {

@@ -1,4 +1,4 @@
-// Types for QQ Music API responses (2025.9 API format)
+﻿// Types for QQ Music API responses (2025.9 API format)
 
 export interface QQUser {
     uin: number | string;
@@ -58,7 +58,7 @@ export interface QQAuthSong {
     pay?: { payplay: number; paydownload: number };
 }
 
-export interface QQMusicuResponse {
+export interface QQuResponse {
     code: number;
     req_1?: {
         code: number;

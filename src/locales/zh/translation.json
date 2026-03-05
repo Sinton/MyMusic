@@ -1,4 +1,4 @@
-{
+﻿{
     "common": {
         "loading": "加载中...",
         "error": {
@@ -265,7 +265,7 @@
     "platforms": {
         "netease": "网易云音乐",
         "qq": "QQ音乐",
-        "soda": "汽水音乐"
+        "qishui": "汽水音乐"
     },
     "fullPlayer": {
         "nowPlaying": "正在播放",

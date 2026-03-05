@@ -1,4 +1,4 @@
-import type { Artist, Album, Song } from '../../types';
+﻿import type { Artist, Album, Song } from '../../types';
 
 export const formatDuration = (ms: number): string => {
     if (!ms) return '0:00';
@@ -8,12 +8,12 @@ export const formatDuration = (ms: number): string => {
     return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-export const sodaToArtist = (qishuiArtist: any): Artist | null => {
+export const qishuiToArtist = (qishuiArtist: any): Artist | null => {
     if (!qishuiArtist?.data) return null;
     return {
         id: qishuiArtist.data.artistId,
         name: qishuiArtist.data.name,
-        platform: 'soda',
+        platform: 'qishui',
         avatar: qishuiArtist.data.avatar,
         bio: qishuiArtist.data.profile?.intro || qishuiArtist.data.profile?.content || qishuiArtist.data.profile?.brief || qishuiArtist.data.profile?.content_brief || '',
         genres: [],
@@ -24,19 +24,19 @@ export const sodaToArtist = (qishuiArtist: any): Artist | null => {
     };
 };
 
-export const sodaToSong = (item: any, artistName: string, artistId: string, customAlbumName?: string, customAlbumId?: string, customCover?: string): Song => {
+export const qishuiToSong = (item: any, artistName: string, artistId: string, customAlbumName?: string, customAlbumId?: string, customCover?: string): Song => {
     return {
         id: String(item.id),
         title: item.name,
-        platform: 'soda',
+        platform: 'qishui',
         artist: artistName || 'Unknown',
         artistId,
         album: customAlbumName || item.album?.name || '',
         albumId: String(customAlbumId || item.album?.id || ''),
         duration: formatDuration(item.duration_ms),
-        bestSource: 'soda',
+        bestSource: 'qishui',
         sources: [{
-            platform: 'soda',
+            platform: 'qishui',
             quality: 'hq',
             qualityLabel: 'HQ',
             vip: false,
@@ -47,11 +47,11 @@ export const sodaToSong = (item: any, artistName: string, artistId: string, cust
     };
 };
 
-export const sodaToAlbumListItem = (item: any, artistName: string): Album => {
+export const qishuiToAlbumListItem = (item: any, artistName: string): Album => {
     return {
         id: String(item.id),
         title: item.name,
-        platform: 'soda',
+        platform: 'qishui',
         artist: artistName || 'Unknown',
         cover: item.cover || '',
         year: new Date(item.release_date * 1000).getFullYear(),
@@ -59,7 +59,7 @@ export const sodaToAlbumListItem = (item: any, artistName: string): Album => {
     };
 };
 
-export const sodaToAlbumDetail = (qishuiAlbum: any): Album | null => {
+export const qishuiToAlbumDetail = (qishuiAlbum: any): Album | null => {
     if (!qishuiAlbum?.data) return null;
     const artistName = qishuiAlbum.data.artists?.[0]?.name || 'Unknown';
     const albumName = qishuiAlbum.data.name;
@@ -69,11 +69,11 @@ export const sodaToAlbumDetail = (qishuiAlbum: any): Album | null => {
     return {
         id: albumId,
         title: albumName,
-        platform: 'soda',
+        platform: 'qishui',
         artist: artistName,
         cover: cover,
         year: qishuiAlbum.data.releaseDate ? new Date(qishuiAlbum.data.releaseDate * 1000).getFullYear() : new Date().getFullYear(),
         count: qishuiAlbum.data.countTracks || qishuiAlbum.data.trackList?.length || 0,
-        songs: qishuiAlbum.data.trackList?.map((item: any) => sodaToSong(item, artistName, '', albumName, albumId, cover)) || [],
+        songs: qishuiAlbum.data.trackList?.map((item: any) => qishuiToSong(item, artistName, '', albumName, albumId, cover)) || [],
     };
 };

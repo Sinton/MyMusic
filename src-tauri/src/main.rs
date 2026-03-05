@@ -88,6 +88,36 @@ async fn request_api(
 }
 
 #[tauri::command]
+async fn request_api_unified(
+    client: State<'_, HttpClient>,
+    provider: String,
+    api_name: String,
+    params: String,
+    cookie: String,
+    trace_id: Option<String>,
+) -> Result<api::models::UnifiedResponse, crate::error::AppError> {
+    let current_trace_id = trace_id.clone().unwrap_or_else(|| "no-trace".to_string());
+    log::info!("[API-Unified] Request: {} Provider: {} (Trace: {})", api_name, provider, current_trace_id);
+    
+    let options = Options {
+        params,
+        cookie,
+        trace_id: trace_id.clone(),
+    };
+    
+    match api::dispatch_unified(&client, &provider, &api_name, options).await {
+        Ok(res) => {
+            log::info!("[API-Unified] Success: {} (Trace: {})", api_name, current_trace_id);
+            Ok(res)
+        },
+        Err(e) => {
+            log::error!("[API-Unified] Failed: {} Error: {} (Trace: {})", api_name, e, current_trace_id);
+            Err(e)
+        }
+    }
+}
+
+#[tauri::command]
 async fn get_proxy_port(proxy_port: tauri::State<'_, u16>) -> Result<u16, ()> {
     Ok(*proxy_port)
 }
@@ -128,7 +158,7 @@ fn main() {
             println!("[Main] Registering musiclocal:// protocol handler (Temporarily disabled)");
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![request_api, request_bytes, log_info, get_proxy_port])
+        .invoke_handler(tauri::generate_handler![request_api, request_api_unified, request_bytes, log_info, get_proxy_port])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
