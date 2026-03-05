@@ -5,8 +5,8 @@ import { PersonalizedSection } from './home/PersonalizedSection';
 import { NewestAlbumsSection } from './home/NewestAlbumsSection';
 import { ToplistsSection } from './home/ToplistsSection';
 import QueryErrorBanner from '../components/common/QueryErrorBanner';
-import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/useNeteaseData';
-import { useQQSearch } from '../hooks/useQQData';
+import { useNeteaseSearch, useNeteasePersonalized, useNeteaseNewestAlbums, useNeteaseToplist } from '../hooks/netease';
+import { useQQSearch } from '../hooks/qq';
 import type { Song } from '../types';
 
 interface HomeViewProps {

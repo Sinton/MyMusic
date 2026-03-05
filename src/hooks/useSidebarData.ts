@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import { useNeteaseStore } from '../stores/useNeteaseStore';
 import { useQQStore } from '../stores/useQQStore';
-import { useNeteaseUserPlaylists } from './useNeteaseData';
-import { useQQUserPlaylists } from './useQQData';
+import { useNeteaseUserPlaylists } from './netease';
+import { useQQUserPlaylists } from './qq';
 import type { Playlist } from '../types';
 
 export interface SidebarSection {

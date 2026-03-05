@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlaylistShell } from '../components';
 import { PlatformBadge } from '../components';
-import { useNeteasePlaylistDetail } from '../hooks/useNeteaseData';
+import { useNeteasePlaylistDetail } from '../hooks/netease';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { songToTrack } from '../lib/trackUtils';
 

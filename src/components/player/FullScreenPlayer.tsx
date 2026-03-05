@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { usePlaylistStore } from '../../stores/usePlaylistStore';
 import { useUIStore } from '../../stores/useUIStore';
-import { useNeteaseLyric } from '../../hooks/useNeteaseData';
-import { useQQLyric } from '../../hooks/useQQData';
-import { useSodaLyric } from '../../hooks/useSodaData';
+import { useNeteaseLyric } from '../../hooks/netease';
+import { useQQLyric } from '../../hooks/qq';
+import { useSodaLyric } from '../../hooks/soda';
 
 // Sub-components
 import VinylVisualizer from './VinylVisualizer';

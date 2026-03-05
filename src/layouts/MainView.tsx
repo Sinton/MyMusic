@@ -11,9 +11,9 @@ import PlaylistDetailView from '../views/PlaylistDetailView';
 import NeteasePlaylistDetailView from '../views/NeteasePlaylistDetailView';
 import AlbumDetailView from '../views/AlbumDetailView';
 import ArtistDetailView from '../views/ArtistDetailView';
-import { useNeteaseAlbumDetail } from '../hooks/useNeteaseData';
-import { useQQAlbumDetail } from '../hooks/useQQData';
-import { useQishuiAlbumDetail } from '../hooks/useQishuiData';
+import { useNeteaseAlbumDetail } from '../hooks/netease';
+import { useQQAlbumDetail } from '../hooks/qq';
+import { useSodaAlbumDetail } from '../hooks/soda';
 import { parseRoute } from '../lib/routeUtils';
 import type { Album } from '../types';
 
@@ -81,7 +81,7 @@ const QQAlbumWrapper: React.FC<{ albumMid: string; onBack: () => void; onNavigat
  */
 const SodaAlbumWrapper: React.FC<{ albumId: string; onBack: () => void; onNavigate: (v: string) => void }> = ({ albumId, onBack, onNavigate }) => {
     const { t } = useTranslation();
-    const { album, isLoading } = useQishuiAlbumDetail(albumId);
+    const { album, isLoading } = useSodaAlbumDetail(albumId);
 
     const albumObj: Album = album ?? {
         id: albumId,

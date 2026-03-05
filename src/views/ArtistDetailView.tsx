@@ -5,9 +5,9 @@ import { SongRow, AlbumCard } from '../components';
 import { Skeleton, ListSkeleton } from '../components/common/Skeleton';
 import { ImmersiveHeader } from '../components/common/ImmersiveHeader';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/useNeteaseData';
-import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/useQQData';
-import { useQishuiArtistDetail, useQishuiArtistSongs, useQishuiArtistAlbums } from '../hooks/useQishuiData';
+import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/netease';
+import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/qq';
+import { useSodaArtistDetail, useSodaArtistSongs, useSodaArtistAlbums } from '../hooks/soda';
 import { songToTrack } from '../lib/trackUtils';
 import { getPlatformAdapter } from '../lib/platform';
 import type { Artist, Track, Album, MusicPlatform, Song } from '../types';
@@ -77,9 +77,9 @@ const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }>
 
 const SodaArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
     const artistId = String(props.artistId || props.id || '');
-    const { artist: metadata, isLoading: isDetailLoading } = useQishuiArtistDetail(artistId, { enabled: !!artistId });
-    const { songs, isLoading: isSongsLoading } = useQishuiArtistSongs(artistId, { enabled: !!artistId });
-    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useQishuiArtistAlbums(artistId, { enabled: !!artistId });
+    const { artist: metadata, isLoading: isDetailLoading } = useSodaArtistDetail(artistId, { enabled: !!artistId });
+    const { songs, isLoading: isSongsLoading } = useSodaArtistSongs(artistId, { enabled: !!artistId });
+    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useSodaArtistAlbums(artistId, { enabled: !!artistId });
 
     return (
         <ArtistDetailContent

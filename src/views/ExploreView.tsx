@@ -3,7 +3,7 @@ import { TrendingUp, Flame } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FeatureCard } from '../components';
 import { Skeleton } from '../components/common/Skeleton';
-import { useNeteaseToplist } from '../hooks/useNeteaseData';
+import { useNeteaseToplist } from '../hooks/netease';
 import type { Playlist } from '../types';
 
 interface ExploreViewProps {
