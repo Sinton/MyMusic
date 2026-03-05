@@ -1,10 +1,10 @@
 import React from 'react';
 import { Play, Pause } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { usePlayerStore } from '../../stores/usePlayerStore'; // Store import
-import { getPlatformI18nKey } from '../../lib/platformUtils';
-import { PlatformBadge, QualityBadge, VipBadge } from '../common';
-import type { Song, AudioSource } from '../../types';
+import { usePlayerStore } from '../../../stores/usePlayerStore'; // Store import
+import { getPlatformI18nKey } from '../../../lib/platformUtils';
+import { PlatformBadge, QualityBadge, VipBadge } from '../../common';
+import type { Song, AudioSource } from '../../../types';
 
 interface SongSourceListProps {
     song: Song;

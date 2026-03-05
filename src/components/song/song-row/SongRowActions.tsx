@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Plus, Check } from 'lucide-react';
-import { useSongActions } from '../../hooks/useSongActions';
-import type { Song } from '../../types';
+import { useSongActions } from '../../../hooks/useSongActions';
+import type { Song } from '../../../types';
 
 import { useTranslation } from 'react-i18next';
 

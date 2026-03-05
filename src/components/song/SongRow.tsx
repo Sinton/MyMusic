@@ -4,8 +4,8 @@ import { VipBadge } from '../common';
 import type { Song, AudioSource } from '../../types';
 import { useSongActions } from '../../hooks/useSongActions';
 import { usePlayerStore } from '../../stores/usePlayerStore';
-import { SongRowActions } from '../song-row/SongRowActions';
-import { SongSourceList } from '../song-row/SongSourceList';
+import { SongRowActions } from './song-row/SongRowActions';
+import { SongSourceList } from './song-row/SongSourceList';
 
 interface SongRowProps {
     song: Song;

@@ -1,8 +1,8 @@
-// Layout Components
-export { default as SongRow } from './music/SongRow';
-export { default as SongList } from './music/SongList';
-export { default as AlbumCard } from './music/cards/AlbumCard';
-export { default as PlaylistCard } from './music/cards/PlaylistCard';
+// Music Entities
+export { default as SongRow } from './song/SongRow';
+export { default as SongList } from './song/SongList';
+export { default as AlbumCard } from './cards/AlbumCard';
+export { default as PlaylistCard } from './cards/PlaylistCard';
 export { default as FeatureCard } from './search/FeatureCard';
 export { default as GenreCard } from './search/GenreCard';
 export { default as Dropdown } from './common/Dropdown';
@@ -13,7 +13,7 @@ export { default as PlatformBadge } from './common/badges/PlatformBadge';
 export { default as VipBadge } from './common/badges/VipBadge';
 
 // Modals
-export { default as AuthModal } from './AuthModal';
+export { default as AuthModal } from './auth/AuthModal';
 export { Modal } from './common/Modal';
 
 // Playlist

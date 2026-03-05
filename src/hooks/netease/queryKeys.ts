@@ -1,0 +1,17 @@
+export const NeteaseQueryKeys = {
+    Search: (keywords: string) => ['netease', 'search', keywords] as const,
+    UserPlaylists: (uid: string | number) => ['netease', 'userPlaylists', uid] as const,
+    PlaylistDetail: (id: string | number) => ['netease', 'playlistDetail', id] as const,
+    SongDetail: (id: string | number) => ['netease', 'songDetail', id] as const,
+    SongUrl: (id: string | number) => ['netease', 'songUrl', id] as const,
+    Lyric: (id: string | number) => ['netease', 'lyric', id] as const,
+    Personalized: ['netease', 'personalized'] as const,
+    RecommendSongs: ['netease', 'recommendSongs'] as const,
+    RecommendResource: ['netease', 'recommendResource'] as const,
+    AlbumNewest: ['netease', 'albumNewest'] as const,
+    AlbumDetail: (id: string | number) => ['netease', 'albumDetail', id] as const,
+    Toplist: ['netease', 'toplist'] as const,
+    ArtistDetail: (id: string | number) => ['netease', 'artistDetail', id] as const,
+    ArtistSongs: (id: string | number) => ['netease', 'artistSongs', id] as const,
+    ArtistAlbums: (id: string | number) => ['netease', 'artistAlbums', id] as const,
+};

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton, ListSkeleton } from '../common/Skeleton';
 import ShareButton from '../common/ShareButton';
 import { Modal } from '../common/Modal';
-import SongRow from '../music/SongRow';
+import SongRow from '../song/SongRow';
 import { usePlayerStore } from '../../stores/usePlayerStore';
 import { songToTrack } from '../../lib/trackUtils';
 import type { Song, AudioSource } from '../../types';

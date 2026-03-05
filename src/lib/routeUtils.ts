@@ -9,6 +9,30 @@ export type AppRoute =
     | { type: 'album', id: string | number, platform: MusicPlatform }
     | { type: 'artist', name: string, id?: string | number, platform: MusicPlatform };
 
+// ================== ROUTE BUILDERS ==================
+
+/**
+ * Type-safe route builders. Use these instead of raw template literals.
+ *
+ * @example
+ *   onNavigate(routeTo.album('netease', 123))
+ *   onNavigate(routeTo.artist('qq', '周杰伦', 'abc123'))
+ *   onNavigate(routeTo.playlist(456))
+ */
+export const routeTo = {
+    home: (): string => 'Home',
+    explore: (): string => 'Explore',
+    settings: (): string => 'Settings',
+    library: (tab: 'Songs' | 'Playlists' | 'Albums' = 'Songs'): string =>
+        tab === 'Playlists' ? 'Playlists' : tab === 'Albums' ? 'Library' : 'Library',
+    playlist: (id: string | number): string => `Playlist:${id}`,
+    album: (platform: MusicPlatform, id: string | number): string => `Album:${platform}:${id}`,
+    artist: (platform: MusicPlatform, name: string, id?: string | number): string =>
+        id !== undefined ? `Artist:${platform}:${name}:${id}` : `Artist:${platform}:${name}`,
+};
+
+// ================== ROUTE PARSER ==================
+
 export function parseRoute(activeView: string): AppRoute {
     if (activeView.startsWith('Playlist:')) {
         const id = activeView.split(':')[1];
@@ -72,3 +96,4 @@ export function parseRoute(activeView: string): AppRoute {
             return { type: 'library', tab: 'Songs' };
     }
 }
+
