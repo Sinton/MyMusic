@@ -63,8 +63,8 @@ export function unifiedArtistDetailToArtist(detail: UnifiedArtistDetail): Artist
         platform: detail.platform as any,
         avatar: detail.avatarUrl || '',
         bio: detail.description,
-        songCount: detail.track_count,
-        albumCount: detail.album_count,
+        songCount: detail.trackCount,
+        albumCount: detail.albumCount,
         popularSongs,
         albums,
     };
@@ -78,11 +78,11 @@ export function unifiedAlbumDetailToAlbum(detail: UnifiedAlbumDetail): Album {
         title: detail.name,
         platform: detail.platform as any,
         cover: detail.coverUrl,
-        artist: detail.artist_name,
+        artist: detail.artistName,
         artistId: '', // Usually not directly available in album detail without nested parsing
         year: detail.releaseDate ? parseInt(detail.releaseDate.substring(0, 4)) : 0,
         releaseDate: detail.releaseDate,
         songs,
-        count: detail.track_count || songs.length,
+        count: detail.trackCount || songs.length,
     };
 }
