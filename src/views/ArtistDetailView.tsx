@@ -7,10 +7,12 @@ import { ArtistSongsTab } from './artist/ArtistSongsTab';
 import { ArtistAlbumsTab } from './artist/ArtistAlbumsTab';
 import { ArtistAboutTab } from './artist/ArtistAboutTab';
 import { usePlayerStore } from '../stores/usePlayerStore';
-import { useNeteaseArtistDetail, useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/netease';
-import { useQQArtistDetail, useQQArtistSongs, useQQArtistAlbums } from '../hooks/qq';
-import { useQishuiArtistDetail, useQishuiArtistSongs, useQishuiArtistAlbums } from '../hooks/qishui';
-import { songToTrack } from '../lib/trackUtils';
+import { useMusicArtistDetail } from '../hooks/useMusicDetail';
+import { useNeteaseArtistSongs, useNeteaseArtistAlbums } from '../hooks/netease';
+import { useQQArtistSongs, useQQArtistAlbums } from '../hooks/qq';
+import { useQishuiArtistSongs, useQishuiArtistAlbums } from '../hooks/qishui';
+import { musicArtistDetailToArtist } from '../utils/converters';
+import * as trackUtils from '../lib/trackUtils';
 import type { Artist, Track, Album, MusicPlatform, Song } from '../types';
 
 interface ArtistDetailViewProps {
@@ -24,63 +26,30 @@ interface ArtistDetailViewProps {
 }
 
 const ArtistDetailView: React.FC<ArtistDetailViewProps> = (props) => {
-    // Handle old prop 'id' for compatibility
-    const artistId = props.artistId || props.id;
+    const artistId = props.artistId || props.id || '';
     const platform = props.platform || 'netease';
 
-    if (platform === 'qq') {
-        return <QQArtistContainer {...props} artistId={artistId} artistMid={String(artistId)} />;
-    }
-    if (platform === 'qishui') {
-        return <QishuiArtistContainer {...props} artistId={artistId} />;
-    }
+    // Unified Artist Metadata
+    const { data: unifiedMetadata, isLoading: isDetailLoading } = useMusicArtistDetail(platform, artistId);
 
-    return <NeteaseArtistContainer {...props} artistId={artistId} />;
-};
+    // Platform-specific songs/albums (Still using established hooks as they handle platform specifics)
+    const { songs, isLoading: isSongsLoading } = platform === 'qq'
+        ? useQQArtistSongs(String(artistId), { enabled: !!artistId })
+        : platform === 'qishui'
+            ? useQishuiArtistSongs(String(artistId), { enabled: !!artistId })
+            : useNeteaseArtistSongs(artistId, { enabled: !!artistId });
 
-const NeteaseArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
-    const artistId = props.artistId || props.id || '';
-    const { artist: metadata, isLoading: isDetailLoading } = useNeteaseArtistDetail(artistId, { enabled: !!artistId });
-    const { songs, isLoading: isSongsLoading } = useNeteaseArtistSongs(artistId, { enabled: !!artistId });
-    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useNeteaseArtistAlbums(artistId, { enabled: !!artistId });
+    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = platform === 'qq'
+        ? useQQArtistAlbums(String(artistId), { enabled: !!artistId })
+        : platform === 'qishui'
+            ? useQishuiArtistAlbums(String(artistId), { enabled: !!artistId })
+            : useNeteaseArtistAlbums(artistId, { enabled: !!artistId });
 
-    return (
-        <ArtistDetailContent
-            {...props}
-            artistName={props.artistName || metadata?.name || ''}
-            metadata={metadata}
-            songs={songs || []}
-            albums={albums || []}
-            isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
-            pagination={{ hasNextPage: !!hasNextPage, isFetchingNextPage: !!isFetchingNextPage, fetchNextPage }}
-        />
-    );
-};
-
-const QQArtistContainer: React.FC<ArtistDetailViewProps & { artistMid: string }> = (props) => {
-    const { artistMid } = props;
-    const { artist: metadata, isLoading: isDetailLoading } = useQQArtistDetail(artistMid, { enabled: !!artistMid });
-    const { songs, isLoading: isSongsLoading } = useQQArtistSongs(artistMid, { enabled: !!artistMid });
-    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useQQArtistAlbums(artistMid, { enabled: !!artistMid });
-
-    return (
-        <ArtistDetailContent
-            {...props}
-            artistName={props.artistName || metadata?.name || ''}
-            metadata={metadata}
-            songs={songs || []}
-            albums={albums || []}
-            isLoading={{ detail: isDetailLoading, songs: isSongsLoading, albums: isAlbumsLoading }}
-            pagination={{ hasNextPage: !!hasNextPage, isFetchingNextPage: !!isFetchingNextPage, fetchNextPage: () => fetchNextPage?.() }}
-        />
-    );
-};
-
-const QishuiArtistContainer: React.FC<ArtistDetailViewProps> = (props) => {
-    const artistId = String(props.artistId || props.id || '');
-    const { artist: metadata, isLoading: isDetailLoading } = useQishuiArtistDetail(artistId, { enabled: !!artistId });
-    const { songs, isLoading: isSongsLoading } = useQishuiArtistSongs(artistId, { enabled: !!artistId });
-    const { albums, isLoading: isAlbumsLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useQishuiArtistAlbums(artistId, { enabled: !!artistId });
+    // Use converter for unified metadata to legacy Artist format
+    const metadata = useMemo(() => {
+        if (!unifiedMetadata) return null;
+        return musicArtistDetailToArtist(unifiedMetadata);
+    }, [unifiedMetadata]);
 
     return (
         <ArtistDetailContent
@@ -133,7 +102,7 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
             songCount: metadata?.songCount || 0,
             albumCount: metadata?.albumCount || 0,
         };
-    }, [artistName, metadata, songs, albums, t, platform]);
+    }, [artistName, metadata, songs, albums, platform]);
 
     // Filtering logic
     const filteredSongs = useMemo(() => {
@@ -158,7 +127,7 @@ const ArtistDetailContent: React.FC<ContentProps> = ({
 
     const handlePlayAll = () => {
         if (filteredSongs.length > 0) {
-            const tracks: Track[] = filteredSongs.map(song => songToTrack(song));
+            const tracks: Track[] = filteredSongs.map(song => trackUtils.songToTrack(song));
 
             setQueue(tracks);
             setTrack(tracks[0]);

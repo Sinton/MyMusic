@@ -2,7 +2,7 @@
 use crate::error::AppError;
 use super::base::ApiProvider;
 use serde_json::{json, Value};
-use crate::api::models::UnifiedResponse;
+use super::models::GatewayResponse;
 use crate::Options;
 
 pub mod artist;
@@ -61,31 +61,31 @@ impl super::base::ApiProvider for QQProvider {
         }
     }
 
-    async fn dispatch_unified(
+    async fn dispatch_gateway(
         &self,
         client: &HttpClient,
         api_name: &str,
         options: Options,
-    ) -> HttpResult<UnifiedResponse> {
+    ) -> HttpResult<GatewayResponse> {
         match api_name {
             "search" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_search_response(&resp.body);
-                Ok(UnifiedResponse::SearchBatch(unified))
+                Ok(GatewayResponse::SearchBatch(unified))
             }
             "artist_detail" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_artist_detail(&resp.body);
-                Ok(UnifiedResponse::ArtistDetail(unified))
+                Ok(GatewayResponse::ArtistDetail(unified))
             }
             "album_detail" => {
                  let resp = self.dispatch(client, api_name, options).await?;
                  let unified = mapper::map_album_detail(&resp.body);
-                 Ok(UnifiedResponse::AlbumDetail(unified))
+                 Ok(GatewayResponse::AlbumDetail(unified))
             }
             _ => {
                 let resp = self.dispatch(client, api_name, options).await?;
-                Ok(UnifiedResponse::Raw(resp.body))
+                Ok(GatewayResponse::Raw(resp.body))
             }
         }
     }

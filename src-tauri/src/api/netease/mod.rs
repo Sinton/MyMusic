@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use self::crypto::Crypto;
 use crate::Options;
 use std::collections::HashMap;
-use super::models::UnifiedResponse;
+use super::models::GatewayResponse;
 
 pub mod login;
 pub mod song;
@@ -14,6 +14,7 @@ pub mod discover;
 pub mod search;
 pub mod user;
 pub mod artist;
+pub mod comment;
 pub mod dto;
 pub mod crypto;
 pub mod mapper;
@@ -184,6 +185,10 @@ impl super::base::ApiProvider for NeteaseProvider {
             "artist_songs" => artist::songs(client, options).await,
             "artist_album" => artist::albums(client, options).await,
             
+            // Comment
+            "song_comments" => comment::song_comments(client, options).await,
+            "song_hot_comments" => comment::song_hot_comments(client, options).await,
+            
             // User
             "user_account" => user::account(client, options).await,
             
@@ -191,36 +196,41 @@ impl super::base::ApiProvider for NeteaseProvider {
         }
     }
 
-    async fn dispatch_unified(
+    async fn dispatch_gateway(
         &self,
         client: &HttpClient,
         api_name: &str,
         options: Options,
-    ) -> HttpResult<UnifiedResponse> {
+    ) -> HttpResult<GatewayResponse> {
         match api_name {
             "search" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_search_response(&resp.body);
-                Ok(UnifiedResponse::SearchBatch(unified))
+                Ok(GatewayResponse::SearchBatch(unified))
             }
             "playlist_detail" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_playlist_detail(&resp.body);
-                Ok(UnifiedResponse::Playlist(unified))
+                Ok(GatewayResponse::Playlist(unified))
             }
             "artist_detail" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_artist_detail(&resp.body);
-                Ok(UnifiedResponse::ArtistDetail(unified))
+                Ok(GatewayResponse::ArtistDetail(unified))
             }
             "album_detail" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_album_detail(&resp.body);
-                Ok(UnifiedResponse::AlbumDetail(unified))
+                Ok(GatewayResponse::AlbumDetail(unified))
+            }
+            "song_comments" | "song_hot_comments" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_comments(&resp.body);
+                Ok(GatewayResponse::Comments(unified))
             }
             _ => {
                 let resp = self.dispatch(client, api_name, options).await?;
-                Ok(UnifiedResponse::Raw(resp.body))
+                Ok(GatewayResponse::Raw(resp.body))
             }
         }
     }
@@ -230,6 +240,6 @@ pub async fn dispatch(client: &HttpClient, api_name: &str, options: Options) -> 
     NeteaseProvider.dispatch(client, api_name, options).await
 }
 
-pub async fn dispatch_unified(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<UnifiedResponse> {
-    NeteaseProvider.dispatch_unified(client, api_name, options).await
+pub async fn dispatch_gateway(client: &HttpClient, api_name: &str, options: Options) -> HttpResult<GatewayResponse> {
+    NeteaseProvider.dispatch_gateway(client, api_name, options).await
 }

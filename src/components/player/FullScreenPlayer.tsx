@@ -34,7 +34,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
         showQueuePanel,
         toggleCommentsPanel,
         toggleOptionsPanel,
-        toggleQueuePanel
+        toggleQueuePanel,
+        closeAllPanels
     } = useUIStore();
 
     const {
@@ -59,6 +60,13 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
 
     const platform = currentTrack?.platform;
 
+    // Reset panels when song changes
+    useEffect(() => {
+        if (currentTrack?.id) {
+            closeAllPanels();
+        }
+    }, [currentTrack?.id, closeAllPanels]);
+
     const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack?.id, { enabled: platform === 'netease' && !!currentTrack?.id });
     const qqSongMid = String(currentTrack?.sourceId || currentTrack?.id);
     const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: platform === 'qq' && !!qqSongMid });
@@ -70,6 +78,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
         : platform === 'qq' ? qqLyrics
             : platform === 'qishui' ? qishuiLyrics
                 : [];
+
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -202,7 +211,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
             <CommentsPanel
                 isOpen={showCommentsPanel}
                 onClose={toggleCommentsPanel}
-                comments={[]}
+                platform={platform || ''}
+                songId={currentTrack?.id || ''}
             />
 
             <QueuePanel

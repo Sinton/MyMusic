@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::Options;
-use super::models::UnifiedResponse;
+use super::models::GatewayResponse;
 
 #[async_trait]
 pub trait ApiProvider: Send + Sync {
@@ -16,15 +16,15 @@ pub trait ApiProvider: Send + Sync {
         options: Options,
     ) -> HttpResult<HttpResponse>;
 
-    /// Dispatches an API call and returns a unified response format
-    async fn dispatch_unified(
+    /// Dispatches an API call and returns a gateway response format
+    async fn dispatch_gateway(
         &self,
         client: &HttpClient,
         api_name: &str,
         options: Options,
-    ) -> HttpResult<UnifiedResponse> {
+    ) -> HttpResult<GatewayResponse> {
         // Default implementation returns raw body as JSON if not specifically overridden
         let resp = self.dispatch(client, api_name, options).await?;
-        Ok(UnifiedResponse::Raw(resp.body))
+        Ok(GatewayResponse::Raw(resp.body))
     }
 }

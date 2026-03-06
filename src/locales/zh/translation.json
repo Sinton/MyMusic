@@ -273,7 +273,11 @@
             "title": "评论",
             "likes": "点赞",
             "reply": "回复",
-            "addPlaceholder": "添加评论..."
+            "addPlaceholder": "发表评论...",
+            "noComments": "暂无评论",
+            "hotComments": "精彩评论",
+            "latestComments": "最新评论",
+            "noMore": "没有更多了"
         },
         "queue": {
             "nextUp": "接下来播放",

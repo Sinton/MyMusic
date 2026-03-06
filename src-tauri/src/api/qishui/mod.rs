@@ -2,7 +2,7 @@ use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::error::AppError;
 use super::base::ApiProvider;
 use crate::Options;
-use super::models::UnifiedResponse;
+use super::models::GatewayResponse;
 
 pub mod track;
 pub mod lyric;
@@ -36,36 +36,36 @@ impl super::base::ApiProvider for QishuiProvider {
         }
     }
 
-    async fn dispatch_unified(
+    async fn dispatch_gateway(
         &self,
         client: &HttpClient,
         api_name: &str,
         options: Options,
-    ) -> HttpResult<UnifiedResponse> {
+    ) -> HttpResult<GatewayResponse> {
         match api_name {
             "resolve_link" => {
                 let resp = self.dispatch(client, "resolve_link", options).await?;
                 let unified = mapper::map_track_detail(&resp.body);
-                Ok(UnifiedResponse::Track(unified))
+                Ok(GatewayResponse::Track(unified))
             }
             "track_detail" => {
                 let resp = self.dispatch(client, "track_detail", options).await?;
                 let unified = mapper::map_track_detail(&resp.body);
-                Ok(UnifiedResponse::Track(unified))
+                Ok(GatewayResponse::Track(unified))
             }
             "artist_detail" => {
                 let resp = self.dispatch(client, "artist_detail", options).await?;
                 let unified = mapper::map_artist_detail(&resp.body);
-                Ok(UnifiedResponse::ArtistDetail(unified))
+                Ok(GatewayResponse::ArtistDetail(unified))
             }
             "album_detail" => {
                 let resp = self.dispatch(client, "album_detail", options).await?;
                 let unified = mapper::map_album_detail(&resp.body);
-                Ok(UnifiedResponse::AlbumDetail(unified))
+                Ok(GatewayResponse::AlbumDetail(unified))
             }
             _ => {
                 let resp = self.dispatch(client, api_name, options).await?;
-                Ok(UnifiedResponse::Raw(resp.body))
+                Ok(GatewayResponse::Raw(resp.body))
             }
         }
     }
@@ -79,10 +79,10 @@ pub async fn dispatch(
     QishuiProvider.dispatch(client, api_name, options).await
 }
 
-pub async fn dispatch_unified(
+pub async fn dispatch_gateway(
     client: &HttpClient,
     api_name: &str,
     options: Options,
-) -> HttpResult<UnifiedResponse> {
-    QishuiProvider.dispatch_unified(client, api_name, options).await
+) -> HttpResult<GatewayResponse> {
+    QishuiProvider.dispatch_gateway(client, api_name, options).await
 }

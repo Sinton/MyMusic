@@ -1,8 +1,8 @@
 ﻿import { invoke } from '@tauri-apps/api/core';
 import { useState, useCallback } from 'react';
-import { UnifiedResponse } from '../../types/unified';
+import { GatewayResponse } from '../../types/gateway';
 
-export function useMusicApi() {
+export function useMusicApiGateway() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -11,18 +11,18 @@ export function useMusicApi() {
         apiName: string,
         params: any = {},
         cookie: string = ''
-    ): Promise<UnifiedResponse | null> => {
+    ): Promise<GatewayResponse | null> => {
         setLoading(true);
         setError(null);
         try {
             const traceId = `trace-${Date.now()}`;
-            
+
             // Encode parameters as key=value&key=value string for Rust parse_params
             const paramString = Object.entries(params)
                 .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
                 .join('&');
 
-            const res = await invoke<UnifiedResponse>('request_api_unified', {
+            const res = await invoke<GatewayResponse>('request_api_gateway', {
                 provider,
                 apiName,
                 params: paramString,

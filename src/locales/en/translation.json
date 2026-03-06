@@ -273,7 +273,11 @@
             "title": "Comments",
             "likes": "Likes",
             "reply": "Reply",
-            "addPlaceholder": "Add a comment..."
+            "addPlaceholder": "Post a comment...",
+            "noComments": "No comments yet",
+            "hotComments": "Hot Comments",
+            "latestComments": "Latest Comments",
+            "noMore": "End of Comments"
         },
         "queue": {
             "nextUp": "Next Up",

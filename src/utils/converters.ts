@@ -1,7 +1,7 @@
-import { UnifiedTrack, UnifiedPlaylist, UnifiedArtistDetail, UnifiedAlbumDetail } from '../types/unified';
+import { MusicTrack, MusicPlaylist, MusicArtistDetail, MusicAlbumDetail } from '../types/gateway';
 import { Song, Playlist, AudioSource, Artist, Album } from '../types';
 
-export function unifiedTrackToSong(track: UnifiedTrack): Song {
+export function musicTrackToSong(track: MusicTrack): Song {
     // Convert artists array to comma-separated string for Song artist field
     const artistName = track.artists.map(a => a.name).join(', ');
 
@@ -25,7 +25,7 @@ export function unifiedTrackToSong(track: UnifiedTrack): Song {
                 platform: track.platform as any,
                 quality: 'Standard',
                 qualityLabel: '标准',
-                vip: false,
+                vip: track.vip || false,
                 color: track.platform === 'netease' ? '#ea4335' : track.platform === 'qq' ? '#1db954' : '#ffea00',
                 sourceId: track.id,
             } as AudioSource
@@ -34,7 +34,7 @@ export function unifiedTrackToSong(track: UnifiedTrack): Song {
     };
 }
 
-export function unifiedPlaylistToLegacy(playlist: UnifiedPlaylist): Playlist {
+export function musicPlaylistToLegacy(playlist: MusicPlaylist): Playlist {
     return {
         id: playlist.id,
         platform: playlist.platform as any,
@@ -46,8 +46,8 @@ export function unifiedPlaylistToLegacy(playlist: UnifiedPlaylist): Playlist {
     };
 }
 
-export function unifiedArtistDetailToArtist(detail: UnifiedArtistDetail): Artist {
-    const popularSongs = detail.popularSongs?.map(unifiedTrackToSong) || [];
+export function musicArtistDetailToArtist(detail: MusicArtistDetail): Artist {
+    const popularSongs = detail.popularSongs?.map(musicTrackToSong) || [];
     const albums = detail.albums?.map(a => ({
         id: a.id,
         title: a.name,
@@ -70,8 +70,8 @@ export function unifiedArtistDetailToArtist(detail: UnifiedArtistDetail): Artist
     };
 }
 
-export function unifiedAlbumDetailToAlbum(detail: UnifiedAlbumDetail): Album {
-    const songs = detail.tracks?.map(unifiedTrackToSong) || [];
+export function musicAlbumDetailToAlbum(detail: MusicAlbumDetail): Album {
+    const songs = detail.tracks?.map(musicTrackToSong) || [];
 
     return {
         id: detail.id,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Play, Disc, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SongRow } from '../components';
@@ -8,10 +8,14 @@ import ShareButton from '../components/common/ShareButton';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useAlbumActions } from '../hooks/useAlbumActions';
 import { getPlatformAdapter } from '../lib/platform';
-import type { Album, Song } from '../types';
+import { useMusicAlbumDetail } from '../hooks/useMusicDetail';
+import { musicAlbumDetailToAlbum } from '../utils/converters';
+import type { Album, Song, MusicPlatform } from '../types';
 
 interface AlbumDetailViewProps {
-    album: Album;
+    album?: Album;
+    albumId?: string | number;
+    platform?: MusicPlatform;
     onBack: () => void;
     onNavigate?: (view: string) => void;
     /** If provided, use these songs instead of fetching from local mock data */
@@ -19,12 +23,34 @@ interface AlbumDetailViewProps {
     externalLoading?: boolean;
 }
 
-const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({ album, onNavigate, externalSongs, externalLoading }) => {
+const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({
+    album: initialAlbum,
+    albumId,
+    platform = 'netease',
+    onNavigate,
+    externalSongs,
+    externalLoading
+}) => {
     const { t } = useTranslation();
     const { isPlaying, currentTrack } = usePlayerStore();
     const { playAll, getTotalDuration } = useAlbumActions();
-    const albumSongs = externalSongs ?? [];
-    const isLoading = externalLoading ?? false;
+
+    // Unified Album Fetching if albumId is provided but initialAlbum details are thin
+    const { data: unifiedAlbumData, isLoading: isUnifiedLoading } = useMusicAlbumDetail(
+        platform,
+        albumId || initialAlbum?.id || '',
+        { enabled: !!albumId || (!!initialAlbum?.id && (!externalSongs || externalSongs.length === 0)) }
+    );
+
+    const album = useMemo(() => {
+        if (unifiedAlbumData) {
+            return musicAlbumDetailToAlbum(unifiedAlbumData);
+        }
+        return initialAlbum!;
+    }, [unifiedAlbumData, initialAlbum]);
+
+    const albumSongs = externalSongs ?? album?.songs ?? [];
+    const isLoading = externalLoading ?? isUnifiedLoading;
     const [isLiked, setIsLiked] = useState(false);
 
     const isCurrentAlbum = currentTrack?.albumId === album.id;

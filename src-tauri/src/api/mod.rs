@@ -23,16 +23,16 @@ pub async fn dispatch(
     }
 }
 
-pub async fn dispatch_unified(
+pub async fn dispatch_gateway(
     client: &HttpClient,
     provider: &str,
     api_name: &str,
     options: Options,
-) -> HttpResult<models::UnifiedResponse> {
+) -> HttpResult<models::GatewayResponse> {
     match provider {
-        "netease" => netease::NeteaseProvider.dispatch_unified(client, api_name, options).await,
-        "qq" => qq::QQProvider.dispatch_unified(client, api_name, options).await,
-        "qishui" => qishui::QishuiProvider.dispatch_unified(client, api_name, options).await,
+        "netease" => netease::NeteaseProvider.dispatch_gateway(client, api_name, options).await,
+        "qq" => qq::QQProvider.dispatch_gateway(client, api_name, options).await,
+        "qishui" => qishui::QishuiProvider.dispatch_gateway(client, api_name, options).await,
         _ => Err(AppError::Api(format!("Unknown provider: {}", provider))),
     }
 }
