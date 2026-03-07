@@ -21,13 +21,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
             />
 
             {/* High-Performance Spring Animation Card */}
-            <div className="relative w-full max-w-sm glass-drawer border border-[var(--glass-border)] rounded-[2.5rem] shadow-2xl overflow-hidden animate-modal-content">
+            <div className="relative w-full max-w-sm glass-drawer border border-[var(--glass-border)] rounded-[1.5rem] shadow-2xl overflow-hidden animate-modal-content">
                 {/* Surface Shine Sweep */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none" />
 
                 {/* Inner Glow Header */}
                 <div className="flex items-center justify-between p-8 pb-2 relative z-10">
-                    <h2 className="text-2xl font-black text-[var(--text-main)] tracking-tighter uppercase italic drop-shadow-sm">{title}</h2>
+                    <h2 className="text-xl font-black text-[var(--text-main)] tracking-tighter uppercase italic drop-shadow-sm">{title}</h2>
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-[var(--glass-highlight)] rounded-full transition-all text-[var(--text-muted)] hover:text-[var(--text-main)]"

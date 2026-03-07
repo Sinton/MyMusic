@@ -107,9 +107,11 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                         setDuration(durationFromApi);
                     }
 
-                    audio.play().catch(e => {
-                        remoteLog(`[UrlResolver] Playback Error: ${e.message}`);
-                    });
+                    if (usePlayerStore.getState().isPlaying) {
+                        audio.play().catch(e => {
+                            remoteLog(`[UrlResolver] Playback Error: ${e.message}`);
+                        });
+                    }
                 } else {
                     remoteLog(`[UrlResolver] ERROR: No URL found for ${platform}`);
                 }

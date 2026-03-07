@@ -125,7 +125,11 @@
         "dangerZone": {
             "title": "危险区域",
             "desc": "断开所有连接的服务并清除本地缓存。",
-            "button": "断开所有连接"
+            "button": "断开所有连接",
+            "confirmTitle": "确认断开所有连接？",
+            "confirmDesc": "这将退出所有已登录账户并清空播放缓存，但会<b>保留</b>您的本地歌单。请在下方输入 <b>{{keyword}}</b> 以确认：",
+            "confirmKeyword": "断开",
+            "confirmInputPlaceholder": "请输入{{keyword}}"
         }
     },
     "library": {

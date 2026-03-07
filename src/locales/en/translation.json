@@ -125,7 +125,11 @@
         "dangerZone": {
             "title": "Danger Zone",
             "desc": "Disconnect all linked services and clear local cache.",
-            "button": "Disconnect All"
+            "button": "Disconnect All",
+            "confirmTitle": "Confirm Disconnect All?",
+            "confirmDesc": "This will log out from all accounts and clear playback cache, but your local playlists will be <b>kept</b>. Please type <b>{{keyword}}</b> to confirm:",
+            "confirmKeyword": "disconnect",
+            "confirmInputPlaceholder": "Please type {{keyword}}"
         }
     },
     "library": {

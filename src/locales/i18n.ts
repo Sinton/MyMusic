@@ -11,7 +11,18 @@ i18n
             en: { translation: en },
             zh: { translation: zh },
         },
-        lng: localStorage.getItem('language') || 'zh', // default language
+        lng: (() => {
+            try {
+                const storage = localStorage.getItem('settings-storage');
+                if (storage) {
+                    const parsed = JSON.parse(storage);
+                    return parsed.state?.language || 'zh';
+                }
+            } catch (e) {
+                console.error('Failed to parse settings-storage', e);
+            }
+            return 'zh';
+        })(),
         fallbackLng: 'en',
         interpolation: {
             escapeValue: false, // react already safes from xss

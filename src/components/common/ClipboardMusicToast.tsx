@@ -167,9 +167,9 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
 
                 {/* Text */}
                 <div className="flex-1 min-w-0 pr-2 flex flex-col justify-center h-full py-2">
-                    <div className="text-[10px] text-[var(--accent-color)] font-bold mb-0.5 flex items-center gap-1 uppercase tracking-wider">
-                        <PlatformBadge name="Qishui Music" size="xs" className="scale-90" />
-                        {t('clipboard.detected', { platform: 'Qishui Music' })}
+                    <div className="text-[10px] text-[var(--accent-color)] font-bold mb-0.5 flex items-center gap-1 tracking-wider">
+                        <PlatformBadge name={t('platforms.qishui')} size="xs" className="scale-90" />
+                        {t('clipboard.detected', { platform: t('platforms.qishui') })}
                     </div>
 
                     <div className="h-[36px] flex flex-col justify-center">
