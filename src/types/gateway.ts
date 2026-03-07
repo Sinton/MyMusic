@@ -71,6 +71,7 @@ export interface MusicComment {
         id: string;
         nickname: string;
         avatarUrl?: string;
+        vipIconUrl?: string;
     };
     replyingTo?: string;
     liked: boolean;

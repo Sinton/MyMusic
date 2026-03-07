@@ -194,6 +194,7 @@ pub fn map_comments(body: &Value) -> MusicComments {
                     .or(c["nickname"].as_str())
                     .unwrap_or("Unknown").to_string(),
                 avatar_url: c["avatarurl"].as_str().map(|s| s.to_string()),
+                vip_icon_url: c["vipicon"].as_str().map(|s| s.to_string()),
             },
             replying_to: None, 
             liked: c["isPraise"].as_u64().or(c["is_praise"].as_u64()).unwrap_or(0) == 1,

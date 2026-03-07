@@ -136,6 +136,7 @@ pub fn map_comments(body: &Value) -> MusicComments {
                 id: c["user"]["userId"].to_string(),
                 nickname: c["user"]["nickname"].as_str().unwrap_or("Unknown").to_string(),
                 avatar_url: c["user"]["avatarUrl"].as_str().map(|s| s.to_string()),
+                vip_icon_url: c["user"]["vipRights"]["associator"]["iconUrl"].as_str().map(|s| s.to_string()),
             },
             replying_to: c["beReplied"].as_array().and_then(|a| a.first()).and_then(|r| r["content"].as_str()).map(|s| s.to_string()),
             liked: c["liked"].as_bool().unwrap_or(false),

@@ -90,6 +90,7 @@ pub struct MusicCommentUser {
     pub id: String,
     pub nickname: String,
     pub avatar_url: Option<String>,
+    pub vip_icon_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

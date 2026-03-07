@@ -120,10 +120,17 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
                     </div>
                 )}
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5 mb-1.5">
                         <span className="text-sm font-bold text-[var(--text-main)] truncate hover:text-[var(--accent-color)] cursor-pointer transition-colors">
                             {comment.user.nickname}
                         </span>
+                        {comment.user.vipIconUrl && (
+                            <img
+                                src={comment.user.vipIconUrl}
+                                alt="VIP"
+                                className={`${platform === 'qq' ? 'h-5' : 'h-4'} w-auto object-contain flex-shrink-0`}
+                            />
+                        )}
                     </div>
                     <p
                         className="text-sm text-[var(--text-secondary)] leading-relaxed break-words"
