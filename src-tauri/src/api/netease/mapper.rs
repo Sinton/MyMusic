@@ -32,7 +32,7 @@ pub fn map_song_to_music(s: &Value, platform: &str) -> MusicTrack {
     let duration_sec = if platform == "netease" { (duration / 1000) as u32 } else { duration as u32 };
 
     MusicTrack {
-        id: s["id"].to_string(),
+        song_id: s["id"].to_string(),
         platform: platform.to_string(),
         title: s["name"].as_str().unwrap_or("Unknown Track").to_string(),
         artists,
@@ -41,6 +41,7 @@ pub fn map_song_to_music(s: &Value, platform: &str) -> MusicTrack {
         cover_url: if platform == "netease" { s["al"]["picUrl"].as_str().map(|u| u.to_string()) } else { None }, // QQ cover is handled in album
         raw_url: None,
         vip: s["fee"].as_u64().unwrap_or(0) == 1,
+        song_mid: None,
     }
 }
 

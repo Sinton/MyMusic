@@ -26,7 +26,10 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
     const isPlaying = usePlayerStore((state) => state.isPlaying);
     const togglePlay = usePlayerStore((state) => state.togglePlay);
     // Use optional chaining carefully - currentTrack might be default/null structure
-    const isCurrent = currentTrack && currentTrack.id === song.id;
+    const isCurrent = currentTrack && (
+        String(currentTrack.songId) === String(song.songId) ||
+        song.sources.some(s => String(s.songId) === String(currentTrack.songId))
+    );
 
     // Calculate active source index for indicator matching
     // We match roughly by platform and quality.

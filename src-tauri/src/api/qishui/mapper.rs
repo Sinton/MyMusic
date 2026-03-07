@@ -20,7 +20,7 @@ pub fn map_song_to_music(s: &Value) -> MusicTrack {
     };
 
     MusicTrack {
-        id: s["id"].to_string(),
+        song_id: s["id"].to_string(),
         platform: "qishui".to_string(),
         title: s["title"].as_str().unwrap_or(s["name"].as_str().unwrap_or("Unknown Track")).to_string(),
         artists,
@@ -29,6 +29,7 @@ pub fn map_song_to_music(s: &Value) -> MusicTrack {
         cover_url: s["cover"].as_str().or(s["album"]["cover_url"].as_str()).map(|u| u.to_string()),
         raw_url: None,
         vip: false, // Default to false for Qishui for now
+        song_mid: None,
     }
 }
 

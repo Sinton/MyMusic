@@ -25,7 +25,7 @@ export const ArtistSongsTab: React.FC<ArtistSongsTabProps> = ({ searchQuery, son
                     <ListSkeleton rows={5} />
                 ) : (
                     songs.map((song) => (
-                        <div key={song.id} className="group relative">
+                        <div key={song.songId} className="group relative">
                             <SongRow song={song} />
                         </div>
                     ))

@@ -10,7 +10,8 @@ export interface MusicAlbum {
 }
 
 export interface MusicTrack {
-    id: string;
+    songId: string;
+    songMid?: string;
     platform: string;
     title: string;
     artists: MusicArtist[];

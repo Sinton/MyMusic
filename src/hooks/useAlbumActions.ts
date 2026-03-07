@@ -14,7 +14,8 @@ export function useAlbumActions() {
         if (songs.length === 0) return;
 
         const tracks: Track[] = songs.map(song => ({
-            id: song.id,
+            songId: song.songId,
+            songMid: song.songMid,
             title: song.title,
             platform: song.platform,
             artist: song.artist,
@@ -36,7 +37,8 @@ export function useAlbumActions() {
     /** Add songs to the end of the current queue */
     const addAllToQueue = useCallback((songs: Song[]) => {
         const tracks: Track[] = songs.map(song => ({
-            id: song.id,
+            songId: song.songId,
+            songMid: song.songMid,
             title: song.title,
             platform: song.platform,
             artist: song.artist,

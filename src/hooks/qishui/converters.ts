@@ -26,7 +26,8 @@ export const qishuiToArtist = (qishuiArtist: any): Artist | null => {
 
 export const qishuiToSong = (item: any, artistName: string, artistId: string, customAlbumName?: string, customAlbumId?: string, customCover?: string): Song => {
     return {
-        id: String(item.id),
+        songId: String(item.id),
+        songMid: String(item.id),
         title: item.name,
         platform: 'qishui',
         artist: artistName || 'Unknown',
@@ -41,7 +42,8 @@ export const qishuiToSong = (item: any, artistName: string, artistId: string, cu
             qualityLabel: 'HQ',
             vip: false,
             color: '#00d084',
-            sourceId: String(item.id)
+            songId: String(item.id),
+            songMid: String(item.id)
         }],
         cover: customCover || item.cover || '',
     };

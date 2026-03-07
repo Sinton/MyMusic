@@ -9,25 +9,33 @@ use super::musicu_request;
 
 pub async fn get(client: &HttpClient, options: Options, sort: i32) -> HttpResult<HttpResponse> {
     let params = parse_params(&options.params);
-    let mut biz_id = params.get("id").cloned().unwrap_or_default();
+    let mut song_id = params.get("songId").cloned().unwrap_or_default();
+    let song_mid = params.get("songMid").cloned().unwrap_or_default();
     let limit = params.get("limit").and_then(|l| l.parse::<i32>().ok()).unwrap_or(20);
     let offset = params.get("offset").and_then(|o| o.parse::<i32>().ok()).unwrap_or(0);
     
-    // If biz_id looks like a MID (starts with 00 and length > 10), resolve it to numeric ID
-    if biz_id.starts_with("00") && biz_id.len() >= 10 {
-        let resolve_payload = json!({
-            "req_1": {
-                "module": "music.pf_song_detail_svr",
-                "method": "get_song_detail",
-                "param": { "song_mid": biz_id.clone() }
-            },
-            "comm": { "uin": 0, "format": "json", "ct": 24, "cv": 0 }
-        });
+    // If id is not a valid numeric ID and mid exists, or if id starts with "00", we need to resolve
+    let is_numeric = !song_id.is_empty() && song_id.chars().all(|c| c.is_digit(10));
+    
+    if !is_numeric || song_id.starts_with("00") {
+        let resolve_id = if !song_mid.is_empty() { song_mid.clone() } else { song_id.clone() };
         
-        if let Ok(resp) = musicu_request(client, resolve_payload, &options.cookie, options.trace_id.clone()).await {
-            if let Some(resolved_id) = resp.body["req_1"]["data"]["track_info"]["id"].as_u64() {
-                biz_id = resolved_id.to_string();
-                println!("[QQ Comment] Resolved MID {} to Numeric ID {}", params.get("id").unwrap(), biz_id);
+        if resolve_id.starts_with("00") && resolve_id.len() >= 10 {
+            let resolve_payload = json!({
+                "req_1": {
+                    "module": "music.pf_song_detail_svr",
+                    "method": "get_song_detail",
+                    "param": { "song_mid": resolve_id }
+                },
+                "comm": { "uin": 0, "format": "json", "ct": 24, "cv": 0 }
+            });
+            
+            if let Ok(resp) = musicu_request(client, resolve_payload, &options.cookie, options.trace_id.clone()).await {
+                if let Some(resolved_id) = resp.body["req_1"]["data"]["track_info"]["id"].as_u64() {
+                    let new_id = resolved_id.to_string();
+                    println!("[QQ Comment] Resolved MID {} to Numeric ID {}", resolve_id, new_id);
+                    song_id = new_id;
+                }
             }
         }
     }
@@ -41,7 +49,7 @@ pub async fn get(client: &HttpClient, options: Options, sort: i32) -> HttpResult
 
     let url = format!(
         "https://c.y.qq.com/base/fcgi-bin/fcg_global_comment_h5.fcg?g_tk=5381&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq.json&needNewCode=0&cid=205360772&reqtype=2&biztype=1&topid={}&cmd={}&pagenum={}&pagesize={}",
-        biz_id, cmd, page_num, limit
+        song_id, cmd, page_num, limit
     );
 
     let mut headers = Vec::new();

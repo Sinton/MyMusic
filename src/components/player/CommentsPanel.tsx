@@ -10,6 +10,7 @@ interface CommentsPanelProps {
     onClose: () => void;
     platform: string;
     songId: string | number;
+    songMid?: string | number;
 }
 
 type TabType = 'hot' | 'latest';
@@ -18,7 +19,8 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
     isOpen,
     onClose,
     platform,
-    songId
+    songId,
+    songMid
 }) => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<TabType>('hot');
@@ -36,10 +38,10 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
     }, [songId]);
 
     // Hooks for infinite scrolling - Only enable the query for the active tab to prevent data collision
-    const latestQuery = useMusicLatestComments(platform, songId, {
+    const latestQuery = useMusicLatestComments(platform, songId, songMid, {
         enabled: isOpen && !!songId && activeTab === 'latest'
     });
-    const hotQuery = useMusicHotComments(platform, songId, {
+    const hotQuery = useMusicHotComments(platform, songId, songMid, {
         enabled: isOpen && !!songId && activeTab === 'hot'
     });
 

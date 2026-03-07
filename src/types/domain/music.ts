@@ -2,18 +2,19 @@
 export type RepeatMode = 'off' | 'all' | 'one';
 export type MusicPlatform = 'netease' | 'qq' | 'qishui' | 'local' | 'unknown';
 
+// ================== AUDIO SOURCE ==================
 export interface AudioSource {
     platform: MusicPlatform;
     quality: string;
     qualityLabel: string;
     vip: boolean;
     color: string;
-    sourceId?: string | number;
+    songId: string | number;
+    songMid?: string | number;
 }
 
 // ================== BASE ITEM ==================
 export interface MusicItem {
-    id: string | number;
     title: string;
     platform: MusicPlatform;
     cover?: string;
@@ -21,20 +22,23 @@ export interface MusicItem {
 
 // ================== SONG ==================
 export interface Song extends MusicItem {
+    songId: string | number;
+    songMid?: string | number;
     artist: string;
     artistId?: string | number;
     album: string;
     albumId?: string | number;
     duration: string;
     sources: AudioSource[];
-    bestSource: string; // Legacy field for playback
+    bestSource: string;
     genre?: string;
 }
 
 // ================== PLAYLIST ==================
 export interface Playlist extends MusicItem {
+    id: string | number;
     count: number;
-    songCount?: number; // UI alias
+    songCount?: number;
     creator: string;
     songs?: Song[];
     isSubscribed?: boolean;
@@ -43,10 +47,11 @@ export interface Playlist extends MusicItem {
 
 // ================== ALBUM ==================
 export interface Album extends MusicItem {
+    id: string | number;
     artist: string;
     artistId?: string | number;
     year: number;
-    releaseDate?: string; // UI alias / formatted string
+    releaseDate?: string;
     artistAvatar?: string;
     songs?: Song[];
     count?: number;
@@ -70,6 +75,8 @@ export interface Artist {
 
 // ================== TRACK (Currently Playing) ==================
 export interface Track extends MusicItem {
+    songId: string | number;
+    songMid?: string | number;
     artist: string;
     artistId?: string | number;
     album: string;
@@ -77,7 +84,5 @@ export interface Track extends MusicItem {
     duration: string;
     currentTime: string;
     quality: string;
-    sourceId?: string | number;
-    // For legacy support during migration
     source: string;
 }

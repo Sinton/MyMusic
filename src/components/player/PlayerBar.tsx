@@ -72,7 +72,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
 
 
 
-    const hasTrack = currentTrack && currentTrack.id !== 0;
+    const hasTrack = currentTrack && currentTrack.songId !== 0;
 
     // Track when the slide-up animation has settled, so we can safely enable backdrop-filter.
     // During transform animations, backdrop-filter doesn't render correctly in Chromium,
@@ -114,7 +114,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                     className="flex items-center gap-4 w-[300px] cursor-pointer group"
                 >
                     <div
-                        className={`w-12 h-12 rounded-lg ${currentTrack.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(currentTrack.id)}`} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
+                        className={`w-12 h-12 rounded-lg ${currentTrack.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(currentTrack.songId)}`} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
                     >
                         {currentTrack.cover ? (
                             <img

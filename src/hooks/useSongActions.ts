@@ -12,7 +12,7 @@ export const useSongActions = (song: Song) => {
     const { userPlaylists, addSongToPlaylist, likedSongs, toggleLike } = usePlaylistStore();
     const { play, setTrack } = usePlayerStore();
 
-    const isLiked = likedSongs.some(s => s.id === song.id);
+    const isLiked = likedSongs.some(s => s.songId === song.songId);
 
     const handleLike = useCallback(() => {
         toggleLike(song);
@@ -27,7 +27,7 @@ export const useSongActions = (song: Song) => {
         const state = usePlayerStore.getState();
 
         // Add to queue if not present
-        if (!state.queue.find(t => t.id === track.id)) {
+        if (!state.queue.find(t => t.songId === track.songId)) {
             state.setQueue([...state.queue, track]);
         }
 
@@ -43,7 +43,7 @@ export const useSongActions = (song: Song) => {
 
     const isInPlaylist = useCallback((playlistId: string | number): boolean => {
         const playlist = userPlaylists.find(pl => pl.id === playlistId);
-        return playlist?.songs?.some(s => s.id === song.id) ?? false;
+        return playlist?.songs?.some(s => s.songId === song.songId) ?? false;
     }, [song, userPlaylists]);
 
     return {

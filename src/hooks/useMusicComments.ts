@@ -9,16 +9,18 @@ import { APP_CONFIG } from '../config';
 export function useMusicLatestComments(
     platform: string,
     songId: string | number,
+    songMid?: string | number,
     options = { enabled: true }
 ) {
     const { request } = useMusicApiGateway();
     const limit = 20;
 
     return useInfiniteQuery({
-        queryKey: ['music-comments-latest', platform, songId],
+        queryKey: ['music-comments-latest', platform, songId, songMid],
         queryFn: async ({ pageParam = 0 }) => {
             const res = await request(platform, 'song_comments', {
-                id: songId,
+                songId,
+                songMid,
                 offset: pageParam,
                 limit
             });
@@ -46,16 +48,18 @@ export function useMusicLatestComments(
 export function useMusicHotComments(
     platform: string,
     songId: string | number,
+    songMid?: string | number,
     options = { enabled: true }
 ) {
     const { request } = useMusicApiGateway();
     const limit = 20;
 
     return useInfiniteQuery({
-        queryKey: ['music-comments-hot', platform, songId],
+        queryKey: ['music-comments-hot', platform, songId, songMid],
         queryFn: async ({ pageParam = 0 }) => {
             const res = await request(platform, 'song_hot_comments', {
-                id: songId,
+                songId,
+                songMid,
                 offset: pageParam,
                 limit
             });

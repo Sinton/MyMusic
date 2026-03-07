@@ -15,13 +15,16 @@ export function neteaseToSong(item: NeteaseSongItem): Song {
         qualityLabel: (item.privilege?.maxbr ?? 0) >= 999000 ? 'SQ' : 'HQ',
         vip: item.fee === 1,
         color: '#e60026',
+        songId: item.id,
+        songMid: item.id,
     };
 
     // NetEase cover detection - fallback to item.picUrl if album metadata is incomplete
     const cover = album.picUrl || album.blurPicUrl || item.picUrl;
 
     return {
-        id: item.id,
+        songId: item.id,
+        songMid: item.id,
         title: item.name,
         platform: 'netease',
         artist: artistName,
@@ -48,7 +51,8 @@ export function neteaseToTrack(item: NeteaseSongItem): Track {
     const cover = album.picUrl || album.blurPicUrl || item.picUrl;
 
     return {
-        id: item.id,
+        songId: item.id,
+        songMid: item.id,
         title: item.name,
         platform: 'netease',
         artist: artistName,

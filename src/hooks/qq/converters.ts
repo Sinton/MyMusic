@@ -2,10 +2,13 @@ import type { Song, AudioSource, Playlist, Album, Artist } from '../../types';
 
 /** Convert a QQ Music song item (2025.10 API format) to our app's Song type */
 export function qqToSong(item: any): Song {
-    if (!item) return { id: 0, title: 'Unknown', platform: 'qq', artist: 'Unknown', album: 'Unknown', duration: '0:00', sources: [], bestSource: 'qq' };
+    if (!item) return { songId: 0, title: 'Unknown', platform: 'qq', artist: 'Unknown', album: 'Unknown', duration: '0:00', sources: [], bestSource: 'qq' };
 
-    // Support both mid and id, but prefer mid for QQ Music URLs
-    const songMid = item.mid || item.songmid || String(item.id || '');
+    // Use numeric ID as the primary 'songId' that the backend comment API needs
+    const songId = String(item.id || '');
+    // Prefer string mid (alphanumeric) for URLs and other use cases if needed, otherwise use songId
+    const songMid = item.mid || item.songmid || songId;
+
     const artistName = (item.singer || item.singer_list)?.map((s: any) => s.name).join(', ') || 'Unknown Artist';
     const singers = item.singer || item.singer_list || [];
     const artistMid = singers[0]?.mid || singers[0]?.singer_mid || singers[0]?.singerMid || '';
@@ -21,9 +24,10 @@ export function qqToSong(item: any): Song {
         platform: 'qq',
         quality: 'hq',
         qualityLabel: 'HQ',
-        vip: item.pay?.pay_play === 1 || item.pay?.pay_month === 1,
+        vip: item.pay?.pay_play === 1,
         color: '#31c27c',
-        sourceId: songMid,
+        songId: songId,
+        songMid: songMid,
     };
 
     const songTitleBase = item.title || item.name || 'Unknown Title';
@@ -31,7 +35,8 @@ export function qqToSong(item: any): Song {
     const songTitle = subtitle ? `${songTitleBase} (${subtitle})` : songTitleBase;
 
     return {
-        id: songMid,
+        songId: songId,
+        songMid: songMid,
         title: songTitle,
         platform: 'qq',
         artist: artistName,

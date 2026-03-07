@@ -40,7 +40,7 @@ export const usePlaylistStore = create<PlaylistStore>()(
                 userPlaylists: state.userPlaylists.map(pl => {
                     if (pl.id === playlistId) {
                         const songs = pl.songs || [];
-                        const alreadyExists = songs.some(s => s.id === song.id);
+                        const alreadyExists = songs.some(s => s.songId === song.songId);
                         if (alreadyExists) return pl;
                         const newSongs = [...songs, song];
                         return { ...pl, songs: newSongs, count: newSongs.length };
@@ -53,7 +53,7 @@ export const usePlaylistStore = create<PlaylistStore>()(
                 userPlaylists: state.userPlaylists.map(pl => {
                     if (pl.id === playlistId) {
                         const songs = pl.songs || [];
-                        const newSongs = songs.filter(s => s.id !== songId);
+                        const newSongs = songs.filter(s => s.songId !== songId);
                         return { ...pl, songs: newSongs, count: newSongs.length };
                     }
                     return pl;
@@ -77,9 +77,9 @@ export const usePlaylistStore = create<PlaylistStore>()(
             })),
 
             toggleLike: (song: Song) => set((state) => {
-                const isLiked = state.likedSongs.some(s => s.id === song.id);
+                const isLiked = state.likedSongs.some(s => s.songId === song.songId);
                 if (isLiked) {
-                    return { likedSongs: state.likedSongs.filter(s => s.id !== song.id) };
+                    return { likedSongs: state.likedSongs.filter(s => s.songId !== song.songId) };
                 } else {
                     return { likedSongs: [...state.likedSongs, song] };
                 }

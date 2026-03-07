@@ -116,7 +116,8 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
             const durationStr = `${min}:${sec.toString().padStart(2, '0')}`;
 
             const track: Track = {
-                id: info.trackId,
+                songId: info.trackId,
+                songMid: trackData.url,   // Actual audio URL used by useTrackUrlResolver
                 title: trackData.title,
                 platform: 'qishui',
                 artist: trackData.artist,
@@ -126,7 +127,6 @@ const ClipboardMusicToast: React.FC<ClipboardMusicToastProps> = ({ info, onDismi
                 duration: durationStr,
                 currentTime: '0:00',
                 source: 'qishui',           // Platform identifier for detectPlatform()
-                sourceId: trackData.url,   // Actual audio URL used by useTrackUrlResolver
                 quality: trackData.qualityLabel === 'SQ' ? 'SQ' : 'HQ',
                 cover: trackData.cover,
             };

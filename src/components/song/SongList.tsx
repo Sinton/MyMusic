@@ -30,7 +30,7 @@ const SongList: React.FC<SongListProps> = ({
         const selectedTrack = songToTrack(song, source);
 
         const currentQueue = usePlayerStore.getState().queue;
-        if (!currentQueue.find(t => t.id === selectedTrack.id)) {
+        if (!currentQueue.find(t => t.songId === selectedTrack.songId)) {
             setQueue([...currentQueue, selectedTrack]);
         }
 
@@ -63,7 +63,7 @@ const SongList: React.FC<SongListProps> = ({
             ) : (
                 songs.map((song) => (
                     <SongRow
-                        key={song.id}
+                        key={song.songId}
                         song={song}
                         onPlay={handlePlaySong}
                         extraAction={renderExtraAction ? renderExtraAction(song) : undefined}

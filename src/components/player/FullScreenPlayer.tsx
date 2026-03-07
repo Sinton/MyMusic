@@ -64,19 +64,22 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     const activePlatform = detectPlatform(currentTrack?.source) !== 'unknown'
         ? detectPlatform(currentTrack?.source)
         : (currentTrack?.platform || 'netease');
-    const activeSongId = currentTrack?.sourceId || currentTrack?.id || '';
+
+    // For NetEase lyrics / general usage
+    const activeSongId = currentTrack?.songId || '';
 
     // Reset panels when song changes
     useEffect(() => {
-        if (currentTrack?.id) {
+        if (currentTrack?.songId) {
             closeAllPanels();
         }
-    }, [currentTrack?.id, closeAllPanels]);
+    }, [currentTrack?.songId, closeAllPanels]);
 
     const { lyrics: neteaseLyrics } = useNeteaseLyric(activeSongId, { enabled: activePlatform === 'netease' && !!activeSongId });
-    const qqSongMid = String(currentTrack?.sourceId || currentTrack?.id);
+    // Lyrics ALWAYS need the MID for QQ
+    const qqSongMid = String(currentTrack?.songMid || currentTrack?.songId || '');
     const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: activePlatform === 'qq' && !!qqSongMid });
-    const qishuiTrackId = String(currentTrack?.id);
+    const qishuiTrackId = String(currentTrack?.songId || '');
     const { lyrics: qishuiLyrics } = useQishuiLyric(qishuiTrackId, { enabled: activePlatform === 'qishui' && !!qishuiTrackId });
 
     // Use platform-specific lyrics
@@ -94,7 +97,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     };
 
     const handlePlayQueueTrack = (track: typeof currentTrack) => {
-        if (track.id === currentTrack.id) {
+        if (track.songId === currentTrack.songId) {
             togglePlay();
         } else {
             setTrack(track);
@@ -164,8 +167,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                     <VinylVisualizer
                         isPlaying={isPlaying}
                         visualizerEnabled={visualizerEnabled}
-                        trackId={currentTrack.id}
-                        trackColor={currentTrack.id !== 0 && currentTrack.id !== '0' ? getTrackColor(currentTrack.id) : undefined}
+                        trackId={currentTrack.songId}
+                        trackColor={currentTrack.songId !== 0 && currentTrack.songId !== '0' ? getTrackColor(currentTrack.songId) : undefined}
                     />
                 </div>
 
@@ -218,7 +221,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                 isOpen={showCommentsPanel}
                 onClose={toggleCommentsPanel}
                 platform={activePlatform}
-                songId={activeSongId}
+                songId={currentTrack?.songId || ''}
+                songMid={currentTrack?.songMid}
             />
 
             <QueuePanel
@@ -238,7 +242,7 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
                         onClose();
                     } else {
                         store.setQueue(newQueue);
-                        if (removedTrack.id === currentTrack.id) {
+                        if (removedTrack.songId === currentTrack.songId) {
                             nextTrack();
                         }
                     }

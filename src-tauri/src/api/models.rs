@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct MusicTrack {
-    pub id: String,
+    pub song_id: String,
     pub platform: String,
     pub title: String,
     pub artists: Vec<MusicArtist>,
@@ -12,6 +13,7 @@ pub struct MusicTrack {
     pub cover_url: Option<String>,
     pub raw_url: Option<String>,
     pub vip: bool,
+    pub song_mid: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

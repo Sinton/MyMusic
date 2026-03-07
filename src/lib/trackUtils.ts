@@ -16,7 +16,8 @@ export function songToTrack(
     overrides?: Partial<Pick<Track, 'cover'>>
 ): Track {
     return {
-        id: song.id,
+        songId: source?.songId || song.songId,
+        songMid: source?.songMid || song.songMid || song.sources[0]?.songMid,
         title: song.title,
         platform: song.platform,
         artist: song.artist,
@@ -28,6 +29,5 @@ export function songToTrack(
         source: source?.platform || song.bestSource,
         quality: source?.qualityLabel || song.sources[0]?.qualityLabel || 'Standard',
         cover: overrides?.cover || song.cover,
-        sourceId: source?.sourceId || song.sources[0]?.sourceId,
     };
 }

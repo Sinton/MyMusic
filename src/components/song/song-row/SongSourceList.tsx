@@ -20,7 +20,7 @@ export const SongSourceList: React.FC<SongSourceListProps> = ({ song, expanded, 
 
     // Check if a specific source is currently playing
     const isSourceActive = (source: AudioSource) => {
-        if (!currentTrack || currentTrack.id !== song.id) return false;
+        if (!currentTrack || String(currentTrack.songId) !== String(source.songId)) return false;
         // Logic similar to SongRow indicator
         const p1 = source.platform.toLowerCase();
         const p2 = currentTrack.source.toLowerCase();

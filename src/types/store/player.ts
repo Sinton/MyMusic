@@ -30,6 +30,7 @@ export interface PlayerActions {
     previousTrack: () => void;
     setProgress: (time: number) => void;
     setQueue: (queue: Track[]) => void;
+    setDuration: (duration: number) => void;
     clearQueue: () => void;
 }
 

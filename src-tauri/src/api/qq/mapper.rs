@@ -36,7 +36,7 @@ pub fn map_song_to_music(s: &Value, platform: &str) -> MusicTrack {
     };
 
     MusicTrack {
-        id: s["id"].to_string(),
+        song_id: s["id"].to_string(),
         platform: platform.to_string(),
         title: s["name"].as_str().unwrap_or("Unknown Track").to_string(),
         artists,
@@ -45,6 +45,7 @@ pub fn map_song_to_music(s: &Value, platform: &str) -> MusicTrack {
         cover_url,
         raw_url: None,
         vip: s["pay"]["pay_play"].as_u64().unwrap_or(0) == 1,
+        song_mid: if !track_mid.is_empty() { Some(track_mid.to_string()) } else { None },
     }
 }
 
@@ -134,35 +135,35 @@ fn process_qq_content(content: &str) -> String {
 }
 
 pub fn map_comments(body: &Value) -> MusicComments {
-    let mut total = 0;
-    let mut comment_list_json = None;
-    let mut hot_comment_list_json = None;
-
-    if body["req_1"]["data"].is_object() {
+    let (total, comments_raw, hot_comments_raw) = if let Some(req_data) = body["req_1"]["data"].as_object() {
         // RPC format
-        let req_data = &body["req_1"]["data"];
-        total = req_data["totalNum"].as_u64().unwrap_or(0) as u32;
-        comment_list_json = req_data["commentList"].as_array();
-        hot_comment_list_json = req_data["hotComment"]["commentList"].as_array();
+        let req_data_val = Value::Object(req_data.clone());
+        (
+            req_data_val["totalNum"].as_u64().unwrap_or(0) as u32,
+            req_data_val["commentList"].as_array().cloned().unwrap_or_default(),
+            req_data_val["hotComment"]["commentList"].as_array().cloned().unwrap_or_default()
+        )
     } else {
         // Legacy H5 format
-        total = body["comment"]["commenttotal"].as_u64()
+        let total = body["comment"]["commenttotal"].as_u64()
             .or(body["commenttotal"].as_u64())
             .or(body["totalNum"].as_u64())
             .unwrap_or(0) as u32;
         
-        // Check for comment.commentlist first (Latest or Cmd=9 Hot)
-        comment_list_json = body["comment"]["commentlist"].as_array();
+        let comments = body["comment"]["commentlist"].as_array().cloned().unwrap_or_else(|| {
+            body["commentlist"].as_array().cloned().unwrap_or_default()
+        });
         
-        // If not found, try root commentlist
-        if comment_list_json.is_none() {
-            comment_list_json = body["commentlist"].as_array();
-        }
+        let hot_comments = body["hot_comment"]["commentlist"].as_array().cloned().unwrap_or_default();
+        
+        (total, comments, hot_comments)
+    };
 
-        hot_comment_list_json = body["hot_comment"]["commentlist"].as_array();
-    }
-
-    let has_more_from_api = body["morecomment"].as_u64().map(|n| n == 1);
+    let has_more = if let Some(more) = body["morecomment"].as_u64() {
+        more == 1
+    } else {
+        total > comments_raw.len() as u32 && !comments_raw.is_empty()
+    };
 
     let map_comment_fn = |c: &Value| {
         let user_id = c["userId"].as_str()
@@ -201,15 +202,13 @@ pub fn map_comments(body: &Value) -> MusicComments {
         }
     };
 
-    let hot_comments: Option<Vec<MusicComment>> = hot_comment_list_json
-        .map(|list| list.iter().map(map_comment_fn).collect());
+    let hot_comments = if !hot_comments_raw.is_empty() {
+        Some(hot_comments_raw.iter().map(map_comment_fn).collect())
+    } else {
+        None
+    };
     
-    let comments: Vec<MusicComment> = comment_list_json
-        .map(|list| list.iter().map(map_comment_fn).collect())
-        .unwrap_or_default();
-
-    // Use morecomment from API if available, otherwise fallback to total vs length logic
-    let has_more = has_more_from_api.unwrap_or(total > comments.len() as u32 && comments.len() >= 10);
+    let comments = comments_raw.iter().map(map_comment_fn).collect();
 
     MusicComments {
         platform: "qq".to_string(),

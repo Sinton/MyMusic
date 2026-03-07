@@ -107,7 +107,7 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
     const { userPlaylists } = usePlaylistStore();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const currentTrack = usePlayerStore(state => state.currentTrack);
-    const hasTrack = currentTrack && currentTrack.id !== 0;
+    const hasTrack = currentTrack && currentTrack.songId !== 0;
 
     // Custom friction-based smooth scroll
     const scrollToTopSlowly = (element: HTMLElement, duration: number) => {

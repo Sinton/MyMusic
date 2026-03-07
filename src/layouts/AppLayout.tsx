@@ -62,7 +62,7 @@ const AppLayout: React.FC = () => {
         if (currentTrack) {
             invoke('log_info', { message: `[AppLayout] Current Track: ${JSON.stringify(currentTrack)}` }).catch(() => { });
         }
-    }, [currentTrack.id]);
+    }, [currentTrack.songId]);
 
 
 

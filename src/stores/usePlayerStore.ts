@@ -4,7 +4,7 @@ import type { PlayerStore, Track } from '../types';
 import { getNextIndex, getPreviousIndex } from '../lib/playerUtils';
 
 const EMPTY_TRACK: Track = {
-    id: 0,
+    songId: 0,
     title: 'Loading...',
     platform: 'unknown',
     artist: '...',
@@ -37,6 +37,7 @@ export const usePlayerStore = create<PlayerStore>()(
             setVolume: (volume: number) => set({ volume }),
             setProgress: (time: number) => set({ currentTimeSec: time }),
             setQueue: (queue: Track[]) => set({ queue }),
+            setDuration: (duration: number) => set({ durationSec: duration }),
             clearQueue: () => set({
                 queue: [],
                 currentTrack: EMPTY_TRACK,
@@ -69,7 +70,7 @@ export const usePlayerStore = create<PlayerStore>()(
             nextTrack: (isAuto = false) => {
                 const state = get();
                 const { queue, currentTrack, shuffle, repeat } = state;
-                const currentIndex = queue.findIndex(t => t.id === currentTrack.id);
+                const currentIndex = queue.findIndex(t => t.songId === currentTrack.songId);
 
                 const { index: nextIndex, shouldStop } = getNextIndex(
                     currentIndex,
@@ -93,7 +94,7 @@ export const usePlayerStore = create<PlayerStore>()(
             previousTrack: () => {
                 const state = get();
                 const { queue, currentTrack, shuffle } = state;
-                const currentIndex = queue.findIndex(t => t.id === currentTrack.id);
+                const currentIndex = queue.findIndex(t => t.songId === currentTrack.songId);
 
                 const prevIndex = getPreviousIndex(currentIndex, queue.length, shuffle);
 

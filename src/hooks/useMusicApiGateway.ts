@@ -1,6 +1,6 @@
 ﻿import { invoke } from '@tauri-apps/api/core';
 import { useState, useCallback } from 'react';
-import { GatewayResponse } from '../../types/gateway';
+import { GatewayResponse } from '../types/gateway';
 
 export function useMusicApiGateway() {
     const [loading, setLoading] = useState(false);

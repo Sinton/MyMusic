@@ -195,7 +195,7 @@ const AlbumDetailView: React.FC<AlbumDetailViewProps> = ({
                         </div>
                     ) : (
                         albumSongs.map((song) => (
-                            <div key={song.id} className="group relative">
+                            <div key={song.songId} className="group relative">
                                 <SongRow
                                     song={song}
                                 />

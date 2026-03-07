@@ -11,7 +11,8 @@ export function musicTrackToSong(track: MusicTrack): Song {
     const durationStr = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
     return {
-        id: track.id,
+        songId: track.songId,
+        songMid: track.songMid,
         title: track.title,
         platform: track.platform as any,
         cover: track.coverUrl,
@@ -27,7 +28,8 @@ export function musicTrackToSong(track: MusicTrack): Song {
                 qualityLabel: '标准',
                 vip: track.vip || false,
                 color: track.platform === 'netease' ? '#ea4335' : track.platform === 'qq' ? '#1db954' : '#ffea00',
-                sourceId: track.id,
+                songId: track.songId,
+                songMid: track.songMid,
             } as AudioSource
         ],
         bestSource: track.platform,

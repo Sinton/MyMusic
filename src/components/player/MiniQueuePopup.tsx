@@ -58,7 +58,7 @@ const MiniQueueTrackItem = React.memo<MiniQueueTrackItemProps>(({
             {isCurrent && (
                 <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
             )}
-            <div className={`w-10 h-10 rounded ${track.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(track.id)}`} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
+            <div className={`w-10 h-10 rounded ${track.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(track.songId)}`} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
                 {track.cover && (
                     <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                 )}
@@ -156,7 +156,7 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
         if (newQueue.length === 0) {
             clearQueue();
             onClose();
-        } else if (removedTrack.id === currentTrack.id) {
+        } else if (removedTrack.songId === currentTrack.songId) {
             const nextTrack = newQueue[index] || newQueue[0];
             setTrack(nextTrack);
             play();
@@ -239,13 +239,13 @@ export const MiniQueuePopup: React.FC<MiniQueuePopupProps> = ({ isOpen, onClose 
                 ) : (
                     queue.map((track, index) => (
                         <MiniQueueTrackItem
-                            key={`${track.id}-${index}`}
+                            key={`${track.songId}-${index}`}
                             track={track}
                             index={index}
-                            isCurrent={track.id === currentTrack.id}
+                            isCurrent={track.songId === currentTrack.songId}
                             isPlaying={isPlaying}
                             onPlay={() => {
-                                if (track.id === currentTrack.id) {
+                                if (track.songId === currentTrack.songId) {
                                     togglePlay();
                                 } else {
                                     setTrack(track);

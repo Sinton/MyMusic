@@ -6,7 +6,7 @@ use super::{parse_params, linuxapi};
 
 pub async fn song_comments(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let parsed = parse_params(&options.params);
-    let id = parsed.get("id").ok_or(AppError::MissingParam("id".to_string()))?;
+    let id = parsed.get("songId").ok_or(AppError::MissingParam("songId".to_string()))?;
     let limit = parsed.get("limit").map(|s| s.as_str()).unwrap_or("20");
     let offset = parsed.get("offset").map(|s| s.as_str()).unwrap_or("0");
     let before_time = parsed.get("beforeTime").map(|s| s.as_str()).unwrap_or("0");
@@ -24,7 +24,7 @@ pub async fn song_comments(client: &HttpClient, options: Options) -> HttpResult<
 
 pub async fn song_hot_comments(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let parsed = parse_params(&options.params);
-    let id = parsed.get("id").ok_or(AppError::MissingParam("id".to_string()))?;
+    let id = parsed.get("songId").ok_or(AppError::MissingParam("songId".to_string()))?;
     let limit = parsed.get("limit").map(|s| s.as_str()).unwrap_or("20");
     let offset = parsed.get("offset").map(|s| s.as_str()).unwrap_or("0");
 

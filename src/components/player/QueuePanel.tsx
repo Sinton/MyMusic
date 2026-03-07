@@ -131,10 +131,10 @@ const QueuePanel: React.FC<QueuePanelProps> = ({
                 ) : (
                     queue.map((track, index) => (
                         <QueueTrackItem
-                            key={`${track.id}-${index}`}
+                            key={`${track.songId}-${index}`}
                             track={track}
                             index={index}
-                            isCurrent={track.id === currentTrack.id}
+                            isCurrent={track.songId === currentTrack.songId}
                             isPlaying={isPlaying}
                             onPlayTrack={onPlayTrack}
                             onRemoveTrack={onRemoveTrack}
@@ -163,7 +163,7 @@ const QueueTrackItem = React.memo<QueueTrackItemProps>(({
     onPlayTrack,
     onRemoveTrack
 }) => {
-    const trackColor = getTrackGradient(track.id);
+    const trackColor = getTrackGradient(track.songId);
 
     return (
         <div

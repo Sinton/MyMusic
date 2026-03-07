@@ -40,7 +40,7 @@ export function useTrackActions(
     /** Copy a share link to clipboard */
     const handleShare = useCallback(() => {
         if (!currentTrack) return;
-        navigator.clipboard.writeText(`https://music.app/track/${currentTrack.id}`);
+        navigator.clipboard.writeText(`https://music.app/track/${currentTrack.songId}`);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
     }, [currentTrack]);
@@ -49,7 +49,8 @@ export function useTrackActions(
     const trackToSong = useCallback((): Song | null => {
         if (!currentTrack) return null;
         return {
-            id: currentTrack.id,
+            songId: currentTrack.songId,
+            songMid: currentTrack.songMid,
             title: currentTrack.title,
             platform: currentTrack.platform as MusicPlatform,
             artist: currentTrack.artist,

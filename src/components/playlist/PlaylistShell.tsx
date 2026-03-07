@@ -109,7 +109,7 @@ export const PlaylistShell: React.FC<PlaylistShellProps> = ({
         if (songs.length > 0) {
             const selectedTrack = songToTrack(song, source, { cover: song.cover || cover });
             const currentQueue = usePlayerStore.getState().queue;
-            if (!currentQueue.find(t => t.id === selectedTrack.id)) {
+            if (!currentQueue.find(t => t.songId === selectedTrack.songId)) {
                 setQueue([...currentQueue, selectedTrack]);
             }
             setTrack(selectedTrack);
