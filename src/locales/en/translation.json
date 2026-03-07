@@ -74,6 +74,8 @@
             "searchShortcutDesc": "Set a global shortcut to toggle Vibe search anytime",
             "clipboardMonitor": "Clipboard Monitor",
             "clipboardMonitorDesc": "Auto-recognize and suggest playing music links from your clipboard",
+            "developerMode": "Developer Mode",
+            "developerModeDesc": "Enable experimental features for advanced users",
             "record": {
                 "waiting": "Waiting for key...",
                 "recording": "Recording...",
@@ -259,7 +261,11 @@
             "verifyNeeded": "Verification required, please try again later",
             "verifyOpenBrowser": "Verification page opened in browser, please complete verification and click button below to retry",
             "verifyComplete": "Verification complete, Login again",
-            "verifyReopen": "Reopen verification page"
+            "verifyReopen": "Reopen verification page",
+            "comingSoon": {
+                "title": "Coming Soon",
+                "desc": "Authentication for {{platform}} is under development. Stay tuned for updates!"
+            }
         }
     },
     "platforms": {

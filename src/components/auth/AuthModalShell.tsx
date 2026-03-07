@@ -1,18 +1,16 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Phone, QrCode, Cookie } from 'lucide-react';
+import { X } from 'lucide-react';
 import { PlatformBadge } from '../common/badges/PlatformBadge';
 import { getPlatformI18nKey } from '../../lib/platformUtils';
 import type { Platform } from '../../types';
-import type { LoginMode } from './authTypes';
 import { PLATFORM_COLORS } from './authTypes';
 
 interface AuthModalShellProps {
     isOpen: boolean;
     onClose: () => void;
     platform: Platform | null;
-    loginMode: LoginMode;
     isNetease: boolean;
     headerExtra?: React.ReactNode;
     footerExtra?: React.ReactNode;
@@ -23,7 +21,6 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
     isOpen,
     onClose,
     platform,
-    loginMode,
     isNetease,
     headerExtra,
     footerExtra,
@@ -45,7 +42,7 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
             />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-sm glass-drawer border border-[var(--glass-border)] rounded-[2.5rem] shadow-2xl overflow-hidden animate-modal-content">
+            <div className="relative w-full max-w-sm glass-drawer border border-[var(--glass-border)] rounded-[1.5rem] shadow-2xl overflow-hidden animate-modal-content">
 
                 {/* Header */}
                 <div className="relative h-32 flex items-center justify-center" style={{ background: `linear-gradient(to bottom right, ${accentColor}40, transparent)` }}>
@@ -63,15 +60,6 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
                                 size="lg"
                                 className="!w-16 !h-16 !rounded-xl mx-auto mb-3 shadow-lg"
                             />
-                            <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                                {loginMode === 'phone' ? (
-                                    <Phone className="w-3 h-3 text-black" />
-                                ) : loginMode === 'cookie' ? (
-                                    <Cookie className="w-3 h-3 text-black" />
-                                ) : (
-                                    <QrCode className="w-3 h-3 text-black" />
-                                )}
-                            </div>
                         </div>
                         <h2 className="text-xl font-bold text-[var(--text-main)]">{t('auth.connect', { platform: platformNameTranslated })}</h2>
                     </div>

@@ -31,6 +31,7 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
     const cooldownTimer = useRef<ReturnType<typeof setInterval> | null>(null);
     const isNetease = platform?.name?.includes('NetEase') ?? false;
     const isQQ = platform?.name?.includes('QQ') ?? false;
+    const isQishui = platform?.name?.includes('Qishui') ?? false;
     const neteaseStore = useNeteaseStore();
     const qqStore = useQQStore();
 
@@ -145,10 +146,22 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         }
     }, [isNetease]);
 
-    // Reset state when modal opens
+    const lastPlatformRef = useRef<string | null>(null);
+
+    // Reset state when modal opens or platform changes
     useEffect(() => {
-        if (isOpen) {
-            setStep(loginMode === 'phone' ? 'phone' : 'qrcode');
+        if (isOpen && platform) {
+            const isNewPlatform = lastPlatformRef.current !== platform.name;
+
+            // If switching platforms, reset mode to default (qr)
+            let currentMode = loginMode;
+            if (isNewPlatform) {
+                currentMode = 'qr';
+                setLoginMode('qr');
+                lastPlatformRef.current = platform.name;
+            }
+
+            setStep(currentMode === 'phone' ? 'phone' : 'qrcode');
             setLoading(false);
             setQrUrl('');
             setPhoneNumber('');
@@ -158,17 +171,25 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
             if (pollTimer.current) clearInterval(pollTimer.current);
             if (cooldownTimer.current) clearInterval(cooldownTimer.current);
 
-            if (isNetease && loginMode === 'qr') {
+            // Platform specific initialization
+            if (isNetease && currentMode === 'qr') {
                 initQrLogin();
-            } else if (isQQ) {
+            } else if (isQQ && currentMode === 'cookie') {
                 setStep('cookie');
-                setLoginMode('cookie');
+            } else if (isQQ && currentMode !== 'cookie') {
+                // For QQ, if not in developer/cookie mode, default to QR (simulated)
+                setStep('qrcode');
+                setLoginMode('qr');
+            } else if (isQishui) {
+                setStep('coming_soon');
             }
-        } else {
+        } else if (!isOpen) {
             if (pollTimer.current) clearInterval(pollTimer.current);
             if (cooldownTimer.current) clearInterval(cooldownTimer.current);
+            // Optionally clear lastPlatformRef on close if you want it to reset even on the same platform
+            // lastPlatformRef.current = null;
         }
-    }, [isOpen, platform]);
+    }, [isOpen, platform, isNetease, isQQ, isQishui, initQrLogin]);
 
     /** Handle simulated login for non-NetEase platforms */
     const handleSimulateLogin = () => {
@@ -395,6 +416,7 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         cookieInput,
         isNetease,
         isQQ,
+        isQishui,
 
         // Setters
         setPhoneNumber,

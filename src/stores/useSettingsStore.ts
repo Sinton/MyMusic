@@ -16,6 +16,7 @@ export const useSettingsStore = create<SettingsStore>()(
             immersiveHeader: true,
             globalSearchShortcut: 'Shift+F',
             clipboardMonitor: true,
+            developerMode: false,
 
             setThemeMode: (mode) => set({ themeMode: mode }),
             setAccentColor: (color) => set({ accentColor: color }),
@@ -34,6 +35,7 @@ export const useSettingsStore = create<SettingsStore>()(
             toggleImmersiveHeader: () => set((state) => ({ immersiveHeader: !state.immersiveHeader })),
             setGlobalSearchShortcut: (shortcut) => set({ globalSearchShortcut: shortcut }),
             toggleClipboardMonitor: () => set((state) => ({ clipboardMonitor: !state.clipboardMonitor })),
+            toggleDeveloperMode: () => set((state) => ({ developerMode: !state.developerMode })),
         }),
         {
             name: 'settings-storage',

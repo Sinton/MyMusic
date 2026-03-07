@@ -74,6 +74,8 @@
             "searchShortcutDesc": "设置一个快捷键用于快速回到并定位搜索输入框",
             "clipboardMonitor": "剪贴板识别",
             "clipboardMonitorDesc": "复制汽水音乐分享链接后自动识别并提示播放",
+            "developerMode": "开发者模式",
+            "developerModeDesc": "为高级用户开启实验性功能",
             "record": {
                 "waiting": "等待按键...",
                 "recording": "录制中...",
@@ -259,7 +261,11 @@
             "verifyNeeded": "需要人机验证，请稍后重试",
             "verifyOpenBrowser": "已在浏览器中打开验证页面，请完成验证后点击下方按钮重试登录",
             "verifyComplete": "验证完成，重新登录",
-            "verifyReopen": "重新打开验证页面"
+            "verifyReopen": "重新打开验证页面",
+            "comingSoon": {
+                "title": "敬请期待",
+                "desc": "{{platform}} 的授权功能正在接入中，我们将很快支持它！"
+            }
         }
     },
     "platforms": {

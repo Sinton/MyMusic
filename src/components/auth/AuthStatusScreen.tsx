@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Smartphone, Loader2, CheckCircle,
     AlertTriangle, ShieldCheck, RefreshCw,
+    Construction
 } from 'lucide-react';
 import { open as shellOpen } from '@tauri-apps/plugin-shell';
 import type { AuthStep } from './authTypes';
@@ -13,6 +14,7 @@ interface AuthStatusScreenProps {
     verifyUrl: string;
     onRetry: () => void;
     onPhoneLogin: () => void;
+    onClose?: () => void;
 }
 
 const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
@@ -21,6 +23,7 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
     verifyUrl,
     onRetry,
     onPhoneLogin,
+    onClose,
 }) => {
     const { t } = useTranslation();
 
@@ -97,6 +100,31 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
                     <RefreshCw className="w-4 h-4" />
                     {t('auth.refresh', '刷新二维码')}
                 </button>
+            </div>
+        );
+    }
+
+    if (step === 'coming_soon') {
+        const platformNameRaw = accentColor === '#ffde00' ? 'Qishui' : 'This platform';
+        const platformNameTranslated = t(`platforms.${platformNameRaw.toLowerCase()}`, platformNameRaw);
+
+        return (
+            <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <Construction className="w-8 h-8 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-[var(--text-main)]">{t('auth.error.comingSoon.title')}</h3>
+                <p className="text-sm text-[var(--text-secondary)] px-6">
+                    {t('auth.error.comingSoon.desc', { platform: platformNameTranslated })}
+                </p>
+                <div className="pt-4">
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-2 rounded-xl bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-all text-sm font-bold text-[var(--text-main)]"
+                    >
+                        {t('common.confirm')}
+                    </button>
+                </div>
             </div>
         );
     }

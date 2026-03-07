@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Phone, QrCode, Cookie } from 'lucide-react';
 import { getPlatformI18nKey } from '../../lib/platformUtils';
 import type { Platform } from '../../types';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 
 // Sub-components
 import PhoneLoginForm from './PhoneLoginForm';
@@ -25,8 +26,16 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConnect }) => {
+    const developerMode = useSettingsStore(state => state.developerMode);
     const { t } = useTranslation();
     const auth = useAuthLogic({ isOpen, platform, onConnect, onClose });
+
+    // Safety: If developer mode is turned off while cookie mode is active, switch back to QR
+    React.useEffect(() => {
+        if (!developerMode && auth.loginMode === 'cookie' && isOpen) {
+            auth.switchLoginMode('qr');
+        }
+    }, [developerMode, auth.loginMode, isOpen, auth.switchLoginMode]);
 
     if (!isOpen || !platform) return null;
 
@@ -34,15 +43,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const platformNameTranslated = t(`platforms.${getPlatformI18nKey(platform.name)}`);
 
     const isFormStep = (auth.step === 'phone' || auth.step === 'qrcode' || auth.step === 'cookie') && !auth.loading;
-    const isStatusStep = !isFormStep;
+    const isStatusStep = !isFormStep || auth.step === 'coming_soon';
 
-    const headerExtra = auth.isNetease && isFormStep ? (
+    const loginModes = [
+        { mode: 'phone' as LoginMode, icon: Phone, labelKey: 'auth.phone.title' },
+        { mode: 'qr' as LoginMode, icon: QrCode, labelKey: 'auth.qr.title' },
+        { mode: 'cookie' as LoginMode, icon: Cookie, labelKey: 'auth.cookie.title' },
+    ].filter(m => developerMode || m.mode !== 'cookie');
+
+    const headerExtra = (auth.isNetease || auth.isQQ) && isFormStep ? (
         <div className="flex mx-8 mt-4 p-1 bg-[var(--glass-highlight)] rounded-lg">
-            {([
-                { mode: 'phone' as LoginMode, icon: Phone, labelKey: 'auth.phone.title' },
-                { mode: 'qr' as LoginMode, icon: QrCode, labelKey: 'auth.qr.title' },
-                { mode: 'cookie' as LoginMode, icon: Cookie, labelKey: 'auth.cookie.title' },
-            ]).map(({ mode, icon: Icon, labelKey }) => (
+            {loginModes.map(({ mode, icon: Icon, labelKey }) => (
                 <button
                     key={mode}
                     onClick={() => auth.switchLoginMode(mode)}
@@ -63,7 +74,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             isOpen={isOpen}
             onClose={onClose}
             platform={platform}
-            loginMode={auth.loginMode}
             isNetease={auth.isNetease}
             headerExtra={headerExtra}
         >
@@ -120,6 +130,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     verifyUrl={auth.verifyUrl}
                     onRetry={auth.handleRefreshQr}
                     onPhoneLogin={auth.handlePhoneLogin}
+                    onClose={onClose}
                 />
             )}
         </AuthModalShell>
