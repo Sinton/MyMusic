@@ -30,12 +30,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const { t } = useTranslation();
     const auth = useAuthLogic({ isOpen, platform, onConnect, onClose });
 
-    // Safety: If developer mode is turned off while cookie mode is active, switch back to QR
+    // Safety: If developer mode is turned off while cookie mode is active, switch to platform's default
     React.useEffect(() => {
         if (!developerMode && auth.loginMode === 'cookie' && isOpen) {
-            auth.switchLoginMode('qr');
+            // 根据平台选择合适的默认登录方式，而不是强制扫码
+            if (platform?.name.includes('NetEase')) {
+                auth.switchLoginMode('phone'); // 网易云默认手机登录
+            } else if (platform?.name.includes('QQ')) {
+                auth.switchLoginMode('qr'); // QQ默认扫码（模拟）
+            } else {
+                auth.switchLoginMode('qr'); // 其他平台默认扫码
+            }
         }
-    }, [developerMode, auth.loginMode, isOpen, auth.switchLoginMode]);
+    }, [developerMode, auth.loginMode, isOpen, auth.switchLoginMode, platform]);
 
     if (!isOpen || !platform) return null;
 
@@ -74,7 +81,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             isOpen={isOpen}
             onClose={onClose}
             platform={platform}
-            isNetease={auth.isNetease}
             headerExtra={headerExtra}
         >
             {auth.step === 'phone' && !auth.loading && (
@@ -119,6 +125,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     qrUrl={auth.qrUrl}
                     isNetease={auth.isNetease}
                     platformNameTranslated={platformNameTranslated}
+                    phoneError={auth.phoneError}
                     onSimulateLogin={auth.handleSimulateLogin}
                 />
             )}

@@ -262,6 +262,7 @@
             "verifyOpenBrowser": "已在浏览器中打开验证页面，请完成验证后点击下方按钮重试登录",
             "verifyComplete": "验证完成，重新登录",
             "verifyReopen": "重新打开验证页面",
+            "networkRisk": "检测到您的网络环境存在风险，请稍后再试",
             "comingSoon": {
                 "title": "敬请期待",
                 "desc": "{{platform}} 的授权功能正在接入中，我们将很快支持它！"

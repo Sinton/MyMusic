@@ -20,7 +20,8 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
     const [step, setStep] = useState<AuthStep>('qrcode');
     const [loading, setLoading] = useState(false);
     const [qrUrl, setQrUrl] = useState('');
-    const [loginMode, setLoginMode] = useState<LoginMode>('phone');
+    const [loginMode, setLoginMode] = useState<LoginMode>('qr');
+    const lastLoginModeRef = useRef<LoginMode>('qr'); // 记录用户最后选择的登录方式
     const [phoneNumber, setPhoneNumber] = useState('');
     const [captchaCode, setCaptchaCode] = useState('');
     const [captchaCooldown, setCaptchaCooldown] = useState(0);
@@ -126,8 +127,10 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
             const keyData: any = await NeteaseService.getQrKey();
             const unikey = keyData?.unikey || keyData?.data?.unikey;
             if (!unikey) {
+                const errorMsg = keyData?.message || keyData?.data?.blockText || t('auth.error.networkRisk');
                 console.error('Failed to get QR key:', keyData);
-                setStep('error');
+                setPhoneError(errorMsg);
+                // 不跳转到error状态，保持当前模式让用户可以切换其他登录方式
                 setLoading(false);
                 return;
             }
@@ -139,9 +142,11 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
             setLoading(false);
 
             startPolling(unikey);
-        } catch (err) {
+        } catch (err: any) {
             console.error('QR login init failed:', err);
-            setStep('error');
+            const errorMsg = err?.message || err?.data?.blockText || t('auth.error.loginRetry');
+            setPhoneError(errorMsg);
+            // 不跳转到error状态，保持当前模式让用户可以切换其他登录方式
             setLoading(false);
         }
     }, [isNetease]);
@@ -153,15 +158,30 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         if (isOpen && platform) {
             const isNewPlatform = lastPlatformRef.current !== platform.name;
 
-            // If switching platforms, reset mode to default (qr)
+            // If switching platforms, reset mode to default for that platform or use last selected
             let currentMode = loginMode;
             if (isNewPlatform) {
-                currentMode = 'qr';
-                setLoginMode('qr');
+                // 优先使用用户之前选择的登录方式，如果该方式对新平台适用
+                const lastMode = lastLoginModeRef.current;
+                if (platform.name.includes('NetEase') && (lastMode === 'phone' || lastMode === 'cookie')) {
+                    currentMode = lastMode;
+                } else if (platform.name.includes('QQ') && (lastMode === 'phone' || lastMode === 'cookie' || lastMode === 'qr')) {
+                    currentMode = lastMode;
+                } else {
+                    // 为不同平台设置合适的默认登录方式
+                    if (platform.name.includes('NetEase')) {
+                        currentMode = 'phone'; // 网易云默认手机登录
+                    } else if (platform.name.includes('QQ')) {
+                        currentMode = 'cookie'; // QQ默认Cookie登录
+                    } else {
+                        currentMode = 'qr'; // 其他平台默认扫码
+                    }
+                }
+                setLoginMode(currentMode);
                 lastPlatformRef.current = platform.name;
             }
 
-            setStep(currentMode === 'phone' ? 'phone' : 'qrcode');
+            setStep(currentMode === 'phone' ? 'phone' : currentMode === 'cookie' ? 'cookie' : 'qrcode');
             setLoading(false);
             setQrUrl('');
             setPhoneNumber('');
@@ -172,17 +192,13 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
             if (cooldownTimer.current) clearInterval(cooldownTimer.current);
 
             // Platform specific initialization
-            if (isNetease && currentMode === 'qr') {
-                initQrLogin();
-            } else if (isQQ && currentMode === 'cookie') {
+            // 网易云不自动扫码，等待用户手动触发
+            if (isQQ && currentMode === 'cookie') {
                 setStep('cookie');
-            } else if (isQQ && currentMode !== 'cookie') {
-                // For QQ, if not in developer/cookie mode, default to QR (simulated)
-                setStep('qrcode');
-                setLoginMode('qr');
             } else if (isQishui) {
                 setStep('coming_soon');
             }
+            // QQ的其他模式（phone、qr）保持用户选择，不强制重置
         } else if (!isOpen) {
             if (pollTimer.current) clearInterval(pollTimer.current);
             if (cooldownTimer.current) clearInterval(cooldownTimer.current);
@@ -214,6 +230,7 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
     const switchLoginMode = (mode: LoginMode) => {
         if (pollTimer.current) clearInterval(pollTimer.current);
         setLoginMode(mode);
+        lastLoginModeRef.current = mode; // 记录用户选择
         setPhoneError('');
 
         if (mode === 'qr') {
@@ -223,6 +240,12 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
             setStep('phone');
         } else {
             setStep('cookie');
+            // 回显当前平台已保存的Cookie
+            if (isNetease) {
+                setCookieInput(neteaseStore.cookie || '');
+            } else if (isQQ) {
+                setCookieInput(qqStore.cookie || '');
+            }
         }
     };
 

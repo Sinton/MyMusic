@@ -262,6 +262,7 @@
             "verifyOpenBrowser": "Verification page opened in browser, please complete verification and click button below to retry",
             "verifyComplete": "Verification complete, Login again",
             "verifyReopen": "Reopen verification page",
+            "networkRisk": "Network risk detected, please try again later",
             "comingSoon": {
                 "title": "Coming Soon",
                 "desc": "Authentication for {{platform}} is under development. Stay tuned for updates!"

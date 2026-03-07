@@ -11,7 +11,6 @@ interface AuthModalShellProps {
     isOpen: boolean;
     onClose: () => void;
     platform: Platform | null;
-    isNetease: boolean;
     headerExtra?: React.ReactNode;
     footerExtra?: React.ReactNode;
     children: React.ReactNode;
@@ -21,7 +20,6 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
     isOpen,
     onClose,
     platform,
-    isNetease,
     headerExtra,
     footerExtra,
     children
@@ -76,11 +74,7 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
                 {/* Footer */}
                 <div className="px-6 py-4 bg-[var(--glass-highlight)] border-t border-[var(--glass-border)] flex justify-between items-center text-xs text-[var(--text-secondary)]">
                     <span>{t('auth.privacy')}</span>
-                    {footerExtra || (
-                        !isNetease && (
-                            <span className="hover:text-[var(--text-main)] cursor-pointer">{t('auth.passwordLogin')}</span>
-                        )
-                    )}
+                    {footerExtra || null}
                 </div>
             </div>
         </div>,

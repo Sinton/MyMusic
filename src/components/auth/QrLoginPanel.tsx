@@ -7,6 +7,7 @@ interface QrLoginPanelProps {
     qrUrl: string;
     isNetease: boolean;
     platformNameTranslated: string;
+    phoneError?: string;
     onSimulateLogin: () => void;
 }
 
@@ -14,6 +15,7 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
     qrUrl,
     isNetease,
     platformNameTranslated,
+    phoneError,
     onSimulateLogin,
 }) => {
     const { t } = useTranslation();
@@ -59,6 +61,11 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 {t('auth.waiting')}
             </div>
+
+            {/* Error */}
+            {phoneError && (
+                <p className="text-xs text-red-500 text-center animate-fade-in">{phoneError}</p>
+            )}
         </div>
     );
 };

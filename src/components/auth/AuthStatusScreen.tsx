@@ -135,7 +135,7 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
                 <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
                     <AlertTriangle className="w-8 h-8 text-red-500" />
                 </div>
-                <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.error', '连接失败')}</h3>
+                <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.error.title')}</h3>
                 <button
                     onClick={onRetry}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-colors text-sm text-[var(--text-main)]"
