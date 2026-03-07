@@ -12,6 +12,7 @@ pub mod song;
 pub mod playlist;
 pub mod lyric;
 pub mod mapper;
+pub mod comment;
 
 pub(crate) async fn musicu_request(
     client: &HttpClient,
@@ -57,6 +58,8 @@ impl super::base::ApiProvider for QQProvider {
             "artist_songs" => artist::songs(client, options).await,
             "artist_albums" => artist::albums(client, options).await,
             "album_detail" => album::detail(client, options).await,
+            "song_comments" => comment::get(client, options, 1).await,      // Sort 1: Latest
+            "song_hot_comments" => comment::get(client, options, 3).await,  // Sort 3: Hot
             _ => Err(AppError::Api(format!("Unknown QQ API: {}", api_name))),
         }
     }
@@ -82,6 +85,11 @@ impl super::base::ApiProvider for QQProvider {
                  let resp = self.dispatch(client, api_name, options).await?;
                  let unified = mapper::map_album_detail(&resp.body);
                  Ok(GatewayResponse::AlbumDetail(unified))
+            }
+            "song_comments" | "song_hot_comments" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_comments(&resp.body);
+                Ok(GatewayResponse::Comments(unified))
             }
             _ => {
                 let resp = self.dispatch(client, api_name, options).await?;

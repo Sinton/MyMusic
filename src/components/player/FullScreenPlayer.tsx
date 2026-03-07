@@ -7,6 +7,7 @@ import { useUIStore } from '../../stores/useUIStore';
 import { useNeteaseLyric } from '../../hooks/netease';
 import { useQQLyric } from '../../hooks/qq';
 import { useQishuiLyric } from '../../hooks/qishui';
+import { detectPlatform } from '../../lib/platformUtils';
 
 // Sub-components
 import VinylVisualizer from './VinylVisualizer';
@@ -58,7 +59,12 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
 
     const { userPlaylists, addSongToPlaylist } = usePlaylistStore();
 
-    const platform = currentTrack?.platform;
+    // Use currentTrack.source for comments and platform-specific logic
+    // source reflects the active resolved platform (e.g. 'qq' when matched)
+    const activePlatform = detectPlatform(currentTrack?.source) !== 'unknown'
+        ? detectPlatform(currentTrack?.source)
+        : (currentTrack?.platform || 'netease');
+    const activeSongId = currentTrack?.sourceId || currentTrack?.id || '';
 
     // Reset panels when song changes
     useEffect(() => {
@@ -67,16 +73,16 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
         }
     }, [currentTrack?.id, closeAllPanels]);
 
-    const { lyrics: neteaseLyrics } = useNeteaseLyric(currentTrack?.id, { enabled: platform === 'netease' && !!currentTrack?.id });
+    const { lyrics: neteaseLyrics } = useNeteaseLyric(activeSongId, { enabled: activePlatform === 'netease' && !!activeSongId });
     const qqSongMid = String(currentTrack?.sourceId || currentTrack?.id);
-    const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: platform === 'qq' && !!qqSongMid });
+    const { lyrics: qqLyrics } = useQQLyric(qqSongMid, { enabled: activePlatform === 'qq' && !!qqSongMid });
     const qishuiTrackId = String(currentTrack?.id);
-    const { lyrics: qishuiLyrics } = useQishuiLyric(qishuiTrackId, { enabled: platform === 'qishui' && !!qishuiTrackId });
+    const { lyrics: qishuiLyrics } = useQishuiLyric(qishuiTrackId, { enabled: activePlatform === 'qishui' && !!qishuiTrackId });
 
     // Use platform-specific lyrics
-    const activeLyrics = platform === 'netease' ? neteaseLyrics
-        : platform === 'qq' ? qqLyrics
-            : platform === 'qishui' ? qishuiLyrics
+    const activeLyrics = activePlatform === 'netease' ? neteaseLyrics
+        : activePlatform === 'qq' ? qqLyrics
+            : activePlatform === 'qishui' ? qishuiLyrics
                 : [];
 
 
@@ -211,8 +217,8 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
             <CommentsPanel
                 isOpen={showCommentsPanel}
                 onClose={toggleCommentsPanel}
-                platform={platform || ''}
-                songId={currentTrack?.id || ''}
+                platform={activePlatform}
+                songId={activeSongId}
             />
 
             <QueuePanel
