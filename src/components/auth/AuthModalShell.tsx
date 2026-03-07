@@ -25,6 +25,25 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
     children
 }) => {
     const { t } = useTranslation();
+    const [height, setHeight] = React.useState<number | 'auto'>('auto');
+    const contentRef = React.useRef<HTMLDivElement>(null);
+
+    // Smoothly animate the height of the modal body when content changes
+    React.useLayoutEffect(() => {
+        if (isOpen && contentRef.current) {
+            const observer = new ResizeObserver((entries) => {
+                for (let entry of entries) {
+                    // entry.target.scrollHeight provides the actual height of the inner content
+                    setHeight(entry.target.scrollHeight);
+                }
+            });
+
+            observer.observe(contentRef.current);
+            return () => observer.disconnect();
+        } else if (!isOpen) {
+            setHeight('auto');
+        }
+    }, [isOpen, children]); // Re-observe if children change
 
     if (!isOpen || !platform) return null;
 
@@ -66,9 +85,14 @@ export const AuthModalShell: React.FC<AuthModalShellProps> = ({
                 {/* Optional Header Extra (like Tabs) */}
                 {headerExtra}
 
-                {/* Body */}
-                <div className="p-8">
-                    {children}
+                {/* Body - Animated height container */}
+                <div
+                    className="overflow-hidden transition-[height] duration-300 ease-out"
+                    style={{ height }}
+                >
+                    <div ref={contentRef} className="p-8">
+                        {children}
+                    </div>
                 </div>
 
                 {/* Footer */}

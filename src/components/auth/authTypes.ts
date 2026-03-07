@@ -2,7 +2,7 @@
  * Shared types and constants for AuthModal sub-components.
  */
 
-export type AuthStep = 'qrcode' | 'scanning' | 'success' | 'expired' | 'error' | 'phone' | 'cookie' | 'verify' | 'coming_soon';
+export type AuthStep = 'qrcode' | 'scanning' | 'success' | 'expired' | 'error' | 'phone' | 'cookie' | 'verify' | 'coming_soon' | 'logged_in';
 export type LoginMode = 'qr' | 'phone' | 'cookie';
 
 export const PLATFORM_COLORS: Record<string, string> = {

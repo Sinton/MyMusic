@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Smartphone, Loader2, CheckCircle,
     AlertTriangle, ShieldCheck, RefreshCw,
-    Construction
+    Construction, LogOut
 } from 'lucide-react';
 import { open as shellOpen } from '@tauri-apps/plugin-shell';
 import type { AuthStep } from './authTypes';
@@ -12,8 +12,10 @@ interface AuthStatusScreenProps {
     step: AuthStep;
     accentColor: string;
     verifyUrl: string;
+    scannedUser?: { nickname: string; avatarUrl: string } | null;
     onRetry: () => void;
     onPhoneLogin: () => void;
+    onLogout?: () => void; // New prop
     onClose?: () => void;
 }
 
@@ -21,22 +23,97 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
     step,
     accentColor,
     verifyUrl,
+    scannedUser,
     onRetry,
     onPhoneLogin,
+    onLogout,
     onClose,
 }) => {
     const { t } = useTranslation();
 
+    if (step === 'logged_in') {
+        return (
+            <div className="py-8 flex flex-col items-center justify-center space-y-6 animate-fade-in text-center w-full">
+                <div className="relative group">
+                    <div className="absolute inset-0 bg-[var(--accent-color)] opacity-20 blur-2xl rounded-full scale-150 animate-pulse" />
+                    <div
+                        className="relative p-1 rounded-full bg-white/20 dark:bg-white/5 border border-white/30 backdrop-blur-2xl shadow-2xl z-10"
+                        style={{ WebkitBackdropFilter: 'blur(24px) saturate(160%)' }}
+                    >
+                        <img
+                            src={scannedUser?.avatarUrl || ''}
+                            alt={scannedUser?.nickname}
+                            className="w-24 h-24 rounded-full object-cover"
+                        />
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center z-20 shadow-lg">
+                        <CheckCircle className="w-4.5 h-4.5 text-white" />
+                    </div>
+                </div>
+
+                <div className="space-y-1 z-10">
+                    <h3 className="text-xl font-bold text-[var(--text-main)]">
+                        {scannedUser?.nickname}
+                    </h3>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                        {t('auth.alreadyLoggedIn', '当前已登录该账号')}
+                    </p>
+                </div>
+
+                <div className="flex flex-row gap-3 w-full px-8 pt-2">
+                    <button
+                        onClick={onLogout}
+                        className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all font-bold group text-sm"
+                    >
+                        <LogOut className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        {t('auth.logout', '退出登录')}
+                    </button>
+
+                    <button
+                        onClick={onClose}
+                        className="flex-1 py-3 rounded-xl bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] text-[var(--text-secondary)] transition-all text-sm font-bold"
+                    >
+                        {t('common.cancel', '取消')}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (step === 'scanning') {
         return (
-            <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <Smartphone className="w-8 h-8 text-blue-400 animate-bounce" />
+            <div className="py-8 flex flex-col items-center justify-center space-y-4 animate-fade-in text-center">
+                <div className="relative">
+                    {scannedUser?.avatarUrl ? (
+                        <div className="relative">
+                            <div
+                                className="relative p-1 rounded-full bg-white/20 dark:bg-white/5 border border-white/30 backdrop-blur-2xl shadow-xl z-10 animate-in zoom-in-50 duration-500"
+                                style={{ WebkitBackdropFilter: 'blur(24px) saturate(160%)' }}
+                            >
+                                <img
+                                    src={scannedUser.avatarUrl}
+                                    alt={scannedUser.nickname}
+                                    className="w-24 h-24 rounded-full object-cover"
+                                />
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[var(--accent-color)] rounded-full flex items-center justify-center shadow-md animate-bounce">
+                                <Smartphone className="w-5 h-5 text-white" />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
+                            <Smartphone className="w-8 h-8 text-blue-400 animate-bounce" />
+                        </div>
+                    )}
                 </div>
-                <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.scanned', '已扫描')}</h3>
-                <p className="text-sm text-[var(--text-secondary)] text-center">
-                    {t('auth.confirmOnPhone', '请在手机上确认登录')}
-                </p>
+                <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-[var(--text-main)]">
+                        {scannedUser?.nickname ? scannedUser.nickname : t('auth.scanned', '已扫描')}
+                    </h3>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                        {t('auth.confirmOnPhone', '请在手机上确认登录')}
+                    </p>
+                </div>
             </div>
         );
     }

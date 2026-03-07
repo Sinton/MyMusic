@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSettingsStore } from '../stores/useSettingsStore';
+import { ACCENT_COLORS } from '../config';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { themeMode, accentColor } = useSettingsStore();
@@ -31,14 +32,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Handle Accent Color
     useEffect(() => {
         const root = window.document.documentElement;
-        const colors = {
-            pink: '#ec4899',
-            purple: '#8b5cf6',
-            blue: '#3b82f6',
-            green: '#10b981',
-            orange: '#f97316'
-        };
-        root.style.setProperty('--accent-color', colors[accentColor]);
+        // Apply the color from our central config
+        const colorValue = ACCENT_COLORS[accentColor] || ACCENT_COLORS.green;
+        root.style.setProperty('--accent-color', colorValue);
     }, [accentColor]);
 
     return <>{children}</>;

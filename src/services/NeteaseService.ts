@@ -77,7 +77,8 @@ export const NeteaseService = {
     /** Step 3: Poll QR scan status. Returns code: 800(expired), 801(waiting), 802(confirming), 803(success) */
     async checkQrLogin(key: string, cookie: string = ''): Promise<{ code: number; message: string; cookie?: string; nickname?: string; avatarUrl?: string }> {
         const resp = await this._request<NeteaseQrCheckResponse>('login_qr_check', `key=${key}`, cookie);
-        console.log('[checkQrLogin] resp.data:', JSON.stringify(resp.data));
+        // console.log('[checkQrLogin] raw body:', JSON.stringify(resp.data));
+
         const data = resp.data || {} as NeteaseQrCheckResponse;
 
         // Extract cookie from Set-Cookie response headers
@@ -86,17 +87,29 @@ export const NeteaseService = {
         const setCookie = headers['set-cookie'] || headers['Set-Cookie'] || '';
 
         if (setCookie) {
+            // Priority 1: Our custom double semicolon joiner from Rust
             if (setCookie.includes(';;')) {
                 responseCookie = setCookie.split(';;').map(c => c.split(';')[0]).join('; ');
-            } else {
+            }
+            // Priority 2: Standard comma joiner (be careful with dates)
+            else if (setCookie.includes(',')) {
+                // Try to avoid splitting on dates like "Wed, 21-Oct..."
+                // Only split on comma followed by a space if it looks like a new cookie name
+                responseCookie = setCookie.split(/,\s(?=[a-zA-Z0-9_-]+=)/).map(c => c.split(';')[0]).join('; ');
+            }
+            // Priority 3: Single cookie
+            else {
                 responseCookie = setCookie.split(';')[0];
             }
         }
 
+        // Sometimes the body itself might contain a cookie field for certain versions
+        const finalCookie = responseCookie || (data as any).cookie || '';
+
         return {
             code: data.code,
             message: data.message || '',
-            cookie: responseCookie || undefined,
+            cookie: finalCookie || undefined,
             nickname: data.nickname || undefined,
             avatarUrl: data.avatarUrl || undefined,
         };

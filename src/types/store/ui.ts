@@ -1,8 +1,9 @@
 import type { Platform } from '../domain/general';
+import type { AccentColorKey } from '../../config';
 
 // --- Settings Domain State (persisted) ---
 export type ThemeMode = 'dark' | 'light' | 'system';
-export type AccentColor = 'pink' | 'purple' | 'blue' | 'green' | 'orange';
+export type AccentColor = AccentColorKey;
 
 export interface SettingsState {
     themeMode: ThemeMode;

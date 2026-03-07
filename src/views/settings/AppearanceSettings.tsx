@@ -3,17 +3,7 @@ import { Palette } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useUIStore } from '../../stores/useUIStore';
-
-const getColorValue = (color: string) => {
-    const map: Record<string, string> = {
-        pink: '#ec4899',
-        purple: '#8b5cf6',
-        blue: '#3b82f6',
-        green: '#10b981',
-        orange: '#f97316'
-    };
-    return map[color] || '#ec4899';
-};
+import { ACCENT_COLORS, ACCENT_COLOR_ORDER } from '../../config';
 
 const AppearanceSettings: React.FC = () => {
     const { t } = useTranslation();
@@ -56,13 +46,13 @@ const AppearanceSettings: React.FC = () => {
                         <div className="text-xs text-[var(--text-secondary)]">{t('settings.appearance.accentDesc')}</div>
                     </div>
                     <div className="flex gap-3">
-                        {(['green', 'blue', 'orange', 'purple', 'pink'] as const).map((color) => (
+                        {ACCENT_COLOR_ORDER.map((color) => (
                             <button
                                 key={color}
                                 onClick={() => setAccentColor(color)}
                                 className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${accentColor === color ? 'border-[var(--text-main)] scale-110' : 'border-transparent'
                                     }`}
-                                style={{ backgroundColor: `var(--color-${color}, ${getColorValue(color)})` }}
+                                style={{ backgroundColor: ACCENT_COLORS[color] }}
                             />
                         ))}
                     </div>

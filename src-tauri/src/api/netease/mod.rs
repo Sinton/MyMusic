@@ -123,7 +123,25 @@ pub(crate) async fn request_handler(
 
 pub(crate) async fn weapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
     let cookies = get_cookie_string(&options.cookie);
-    request_handler(client, url, "weapi", params, &cookies, json!({}), options.trace_id.clone()).await
+    
+    // Aligns with official behavior: add csrf_token to URL if __csrf exists in cookies
+    let mut final_url = url.to_string();
+    if let Some(csrf) = cookies.split(';').find(|s| s.trim().starts_with("__csrf=")) {
+        if let Some((_, val)) = csrf.split_once('=') {
+            let csrf_val = val.trim();
+            if !csrf_val.is_empty() {
+                let sep = if final_url.contains('?') { "&" } else { "?" };
+                final_url = format!("{}{}csrf_token={}", final_url, sep, csrf_val);
+            }
+        }
+    }
+
+    request_handler(client, &final_url, "weapi", params, &cookies, json!({}), options.trace_id.clone()).await
+}
+
+pub(crate) async fn weapi_without_cookie(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
+    // If we want a truly fresh request, we don't pass manual cookies, letting reqwest use its internal Jar
+    request_handler(client, url, "weapi", params, "", json!({}), options.trace_id.clone()).await
 }
 
 pub(crate) async fn eapi(client: &HttpClient, url: &str, params: Value, eapi_path: &str, options: &Options) -> HttpResult<HttpResponse> {

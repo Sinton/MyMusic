@@ -33,7 +33,7 @@ const QQCookieLoginForm: React.FC<QQCookieLoginFormProps> = ({
             value={cookieInput}
             onChange={e => onCookieChange(e.target.value)}
             placeholder="粘贴 QQ 音乐网页版的 Cookie"
-            className="w-full h-24 px-3 py-2 text-xs bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg text-[var(--text-main)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[#31c27c] resize-none font-mono"
+            className="w-full h-24 px-3 py-2 text-xs bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg text-[var(--text-main)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[#31c27c] resize-none"
         />
 
         {/* Error */}

@@ -2,8 +2,8 @@
 import type { PlatformStore, Platform } from '../types';
 
 const defaultPlatforms: Platform[] = [
-    { name: 'NetEase Cloud', connected: true, vip: true, color: '#e60026' },
-    { name: 'QQ Music', connected: true, vip: false, color: '#31c27c' },
+    { name: 'NetEase Cloud', connected: false, vip: false, color: '#e60026' },
+    { name: 'QQ Music', connected: false, vip: false, color: '#31c27c' },
     { name: 'Qishui Music', connected: false, vip: false, color: '#ffde00' },
 ];
 

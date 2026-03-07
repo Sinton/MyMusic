@@ -11,6 +11,8 @@ import { usePlatformStore } from '../stores/usePlatformStore';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import ClipboardMusicToast from '../components/common/ClipboardMusicToast';
 import { useClipboardMonitor, type ClipboardTrackInfo } from '../hooks/useClipboardMonitor';
+import { useNeteaseStore } from '../stores/useNeteaseStore';
+import { useQQStore } from '../stores/useQQStore';
 
 import { useUIStore } from '../stores/useUIStore';
 
@@ -66,7 +68,19 @@ const AppLayout: React.FC = () => {
 
 
 
+    const neteaseStore = useNeteaseStore();
+    const qqStore = useQQStore();
     const connectPlatform = usePlatformStore((state) => state.connectPlatform);
+
+    // Sync platform connection state on mount
+    React.useEffect(() => {
+        if (neteaseStore.isLoggedIn) {
+            connectPlatform('NetEase Cloud');
+        }
+        if (qqStore.isLoggedIn) {
+            connectPlatform('QQ Music');
+        }
+    }, []);
 
     const handleConnect = (platformName: string) => {
         connectPlatform(platformName);

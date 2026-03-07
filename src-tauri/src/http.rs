@@ -162,7 +162,7 @@ impl HttpClient {
             .collect();
         
         if !cookie_headers.is_empty() {
-             resp_headers.insert("set-cookie".to_string(), cookie_headers.join(", ")); 
+             resp_headers.insert("set-cookie".to_string(), cookie_headers.join(";;")); 
         }
 
         let text = resp.text().await.map_err(AppError::from)?;

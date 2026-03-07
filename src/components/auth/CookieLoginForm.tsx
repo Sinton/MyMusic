@@ -24,7 +24,7 @@ const CookieLoginForm: React.FC<CookieLoginFormProps> = ({
 
             {/* Steps guide */}
             <div className="text-xs text-[var(--text-secondary)] bg-[var(--glass-highlight)] rounded-lg p-3 space-y-1.5">
-                <p>1. {t('auth.cookie.steps.step1').split('<button>')[0]}<button onClick={() => shellOpen('https://music.163.com')} className="text-[var(--accent-color)] underline">music.163.com</button>{t('auth.cookie.steps.step1').split('</button>')[1]}</p>
+                <p>{t('auth.cookie.steps.step1').split('<button>')[0]}<button onClick={() => shellOpen('https://music.163.com')} className="text-[var(--accent-color)] underline">music.163.com</button>{t('auth.cookie.steps.step1').split('</button>')[1]}</p>
                 <p>{t('auth.cookie.steps.step2')}</p>
                 <p>{t('auth.cookie.steps.step3')}</p>
                 <p>{t('auth.cookie.steps.step4')}</p>
@@ -35,7 +35,7 @@ const CookieLoginForm: React.FC<CookieLoginFormProps> = ({
                 value={cookieInput}
                 onChange={e => onCookieChange(e.target.value)}
                 placeholder={t('auth.cookie.placeholder')}
-                className="w-full h-24 px-3 py-2 text-xs bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg text-[var(--text-main)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] resize-none font-mono"
+                className="w-full h-24 px-3 py-2 text-xs bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg text-[var(--text-main)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] resize-none"
             />
 
             {/* Error */}

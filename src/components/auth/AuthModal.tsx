@@ -49,7 +49,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
     const accentColor = PLATFORM_COLORS[platform.name] || '#fff';
     const platformNameTranslated = t(`platforms.${getPlatformI18nKey(platform.name)}`);
 
-    const isFormStep = (auth.step === 'phone' || auth.step === 'qrcode' || auth.step === 'cookie') && !auth.loading;
+    const isFormStep = (auth.step === 'phone' || auth.step === 'qrcode' || auth.step === 'cookie');
     const isStatusStep = !isFormStep || auth.step === 'coming_soon';
 
     const loginModes = [
@@ -83,7 +83,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             platform={platform}
             headerExtra={headerExtra}
         >
-            {auth.step === 'phone' && !auth.loading && (
+            {auth.step === 'phone' && (
                 <PhoneLoginForm
                     accentColor={accentColor}
                     phoneError={auth.phoneError}
@@ -98,7 +98,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 />
             )}
 
-            {auth.step === 'cookie' && !auth.loading && (
+            {auth.step === 'cookie' && (
                 auth.isQQ ? (
                     <QQCookieLoginForm
                         accentColor={accentColor}
@@ -120,13 +120,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                 )
             )}
 
-            {auth.step === 'qrcode' && !auth.loading && (
+            {auth.step === 'qrcode' && (
                 <QrLoginPanel
                     qrUrl={auth.qrUrl}
                     isNetease={auth.isNetease}
                     platformNameTranslated={platformNameTranslated}
                     phoneError={auth.phoneError}
-                    onSimulateLogin={auth.handleSimulateLogin}
+                    loading={auth.loading}
+                    onSimulateLogin={auth.isNetease ? auth.handleRefreshQr : auth.handleSimulateLogin}
                 />
             )}
 
@@ -135,8 +136,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     step={auth.step}
                     accentColor={accentColor}
                     verifyUrl={auth.verifyUrl}
+                    scannedUser={auth.scannedUser}
                     onRetry={auth.handleRefreshQr}
                     onPhoneLogin={auth.handlePhoneLogin}
+                    onLogout={auth.handleLogout}
                     onClose={onClose}
                 />
             )}
