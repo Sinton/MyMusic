@@ -123,11 +123,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
             {auth.step === 'qrcode' && (
                 <QrLoginPanel
                     qrUrl={auth.qrUrl}
+                    qrData={auth.qrData}
                     isNetease={auth.isNetease}
+                    isQQ={auth.isQQ}
                     platformNameTranslated={platformNameTranslated}
                     phoneError={auth.phoneError}
                     loading={auth.loading}
-                    onSimulateLogin={auth.isNetease ? auth.handleRefreshQr : auth.handleSimulateLogin}
+                    onSimulateLogin={auth.isNetease || auth.isQQ ? auth.handleRefreshQr : auth.handleSimulateLogin}
                 />
             )}
 
@@ -136,6 +138,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     step={auth.step}
                     accentColor={accentColor}
                     verifyUrl={auth.verifyUrl}
+                    phoneError={auth.phoneError}
                     scannedUser={auth.scannedUser}
                     onRetry={auth.handleRefreshQr}
                     onPhoneLogin={auth.handlePhoneLogin}

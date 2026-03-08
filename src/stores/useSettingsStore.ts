@@ -3,19 +3,26 @@ import { persist } from 'zustand/middleware';
 
 import type { SettingsStore } from '../types';
 
+const getInitialLanguage = () => {
+    if (typeof navigator !== 'undefined') {
+        return navigator.language.startsWith('zh') ? 'zh' : 'en';
+    }
+    return 'zh';
+};
+
 export const useSettingsStore = create<SettingsStore>()(
     persist(
         (set) => ({
-            themeMode: 'dark',
-            accentColor: 'pink',
-            language: 'en',
-            launchOnLogin: true,
+            themeMode: 'system',
+            accentColor: 'green',
+            language: getInitialLanguage(),
+            launchOnLogin: false,
             outputDevice: 'default',
             streamingQuality: 'master',
             exclusiveMode: false,
             immersiveHeader: true,
             globalSearchShortcut: 'Shift+F',
-            clipboardMonitor: true,
+            clipboardMonitor: false,
             developerMode: false,
 
             setThemeMode: (mode) => set({ themeMode: mode }),

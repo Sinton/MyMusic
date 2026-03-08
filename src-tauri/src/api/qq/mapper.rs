@@ -1,5 +1,100 @@
-﻿use crate::api::models::{MusicTrack, MusicArtist, MusicAlbum, MusicSearchBatch, MusicPlaylist, MusicArtistDetail, MusicAlbumDetail, MusicComments, MusicComment, MusicCommentUser};
+﻿use crate::api::models::{MusicTrack, MusicArtist, MusicAlbum, MusicSearchBatch, MusicPlaylist, MusicArtistDetail, MusicAlbumDetail, MusicComments, MusicComment, MusicCommentUser, MusicAuthResponse, MusicAuthStatus};
 use serde_json::Value;
+use crate::http::HttpResponse;
+use base64::{Engine as _, engine::general_purpose};
+
+pub fn map_auth_response(resp: &HttpResponse, action_name: &str) -> MusicAuthResponse {
+    let mut auth_id = String::new();
+    
+    // Extract qrsig from cookies if it exists (for init)
+    let cookie_val = resp.headers.get("set-cookie")
+        .or(resp.headers.get("Set-Cookie"))
+        .or(resp.headers.get("SET-COOKIE"));
+
+    let mut qrsig = String::new();
+    // Extract qrsig from cookies if it exists (for init)
+    if let Some(v) = cookie_val {
+        for full_cookie in v.split(";;") {
+            if let Some(cookie_part) = full_cookie.split(';').next() {
+                if let Some((name, val)) = cookie_part.split_once('=') {
+                    if name.trim().to_lowercase() == "qrsig" {
+                        qrsig = val.trim().to_string();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    let login_sig = resp.headers.get("x-login-sig").cloned().unwrap_or_default();
+    
+    if !qrsig.is_empty() {
+        if !login_sig.is_empty() {
+            auth_id = format!("{}|{}", qrsig, login_sig);
+        } else {
+            auth_id = qrsig;
+        }
+    }
+    
+    if auth_id.is_empty() && action_name == "auth_qr_init" {
+        println!("[QQ AUTH DEBUG] Failed to find qrsig in headers: {:?}", resp.headers);
+    }
+
+    let status = if action_name == "auth_qr_init" {
+        MusicAuthStatus::Waiting
+    } else {
+        match resp.body["code"].as_str() {
+            Some("0") => MusicAuthStatus::Success,
+            Some("66") => MusicAuthStatus::Waiting,
+            Some("67") => MusicAuthStatus::Scanned,
+            Some("65") => MusicAuthStatus::Expired,
+            Some("71") => MusicAuthStatus::Canceled,
+            Some(code) => {
+                if code == "unknown" {
+                    MusicAuthStatus::Waiting
+                } else {
+                    MusicAuthStatus::Error(format!("QQ Error: {}", code))
+                }
+            },
+            None => MusicAuthStatus::Error("Empty response body".into())
+        }
+    };
+
+    let nickname = resp.body["nickname"].as_str().map(|s| s.to_string());
+    let avatar = resp.body["avatar"].as_str()
+        .map(|s| s.to_string())
+        .or_else(|| Some("https://q.qlogo.cn/g?b=qq&nk=1234567&s=100".to_string()));
+    let cookie = resp.body["cookie"].as_str().map(|s| s.to_string());
+
+    let qr_data = if action_name == "auth_qr_init" {
+        // Return base64 encoded image
+        if !resp.raw_body.is_empty() {
+             Some(format!("data:image/png;base64,{}", general_purpose::STANDARD.encode(&resp.raw_body)))
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let mut final_auth_id = auth_id;
+    if status == MusicAuthStatus::Success {
+        if let Some(uin) = resp.body["uin"].as_str() {
+            final_auth_id = uin.to_string();
+        }
+    }
+
+    MusicAuthResponse {
+        platform: "qq".to_string(),
+        action: action_name.to_string(),
+        auth_id: final_auth_id,
+        qr_data,
+        status,
+        nickname, 
+        avatar,
+        cookie,
+    }
+}
 
 pub fn map_song_to_music(s: &Value, platform: &str) -> MusicTrack {
     let singers = s["singer"].as_array().cloned().unwrap_or_default();

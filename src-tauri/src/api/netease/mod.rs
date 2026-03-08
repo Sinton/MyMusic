@@ -34,13 +34,13 @@ pub(crate) fn parse_params(params: &str) -> HashMap<String, String> {
 }
 
 pub(crate) fn get_cookie_string(cookie: &str) -> String {
-    let mut base_cookie = if cookie.is_empty() {
-        format!("NMTID={};", Crypto::hex_random_bytes(16))
-    } else {
-        cookie.to_owned()
-    };
+    let mut base_cookie = cookie.to_owned();
     if !base_cookie.contains("os=") {
-        base_cookie = format!("os=pc; {}", base_cookie);
+        if base_cookie.is_empty() {
+            base_cookie = "os=pc;".to_string();
+        } else {
+            base_cookie = format!("os=pc; {}", base_cookie);
+        }
     }
     base_cookie
 }
@@ -75,8 +75,7 @@ pub(crate) fn prepare_request(
 
     if url.contains("music.163.com") {
         headers.push(("referer".to_string(), crate::config::netease::REFERER.to_string()));
-        headers.push(("origin".to_string(), crate::config::netease::BASE_URL.to_string()));
-        headers.push(("host".to_string(), "music.163.com".to_string()));
+        headers.push(("origin".to_string(), "https://music.163.com".to_string()));
     }
 
     if !cookies.is_empty() {
@@ -116,9 +115,10 @@ pub(crate) async fn request_handler(
     cookies: &str,
     extra_params: Value,
     trace_id: Option<String>,
+    use_cookie_store: bool,
 ) -> HttpResult<HttpResponse> {
      let req_data = prepare_request(url, "POST", crypto, query_params, cookies, extra_params);
-     client.request(&req_data.method, &req_data.url, req_data.headers, req_data.body, trace_id).await
+     client.request_full(&req_data.method, &req_data.url, req_data.headers, req_data.body, trace_id, use_cookie_store).await
 }
 
 pub(crate) async fn weapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
@@ -136,22 +136,22 @@ pub(crate) async fn weapi(client: &HttpClient, url: &str, params: Value, options
         }
     }
 
-    request_handler(client, &final_url, "weapi", params, &cookies, json!({}), options.trace_id.clone()).await
+    request_handler(client, &final_url, "weapi", params, &cookies, json!({}), options.trace_id.clone(), true).await
 }
 
 pub(crate) async fn weapi_without_cookie(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
-    // If we want a truly fresh request, we don't pass manual cookies, letting reqwest use its internal Jar
-    request_handler(client, url, "weapi", params, "", json!({}), options.trace_id.clone()).await
+    // Explicitly use_cookie_store = false to prevent reqwest from adding internal cookies
+    request_handler(client, url, "weapi", params, "", json!({}), options.trace_id.clone(), false).await
 }
 
 pub(crate) async fn eapi(client: &HttpClient, url: &str, params: Value, eapi_path: &str, options: &Options) -> HttpResult<HttpResponse> {
     let cookies = get_cookie_string(&options.cookie);
-    request_handler(client, url, "eapi", params, &cookies, json!({ "url": eapi_path }), options.trace_id.clone()).await
+    request_handler(client, url, "eapi", params, &cookies, json!({ "url": eapi_path }), options.trace_id.clone(), true).await
 }
 
 pub(crate) async fn linuxapi(client: &HttpClient, url: &str, params: Value, options: &Options) -> HttpResult<HttpResponse> {
     let cookies = get_cookie_string(&options.cookie);
-    request_handler(client, url, "linuxapi", params, &cookies, json!({}), options.trace_id.clone()).await
+    request_handler(client, url, "linuxapi", params, &cookies, json!({}), options.trace_id.clone(), true).await
 }
 
 pub struct NeteaseProvider;
@@ -176,6 +176,8 @@ impl super::base::ApiProvider for NeteaseProvider {
             "login_status" => login::status(client, options).await,
             "login_refresh" => login::refresh(client, options).await,
             "logout" => login::logout(client, options).await,
+            "auth_qr_init" => login::qr_init_combined(client, options).await,
+            "auth_qr_check" => login::qr_check(client, options).await,
             
             // Song
             "song_url" => song::url(client, options).await,
@@ -245,6 +247,11 @@ impl super::base::ApiProvider for NeteaseProvider {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_comments(&resp.body);
                 Ok(GatewayResponse::Comments(unified))
+            }
+            "auth_qr_init" | "auth_qr_check" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_auth_response(&resp, api_name);
+                Ok(GatewayResponse::Auth(unified))
             }
             _ => {
                 let resp = self.dispatch(client, api_name, options).await?;

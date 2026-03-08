@@ -212,6 +212,7 @@ pub async fn detail(client: &HttpClient, options: Options) -> HttpResult<HttpRes
         status: 200,
         body: result,
         headers: std::collections::HashMap::new(),
+        raw_body: vec![],
     })
 }
 

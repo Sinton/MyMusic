@@ -12,6 +12,11 @@ import './styles/base.css';
 import './styles/components.css';
 import './styles/utilities.css';
 
+// Disable right-click context menu in Production (Release build)
+if (import.meta.env.PROD) {
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {

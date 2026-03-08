@@ -12,10 +12,11 @@ interface AuthStatusScreenProps {
     step: AuthStep;
     accentColor: string;
     verifyUrl: string;
+    phoneError?: string; // New prop
     scannedUser?: { nickname: string; avatarUrl: string } | null;
     onRetry: () => void;
     onPhoneLogin: () => void;
-    onLogout?: () => void; // New prop
+    onLogout?: () => void;
     onClose?: () => void;
 }
 
@@ -23,6 +24,7 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
     step,
     accentColor,
     verifyUrl,
+    phoneError,
     scannedUser,
     onRetry,
     onPhoneLogin,
@@ -213,6 +215,11 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
                     <AlertTriangle className="w-8 h-8 text-red-500" />
                 </div>
                 <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.error.title')}</h3>
+                {phoneError && (
+                    <p className="text-sm text-red-500/80 px-8 text-center animate-in fade-in slide-in-from-top-1 duration-500">
+                        {phoneError}
+                    </p>
+                )}
                 <button
                     onClick={onRetry}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-colors text-sm text-[var(--text-main)]"

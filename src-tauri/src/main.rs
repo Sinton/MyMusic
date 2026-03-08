@@ -1,3 +1,4 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use serde::Deserialize;
 
 use tauri::{Manager, State};
@@ -130,8 +131,8 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-             let app_data_dir = app.path().app_data_dir()
-                .expect("Could not determine app data directory");
+             let app_data_dir = app.path().app_local_data_dir()
+                .expect("Could not determine app local data directory");
             
             // Create directory if it doesn't exist
             if !app_data_dir.exists() {

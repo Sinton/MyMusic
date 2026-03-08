@@ -146,6 +146,7 @@ pub async fn validate(client: &HttpClient, options: Options) -> HttpResult<HttpR
             status: 200,
             body: json!({ "code": 200, "data": { "isQishuiLink": false } }),
             headers: std::collections::HashMap::new(),
+            raw_body: vec![],
         });
     }
 
@@ -164,11 +165,13 @@ pub async fn validate(client: &HttpClient, options: Options) -> HttpResult<HttpR
                 }
             }),
             headers: std::collections::HashMap::new(),
+            raw_body: vec![],
         }),
         Err(_) => Ok(HttpResponse {
             status: 200,
             body: json!({ "code": 200, "data": { "isQishuiLink": false } }),
             headers: std::collections::HashMap::new(),
+            raw_body: vec![],
         }),
     }
 }

@@ -16,7 +16,11 @@ i18n
                 const storage = localStorage.getItem('settings-storage');
                 if (storage) {
                     const parsed = JSON.parse(storage);
-                    return parsed.state?.language || 'zh';
+                    if (parsed.state?.language) return parsed.state.language;
+                }
+                // Fallback to system language
+                if (typeof navigator !== 'undefined') {
+                    return navigator.language.startsWith('zh') ? 'zh' : 'en';
                 }
             } catch (e) {
                 console.error('Failed to parse settings-storage', e);

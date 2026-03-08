@@ -6,7 +6,9 @@ import { Skeleton } from '../common/Skeleton';
 
 interface QrLoginPanelProps {
     qrUrl: string;
+    qrData?: string; // New: Base64 QR image
     isNetease: boolean;
+    isQQ: boolean; // New: handle QQ specific display
     platformNameTranslated: string;
     phoneError?: string;
     loading?: boolean;
@@ -15,13 +17,16 @@ interface QrLoginPanelProps {
 
 const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
     qrUrl,
+    qrData,
     isNetease,
+    isQQ,
     platformNameTranslated,
     phoneError,
     loading,
     onSimulateLogin,
 }) => {
     const { t } = useTranslation();
+    const hasQr = !!qrUrl || !!qrData;
 
     return (
         <div className="flex flex-col items-center space-y-6">
@@ -36,12 +41,12 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
             {/* QR Code Container / Skeleton / Error State */}
             <div
                 className={`w-40 h-40 rounded-2xl transition-all duration-200 flex items-center justify-center relative overflow-hidden ${loading ? 'bg-gray-100 animate-pulse border-transparent' :
-                    (!qrUrl && phoneError) ? 'bg-red-50 border border-red-200 cursor-pointer' :
+                    (!hasQr && phoneError) ? 'bg-red-50 border border-red-200 cursor-pointer' :
                         'bg-white shadow-sm border border-[var(--glass-border)]'
                     }`}
-                onClick={(!qrUrl && isNetease) ? onSimulateLogin : (isNetease ? undefined : onSimulateLogin)}
+                onClick={(!hasQr && (isNetease || isQQ)) ? onSimulateLogin : undefined}
             >
-                {(loading || (isNetease && !qrUrl && !phoneError)) ? (
+                {(loading || ((isNetease || isQQ) && !hasQr && !phoneError)) ? (
                     /* Improved Skeleton visibility */
                     <div className="relative w-full h-full flex items-center justify-center">
                         <Skeleton width="100%" height="100%" variant="rectangular" className="rounded-2xl !bg-black/5 dark:!bg-white/5" />
@@ -49,7 +54,7 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
                             <QrCode className="w-12 h-12 text-[var(--text-muted)] opacity-20" />
                         </div>
                     </div>
-                ) : (isNetease && !qrUrl && phoneError) ? (
+                ) : (!hasQr && phoneError) ? (
                     /* Elegant Error State: Minimalist Larger Icon */
                     <div className="p-3 w-full h-full relative group/error animate-in fade-in zoom-in-95 duration-500">
                         <div className="w-full h-full border-2 border-dashed border-red-500/20 rounded-lg flex items-center justify-center bg-red-400/5 transition-all group-hover/error:bg-red-500/10">
@@ -64,8 +69,18 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
                             <span className="mt-4 text-[11px] font-black text-red-500 uppercase tracking-[0.3em]">{t('auth.retryShort', '重新获取')}</span>
                         </div>
                     </div>
-                ) : (isNetease && qrUrl) ? (
-                    /* Success: Real QR (Direct swap) */
+                ) : (isQQ && qrData) ? (
+                    /* QQ: Base64 Image */
+                    <div className="p-3 w-full h-full animate-in zoom-in-95 duration-300">
+                        <img
+                            src={qrData}
+                            alt="QQ QR Login"
+                            className="w-full h-full object-contain"
+                            style={{ filter: 'contrast(1.05)' }}
+                        />
+                    </div>
+                ) : (qrUrl) ? (
+                    /* Netease/Others: Real QR (Direct swap) */
                     <div className="p-3 w-full h-full animate-in zoom-in-95 duration-300">
                         <QRCodeSVG
                             value={qrUrl}
@@ -91,7 +106,7 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
 
             {/* Subtle Minimalist Status Footer: Zero-Doubt Transition */}
             <div className="min-h-[24px] flex items-center justify-center w-full transition-all duration-300">
-                {(loading || (isNetease && !qrUrl && !phoneError)) ? (
+                {(loading || ((isNetease || isQQ) && !hasQr && !phoneError)) ? (
                     <div className="flex items-center gap-2 text-[10px] font-bold tracking-widest uppercase text-[var(--text-muted)] opacity-30 animate-pulse">
                         {t('auth.initializing', '正在初始化...')}
                     </div>
@@ -112,3 +127,4 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
 };
 
 export default QrLoginPanel;
+

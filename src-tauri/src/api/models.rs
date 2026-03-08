@@ -118,5 +118,30 @@ pub enum GatewayResponse {
     Playlists(Vec<MusicPlaylist>),
     SearchBatch(MusicSearchBatch),
     Comments(MusicComments),
+    Auth(MusicAuthResponse),
     Raw(Value),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum MusicAuthStatus {
+    Waiting,
+    Scanned,
+    Success,
+    Expired,
+    Canceled,
+    Error(String),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MusicAuthResponse {
+    pub platform: String,
+    pub action: String,      // "init" or "check"
+    pub auth_id: String,     // Unikey for Netease, qrsig for QQ
+    pub qr_data: Option<String>, // Base64 or URL
+    pub status: MusicAuthStatus,
+    pub nickname: Option<String>,
+    pub avatar: Option<String>,
+    pub cookie: Option<String>,
 }

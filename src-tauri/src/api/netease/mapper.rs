@@ -1,5 +1,51 @@
-use crate::api::models::{MusicTrack, MusicArtist, MusicAlbum, MusicSearchBatch, MusicPlaylist, MusicArtistDetail, MusicAlbumDetail, MusicComment, MusicComments, MusicCommentUser};
-use serde_json::{Value, json};
+use super::super::models::{MusicTrack, MusicArtist, MusicAlbum, MusicSearchBatch, MusicPlaylist, MusicArtistDetail, MusicAlbumDetail, MusicComments, MusicComment, MusicCommentUser, MusicAuthResponse, MusicAuthStatus};
+use serde_json::Value;
+use crate::http::HttpResponse;
+
+pub fn map_auth_response(resp: &HttpResponse, action_name: &str) -> MusicAuthResponse {
+    let body = &resp.body;
+    let auth_id = body["unikey"].as_str()
+        .or(body["codekey"].as_str())
+        .unwrap_or("").to_string();
+
+    let status = if action_name == "auth_qr_init" {
+        MusicAuthStatus::Waiting
+    } else {
+        match body["code"].as_i64() {
+            Some(801) => MusicAuthStatus::Waiting,
+            Some(802) => MusicAuthStatus::Scanned,
+            Some(803) => MusicAuthStatus::Success,
+            Some(800) => MusicAuthStatus::Expired,
+            _ => {
+                let msg = body["message"].as_str().or(body["msg"].as_str())
+                    .unwrap_or("Unknown status");
+                MusicAuthStatus::Error(msg.to_string())
+            }
+        }
+    };
+
+    let qr_data = if action_name == "auth_qr_init" {
+        // Netease qr_create returns data.qrimg which is a base64 string
+        body["data"]["qrimg"].as_str().map(|s| s.to_string())
+    } else {
+        None
+    };
+
+    MusicAuthResponse {
+        platform: "netease".to_string(),
+        action: action_name.to_string(),
+        auth_id,
+        qr_data,
+        status,
+        nickname: body["nickname"].as_str()
+            .or(body["profile"]["nickname"].as_str())
+            .map(|s| s.to_string()),
+        avatar: body["avatarUrl"].as_str()
+            .or(body["profile"]["avatarUrl"].as_str())
+            .map(|s| s.to_string()),
+        cookie: body["cookie"].as_str().map(|s| s.to_string()),
+    }
+}
 
 pub fn map_song_to_music(s: &Value, platform: &str) -> MusicTrack {
     let artists = s["ar"].as_array().or(s["singer"].as_array()).cloned().unwrap_or_default().into_iter().map(|ar| {

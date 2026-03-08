@@ -17,6 +17,18 @@ import { useQQStore } from '../stores/useQQStore';
 import { useUIStore } from '../stores/useUIStore';
 
 const AppLayout: React.FC = () => {
+    // Disable right-click in production
+    React.useEffect(() => {
+        const handleContextMenu = (e: MouseEvent) => {
+            // Only disable if not in development or if explicitly required for production
+            if (import.meta.env.PROD) {
+                e.preventDefault();
+            }
+        };
+        window.addEventListener('contextmenu', handleContextMenu);
+        return () => window.removeEventListener('contextmenu', handleContextMenu);
+    }, []);
+
     // UI Store State
     const {
         isFullScreenPlayerOpen,

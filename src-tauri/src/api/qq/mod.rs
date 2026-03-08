@@ -1,7 +1,7 @@
 ﻿use crate::http::{HttpClient, HttpResult, HttpResponse};
 use crate::error::AppError;
 use super::base::ApiProvider;
-use serde_json::{json, Value};
+use serde_json::Value;
 use super::models::GatewayResponse;
 use crate::Options;
 
@@ -13,6 +13,7 @@ pub mod playlist;
 pub mod lyric;
 pub mod mapper;
 pub mod comment;
+pub mod login;
 
 pub(crate) async fn musicu_request(
     client: &HttpClient,
@@ -60,6 +61,8 @@ impl super::base::ApiProvider for QQProvider {
             "album_detail" => album::detail(client, options).await,
             "song_comments" => comment::get(client, options, 1).await,      // Sort 1: Latest
             "song_hot_comments" => comment::get(client, options, 3).await,  // Sort 3: Hot
+            "auth_qr_init" => login::qr_init(client, options).await,
+            "auth_qr_check" => login::qr_check(client, options).await,
             _ => Err(AppError::Api(format!("Unknown QQ API: {}", api_name))),
         }
     }
@@ -90,6 +93,11 @@ impl super::base::ApiProvider for QQProvider {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_comments(&resp.body);
                 Ok(GatewayResponse::Comments(unified))
+            }
+            "auth_qr_init" | "auth_qr_check" => {
+                let resp = self.dispatch(client, api_name, options).await?;
+                let unified = mapper::map_auth_response(&resp, api_name);
+                Ok(GatewayResponse::Auth(unified))
             }
             _ => {
                 let resp = self.dispatch(client, api_name, options).await?;

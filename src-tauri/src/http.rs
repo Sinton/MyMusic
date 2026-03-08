@@ -17,6 +17,8 @@ pub struct HttpResponse {
     pub status: u16,
     pub body: Value,
     pub headers: std::collections::HashMap<String, String>,
+    #[serde(skip_serializing)]
+    pub raw_body: Vec<u8>,
 }
 
 impl HttpResponse {
@@ -27,6 +29,7 @@ impl HttpResponse {
 
 pub struct HttpClient {
     pub internal: Client,
+    pub no_cookie_client: Client, // New client for clean requests
     cookie_store: Arc<CookieStoreMutex>,
     storage_path: PathBuf,
 }
@@ -49,9 +52,14 @@ impl HttpClient {
             .cookie_provider(Arc::clone(&cookie_store))
             .build()
             .unwrap();
+        
+        let no_cookie_client = ClientBuilder::new()
+            .build()
+            .unwrap();
 
         HttpClient {
             internal: client,
+            no_cookie_client,
             cookie_store,
             storage_path,
         }
@@ -104,12 +112,25 @@ impl HttpClient {
         body: String,
         trace_id: Option<String>,
     ) -> HttpResult<HttpResponse> {
+        self.request_full(method, url, headers_list, body, trace_id, true).await
+    }
+
+    pub async fn request_full(
+        &self,
+        method: &str,
+        url: &str,
+        headers_list: Vec<(String, String)>,
+        body: String,
+        trace_id: Option<String>,
+        use_cookie_store: bool,
+    ) -> HttpResult<HttpResponse> {
         let current_trace_id = trace_id.unwrap_or_else(|| "no-trace".to_string());
         let headers = self.build_common_headers(headers_list, None);
 
+        let client = if use_cookie_store { &self.internal } else { &self.no_cookie_client };
         let builder = match method.to_uppercase().as_str() {
-            "GET" => self.internal.get(url),
-            "POST" => self.internal.post(url).body(body.clone()),
+            "GET" => client.get(url),
+            "POST" => client.post(url).body(body.clone()),
             _ => return Err(AppError::Internal(format!("Unsupported method: {}", method))),
         };
 
@@ -119,14 +140,16 @@ impl HttpClient {
              curl.push_str(&format!(" -H '{}: {}'", k, v.to_str().unwrap_or("").replace("'", "'\\''")));
         }
 
-        if let Ok(url_obj) = reqwest::Url::parse(url) {
-            if let Ok(store) = self.cookie_store.lock() {
-                let cookies: Vec<String> = store.get_request_values(&url_obj)
-                    .map(|(name, value)| format!("{}={}", name, value))
-                    .collect();
-                if !cookies.is_empty() {
-                    let cookie_header = cookies.join("; ");
-                    curl.push_str(&format!(" -H 'Cookie: {}'", cookie_header.replace("'", "'\\''")));
+        if use_cookie_store {
+            if let Ok(url_obj) = reqwest::Url::parse(url) {
+                if let Ok(store) = self.cookie_store.lock() {
+                    let cookies: Vec<String> = store.get_request_values(&url_obj)
+                        .map(|(name, value)| format!("{}={}", name, value))
+                        .collect();
+                    if !cookies.is_empty() {
+                        let cookie_header = cookies.join("; ");
+                        curl.push_str(&format!(" -H 'Cookie: {}'", cookie_header.replace("'", "'\\''")));
+                    }
                 }
             }
         }
@@ -154,6 +177,7 @@ impl HttpClient {
                  resp_headers.insert(k.to_string(), val.to_string());
              }
         }
+        println!("[HTTP DEBUG][{}] Headers: {:?}", current_trace_id, resp_headers);
 
         let cookie_headers: Vec<String> = resp.headers()
             .get_all(SET_COOKIE)
@@ -165,15 +189,49 @@ impl HttpClient {
              resp_headers.insert("set-cookie".to_string(), cookie_headers.join(";;")); 
         }
 
-        let text = resp.text().await.map_err(AppError::from)?;
+        let raw_bytes = resp.bytes().await.map_err(AppError::from)?.to_vec();
+        let text = String::from_utf8_lossy(&raw_bytes).to_string();
         
-        let body_json = match serde_json::from_str::<Value>(&text) {
-            Ok(json) => json,
-            Err(_) => {
-                 if text.len() < 500 {
-                    serde_json::json!({ "code": status, "msg": text })
+        let body_json = if text.contains("ptuiCB(") {
+            // Special handling for QQ ptlogin callbacks: ptuiCB('code', '0', 'url', ...)
+            let content = text.trim();
+            if let Some(start) = content.find('(') {
+                if let Some(end) = content.rfind(')') {
+                    let inner = &content[start + 1..end];
+                    let parts: Vec<String> = inner.split(',')
+                        .map(|s| s.trim().trim_matches('\'').to_string())
+                        .collect();
+                    
+                    let nickname = parts.get(5).cloned().unwrap_or_default();
+
+                    let body = serde_json::json!({
+                        "code": parts.get(0).cloned().unwrap_or_default(),
+                        "status": parts.get(1).cloned().unwrap_or_default(),
+                        "url": parts.get(2).cloned().unwrap_or_default(),
+                        "msg": parts.get(4).cloned().unwrap_or_default(),
+                        "nickname": nickname,
+                        "full_callback": parts
+                    });
+                    
+                    println!("[QQ AUTH DEBUG] Parsed ptuiCB: {:?}", body);
+                    body
                 } else {
-                    serde_json::json!({ "code": status, "msg": "Invalid JSON response" })
+                    serde_json::json!({ "code": status, "msg": text })
+                }
+            } else {
+                serde_json::json!({ "code": status, "msg": text })
+            }
+        } else {
+            match serde_json::from_str::<Value>(&text) {
+                Ok(json) => json,
+                Err(_) => {
+                    if text.is_empty() {
+                         serde_json::json!({ "code": status, "msg": "Empty response body" })
+                    } else if text.len() < 500 {
+                        serde_json::json!({ "code": status, "msg": text })
+                    } else {
+                        serde_json::json!({ "code": status, "msg": "Invalid JSON response" })
+                    }
                 }
             }
         };
@@ -184,6 +242,7 @@ impl HttpClient {
             status,
             headers: resp_headers,
             body: body_json,
+            raw_body: raw_bytes,
         })
     }
 

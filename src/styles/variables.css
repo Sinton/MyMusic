@@ -28,10 +28,10 @@
     --text-muted: #94a3b8;
 
     /* Accent Colors */
-    --accent-color: #ec4141;
-    /* Netease Red */
-    --accent-hover: #d73535;
-    --accent-glow: rgba(236, 65, 65, 0.3);
+    --accent-color: #10b981;
+    /* Green */
+    --accent-hover: #059669;
+    --accent-glow: rgba(16, 185, 129, 0.3);
 
     /* Quality Badge Colors */
     --quality-hq: #60a5fa;

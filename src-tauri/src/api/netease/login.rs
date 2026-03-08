@@ -11,19 +11,54 @@ pub async fn qr_key(client: &HttpClient, options: Options) -> HttpResult<HttpRes
 pub async fn qr_create(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let parsed = parse_params(&options.params);
     let codekey = parsed.get("key").ok_or(AppError::MissingParam("key".to_string()))?;
-    let url = format!("https://music.163.com/login?codekey={}", codekey);
-    weapi_without_cookie(client, &url, json!({}), &options).await
+    
+    // Correct endpoint for WeAPI QR image creation.
+    weapi_without_cookie(
+        client, 
+        "https://music.163.com/weapi/login/qrcode/create", 
+        json!({ "key": codekey, "qrimg": "true" }), 
+        &options
+    ).await
+}
+
+pub async fn qr_init_combined(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
+    // 1. Get Key
+    let key_resp = qr_key(client, options.clone()).await?;
+    let unikey = key_resp.body["unikey"].as_str().ok_or(AppError::Api("Failed to get unikey".into()))?;
+    
+    // 2. Create QR image
+    let mut create_options = options;
+    create_options.params = format!("key={}", unikey);
+    let mut qr_resp = qr_create(client, create_options).await?;
+    
+    // Inject the unikey for mapper
+    if let Some(obj) = qr_resp.body.as_object_mut() {
+        obj.insert("unikey".to_string(), json!(unikey));
+    }
+    
+    Ok(qr_resp)
 }
 
 pub async fn qr_check(client: &HttpClient, options: Options) -> HttpResult<HttpResponse> {
     let parsed = parse_params(&options.params);
-    let key = parsed.get("key").ok_or(AppError::MissingParam("key".to_string()))?;
-    let params = json!({ "type": "3", "key": key, "noCheckToken": "true" });
+    let key = parsed.get("auth_id")
+        .or(parsed.get("unikey"))
+        .or(parsed.get("key"))
+        .ok_or(AppError::MissingParam("auth_id".to_string()))?;
+    
+    // Standard params for check
+    let params = json!({ 
+        "type": "3", 
+        "key": key 
+    });
+    
+    // Back to weapi_without_cookie to ensure NO COOKIES are sent during poll,
+    // which is often required to avoid 8821/403.
     let resp = weapi_without_cookie(client, "https://music.163.com/weapi/login/qrcode/client/login", params, &options).await?;
     
-    // Log for debugging (visible in terminal)
+    // Debug log
     let body_str = serde_json::to_string(&resp.body).unwrap_or_else(|_| "{}".to_string());
-    println!("[QR CHECK DEBUG] status: {}, body: {}", resp.status, body_str);
+    println!("[QR CHECK DEBUG][netease] status: {}, body: {}", resp.status, body_str);
     
     Ok(resp)
 }
