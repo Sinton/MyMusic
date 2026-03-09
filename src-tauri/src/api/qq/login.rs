@@ -89,47 +89,60 @@ pub async fn qr_check(client: &HttpClient, options: Options) -> HttpResult<HttpR
     // If successful, follow the redirect URL to get final cookies (skey, uin, etc.)
     if resp.body["code"] == "0" {
         if let Some(redirect_url) = resp.body["url"].as_str() {
-            let mut final_headers = Vec::new();
-            final_headers.push(("Referer".to_string(), "https://xui.ptlogin2.qq.com/".to_string()));
-            
-            // Request the redirect URL. This sets the actual login cookies.
-            // IMPORTANT: We MUST pass the original headers (cookies) to check_sig!
-            let redirect_resp = client.request_full("GET", redirect_url, headers, "".to_string(), None, false).await?;
-            
-            // Extract uin from multiple potential sources
-            let mut uin = String::new();
-
-            // Source A: Raw body text (often contains uin=12345)
-            let body_json_str = serde_json::to_string(&resp.body).unwrap_or_default();
-            if let Some(pos) = body_json_str.find("uin=") {
-                let sub = &body_json_str[pos + 4..];
-                let end = sub.find(|c: char| !c.is_numeric()).unwrap_or(sub.len());
-                if end > 0 {
-                    uin = sub[..end].to_string();
-                }
-            }
-
-            // Extract all cookies from the redirect response
+            // Manual redirect handling for QQ check_sig flow
+            let mut current_url = redirect_url.to_string();
             let mut all_cookies = Vec::new();
-            if let Some(v) = redirect_resp.headers.get("set-cookie") {
-                for full_cookie in v.split(";;") {
-                    if let Some(cookie_part) = full_cookie.split(';').next() {
-                        all_cookies.push(cookie_part.to_string());
-                        
-                        // Source B: Scanning cookies for uin patterns
-                        if uin.is_empty() {
-                            if let Some((name, val)) = cookie_part.split_once('=') {
-                                let name = name.trim();
-                                if name == "uin" || name == "luin" || name == "superuin" || name == "pt2gguin" {
-                                    // Clean 'o' and '0' prefixes
-                                    let clean_val = val.trim().trim_start_matches('o').trim_start_matches('0');
-                                    if !clean_val.is_empty() && clean_val.chars().all(|c| c.is_numeric()) {
-                                        uin = clean_val.to_string();
+            let mut redirect_count = 0;
+            let mut uin = String::new();
+            
+            while redirect_count < 5 {
+                // Request the current URL in the chain, passing the original auth cookies
+                let redirect_resp = client.request_full("GET", &current_url, headers.clone(), "".to_string(), None, false).await?;
+                
+                // 1. Capture cookies from this specific step
+                if let Some(v) = redirect_resp.headers.get("set-cookie") {
+                    for full_cookie in v.split(";;") {
+                        if !full_cookie.trim().is_empty() {
+                            all_cookies.push(full_cookie.to_string());
+                            
+                            // 2. Try to extract UID from these new cookies
+                            if uin.is_empty() {
+                                if let Some(cookie_part) = full_cookie.split(';').next() {
+                                    if let Some((name, val)) = cookie_part.split_once('=') {
+                                        let name = name.trim();
+                                        if name == "uin" || name == "luin" || name == "superuin" || name == "pt2gguin" {
+                                            let clean_val = val.trim().trim_start_matches('o').trim_start_matches('0');
+                                            if !clean_val.is_empty() && clean_val.chars().all(|c| c.is_numeric()) {
+                                                uin = clean_val.to_string();
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
+                
+                // 3. Check for further redirects (301, 302, 303, 307, 308)
+                if (redirect_resp.status >= 300 && redirect_resp.status <= 308) && redirect_count < 5 {
+                    if let Some(location) = redirect_resp.headers.get("location") {
+                        current_url = location.to_string();
+                        redirect_count += 1;
+                        continue;
+                    }
+                }
+                
+                // If not a redirect or no location, we are done
+                break;
+            }
+            
+            // Backup extraction from body if still no uin
+            if uin.is_empty() {
+                let body_json_str = serde_json::to_string(&resp.body).unwrap_or_default();
+                if let Some(pos) = body_json_str.find("uin=") {
+                    let sub = &body_json_str[pos + 4..];
+                    let end = sub.find(|c: char| !c.is_numeric()).unwrap_or(sub.len());
+                    if end > 0 { uin = sub[..end].to_string(); }
                 }
             }
             

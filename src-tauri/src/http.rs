@@ -54,6 +54,7 @@ impl HttpClient {
             .unwrap();
         
         let no_cookie_client = ClientBuilder::new()
+            .redirect(reqwest::redirect::Policy::none())
             .build()
             .unwrap();
 
