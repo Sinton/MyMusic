@@ -17,6 +17,7 @@ const menuItems: MenuItem[] = [
     { id: 'Home', translationKey: 'sidebar.home', icon: Home },
     { id: 'Explore', translationKey: 'sidebar.explore', icon: Disc },
     { id: 'Library', translationKey: 'sidebar.library', icon: Music },
+    { id: 'Local', translationKey: 'sidebar.local', icon: Disc },
 ];
 
 export const NavigationMenu: React.FC<NavigationMenuProps> = ({ activeView, onNavigate }) => {

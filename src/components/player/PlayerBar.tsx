@@ -203,10 +203,12 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                     </div>
                 </div>
 
-                {/* Right: Volume & Options */}
                 <div className="flex items-center gap-3 w-[300px] justify-end">
                     <div className="text-[10px] text-[var(--text-muted)] mr-2">
-                        {t(`platforms.${getPlatformI18nKey(currentTrack.source)}`)} | <span className="text-[#fbbf24]">{currentTrack.quality}</span>
+                        {t(`platforms.${getPlatformI18nKey(currentTrack.platform as any)}`)}
+                        {currentTrack.platform !== 'local' && (
+                            <> | <span className="text-[#fbbf24]">{currentTrack.quality}</span></>
+                        )}
                     </div>
                     <VolumeControl />
                     <button onClick={onExpand} className="btn-icon"><Maximize2 className="w-4 h-4" /></button>

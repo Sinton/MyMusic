@@ -129,6 +129,13 @@ async fn request_api_gateway(
 }
 
 #[tauri::command]
+async fn read_text_file(path: String) -> Result<String, String> {
+    tokio::fs::read_to_string(path)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn get_proxy_port(proxy_port: tauri::State<'_, u16>) -> Result<u16, ()> {
     Ok(*proxy_port)
 }
@@ -140,6 +147,7 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
              let app_data_dir = app.path().app_local_data_dir()
                 .expect("Could not determine app local data directory");
@@ -175,7 +183,8 @@ fn main() {
             request_bytes,
             set_cookies,
             log_info,
-            get_proxy_port
+            get_proxy_port,
+            read_text_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

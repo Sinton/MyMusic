@@ -8,6 +8,8 @@ import { useNeteaseLyric } from '../../hooks/netease';
 import { useQQLyric } from '../../hooks/qq';
 import { useQishuiLyric } from '../../hooks/qishui';
 import { detectPlatform } from '../../lib/platformUtils';
+import { parseLrc } from '../../lib/lrcParser';
+import { invoke } from '@tauri-apps/api/core';
 
 // Sub-components
 import VinylVisualizer from './VinylVisualizer';
@@ -82,11 +84,26 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
     const qishuiTrackId = String(currentTrack?.songId || '');
     const { lyrics: qishuiLyrics } = useQishuiLyric(qishuiTrackId, { enabled: activePlatform === 'qishui' && !!qishuiTrackId });
 
+    // Local Lyrics
+    const [localLyrics, setLocalLyrics] = useState<{ time: number, text: string }[]>([]);
+    useEffect(() => {
+        if (activePlatform === 'local' && currentTrack?.source) {
+            // source is the file path
+            const lrcPath = currentTrack.source.replace(/\.[^/.]+$/, "") + ".lrc";
+            invoke<string>('read_text_file', { path: lrcPath }).then((text) => {
+                setLocalLyrics(parseLrc(text || ''));
+            }).catch(() => {
+                setLocalLyrics([]);
+            });
+        }
+    }, [activePlatform, currentTrack?.source]);
+
     // Use platform-specific lyrics
     const activeLyrics = activePlatform === 'netease' ? neteaseLyrics
         : activePlatform === 'qq' ? qqLyrics
             : activePlatform === 'qishui' ? qishuiLyrics
-                : [];
+                : activePlatform === 'local' ? localLyrics
+                    : [];
 
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -217,13 +234,15 @@ const FullScreenPlayer: React.FC<FullScreenPlayerProps> = ({ isOpen, onClose, on
             />
 
             {/* Sidebars */}
-            <CommentsPanel
-                isOpen={showCommentsPanel}
-                onClose={toggleCommentsPanel}
-                platform={activePlatform}
-                songId={currentTrack?.songId || ''}
-                songMid={currentTrack?.songMid}
-            />
+            {activePlatform !== 'local' && (
+                <CommentsPanel
+                    isOpen={showCommentsPanel}
+                    onClose={toggleCommentsPanel}
+                    platform={activePlatform}
+                    songId={currentTrack?.songId || ''}
+                    songMid={currentTrack?.songMid}
+                />
+            )}
 
             <QueuePanel
                 isOpen={showQueuePanel}

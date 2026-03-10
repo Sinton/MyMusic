@@ -27,7 +27,8 @@
         "createPlaylist": "Create Playlist",
         "playlistName": "Playlist Name",
         "coverStyle": "Cover Style",
-        "linked": "Linked"
+        "linked": "Linked",
+        "local": "Local Music"
     },
     "home": {
         "searchPlaceholder": "Search for songs, artists, or albums...",
@@ -276,7 +277,8 @@
     "platforms": {
         "netease": "NetEase Cloud",
         "qq": "QQ Music",
-        "qishui": "Qishui Music"
+        "qishui": "Qishui Music",
+        "local": "Local"
     },
     "fullPlayer": {
         "nowPlaying": "Now Playing",
@@ -329,5 +331,15 @@
         "detected": "Detected {{platform}} link",
         "fetching": "Fetching track info...",
         "fetchFailed": "Fetch failed"
+    },
+    "local": {
+        "folders_connected": "connected folders",
+        "last_synced": "Last synced",
+        "add_folder": "Add Folder",
+        "scanning_sonar": "Scanning Sonar in progress",
+        "no_tracks_title": "Hear the Local Heartbeat",
+        "no_tracks_desc": "Bring your private collection into Vibe's digital gallery by dragging folders here or adding them manually.",
+        "browse_files": "Browse Folders",
+        "search_placeholder": "Search local tracks, artists, albums..."
     }
 }

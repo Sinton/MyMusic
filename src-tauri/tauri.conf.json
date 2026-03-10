@@ -24,7 +24,7 @@
             }
         ],
         "security": {
-            "csp": "default-src 'self' http://localhost:5173; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: musiclocal: https:; media-src 'self' musiclocal: blob: data: https: http:; connect-src 'self' musiclocal: https: http:;"
+            "csp": "default-src 'self' http://localhost:5173; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: musiclocal: https: http://127.0.0.1:* http://localhost:*; media-src 'self' musiclocal: blob: data: https: http: http://127.0.0.1:* http://localhost:*; connect-src 'self' musiclocal: https: http: http://127.0.0.1:* http://localhost:*;"
         }
     },
     "bundle": {

@@ -4,6 +4,7 @@ use axum::{
     routing::get,
     Router,
 };
+use tokio::io::AsyncReadExt;
 use hyper::{body::Body, HeaderMap, Request, StatusCode};
 use reqwest::Client;
 use serde::Deserialize;
@@ -63,6 +64,65 @@ async fn proxy_handler(
     mut headers: HeaderMap,
 ) -> impl IntoResponse {
     let target_url = query.url;
+
+    // Detect if this is a local file path
+    let is_local = if target_url.starts_with("http") || target_url.starts_with("https") {
+        false
+    } else {
+        std::path::Path::new(&target_url).is_file()
+    };
+
+    if is_local {
+        match tokio::fs::File::open(&target_url).await {
+            Ok(mut file) => {
+                let file_size = match file.metadata().await {
+                    Ok(m) => m.len(),
+                    Err(e) => {
+                        log::error!("[Axum Proxy] Error getting metadata for {}: {}", target_url, e);
+                        return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to get file metadata: {}", e)).into_response();
+                    }
+                };
+                let mime = mime_guess::from_path(&target_url).first_or_octet_stream();
+                
+                let range_header = headers.get("range").and_then(|v| v.to_str().ok());
+                
+                let mut response_headers = HeaderMap::new();
+                response_headers.insert("content-type", mime.to_string().parse().unwrap());
+                response_headers.insert("accept-ranges", "bytes".parse().unwrap());
+
+                if let Some(range_val) = range_header {
+                    if let Ok(range) = http_range::HttpRange::parse(range_val, file_size) {
+                        if !range.is_empty() {
+                            let r = &range[0];
+                            use std::io::SeekFrom;
+                            use tokio::io::AsyncSeekExt;
+                            
+                            if file.seek(SeekFrom::Start(r.start)).await.is_ok() {
+                                let stream = tokio_util::io::ReaderStream::with_capacity(file.take(r.length), 64 * 1024);
+                                let body = axum::body::Body::from_stream(stream);
+                                
+                                response_headers.insert("content-range", format!("bytes {}-{}/{}", r.start, r.start + r.length - 1, file_size).parse().unwrap());
+                                response_headers.insert("content-length", r.length.to_string().parse().unwrap());
+                                
+                                return (StatusCode::PARTIAL_CONTENT, response_headers, body).into_response();
+                            }
+                        }
+                    }
+                }
+
+                // Default: full file
+                let stream = tokio_util::io::ReaderStream::new(file);
+                let body = axum::body::Body::from_stream(stream);
+                response_headers.insert("content-length", file_size.to_string().parse().unwrap());
+                
+                return (StatusCode::OK, response_headers, body).into_response();
+            }
+            Err(e) => {
+                log::error!("[Axum Proxy] Error opening local file {}: {}", target_url, e);
+                return (StatusCode::NOT_FOUND, format!("Local file not found: {}", e)).into_response();
+            }
+        }
+    }
 
     // Filter out host headers and other local-specific headers from the incoming request
     let headers_to_forward = [

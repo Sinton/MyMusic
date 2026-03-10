@@ -2,7 +2,7 @@ use base64::{Engine as _, engine::general_purpose};
 use lazy_static::lazy_static;
 use aes::Aes128;
 use aes::cipher::{BlockEncryptMut, KeyInit, KeyIvInit, block_padding::Pkcs7};
-use md5::{Md5, Digest};
+use md5;
 use num_bigint::BigUint;
 use rand::RngCore;
 use rand::rngs::OsRng;
@@ -157,9 +157,8 @@ impl Crypto {
     }
 
     fn md5_hash(data: &[u8]) -> Vec<u8> {
-        let mut hasher = Md5::new();
-        hasher.update(data);
-        hasher.finalize().to_vec()
+        let digest = md5::compute(data);
+        digest.0.to_vec()
     }
 
     #[allow(dead_code)]

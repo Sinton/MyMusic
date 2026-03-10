@@ -21,8 +21,10 @@ export function detectPlatform(source: string | undefined): Platform {
 }
 
 /** Map from platform to i18n key used in PlayerBar / FullScreenPlayer. */
-export function getPlatformI18nKey(source: string | undefined): string {
-    const platform = detectPlatform(source);
+export function getPlatformI18nKey(platformOrSource: Platform | string): string {
+    const platform = typeof platformOrSource === 'string' && platformOrSource !== 'netease' && platformOrSource !== 'qq' && platformOrSource !== 'qishui' && platformOrSource !== 'local' && platformOrSource !== 'unknown'
+        ? detectPlatform(platformOrSource)
+        : platformOrSource as Platform;
     return platform === 'unknown' ? 'netease' : platform;
 }
 

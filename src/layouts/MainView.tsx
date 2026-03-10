@@ -7,6 +7,7 @@ import HomeView from '../views/HomeView';
 import ExploreView from '../views/ExploreView';
 import LibraryView from '../views/LibraryView';
 import SettingsView from '../views/SettingsView';
+import LocalMusicView from '../views/LocalMusicView';
 import PlaylistDetailView from '../views/PlaylistDetailView';
 import NeteasePlaylistDetailView from '../views/NeteasePlaylistDetailView';
 import AlbumDetailView from '../views/AlbumDetailView';
@@ -197,6 +198,8 @@ const MainView: React.FC<MainViewProps> = ({ activeView, onNavigate }) => {
                 return <ExploreView key={activeView} />;
             case 'settings':
                 return <SettingsView key={activeView} />;
+            case 'local':
+                return <LocalMusicView key={activeView} />;
             case 'library':
                 return (
                     <LibraryView

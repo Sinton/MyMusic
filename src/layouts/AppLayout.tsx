@@ -72,14 +72,6 @@ const AppLayout: React.FC = () => {
 
     const { currentTrack } = usePlayerStore();
 
-    React.useEffect(() => {
-        if (currentTrack) {
-            invoke('log_info', { message: `[AppLayout] Current Track: ${JSON.stringify(currentTrack)}` }).catch(() => { });
-        }
-    }, [currentTrack.songId]);
-
-
-
     const neteaseStore = useNeteaseStore();
     const qqStore = useQQStore();
     const connectPlatform = usePlatformStore((state) => state.connectPlatform);

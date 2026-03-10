@@ -89,8 +89,12 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
 
                 <div className="flex gap-4 items-center justify-end w-[120px]">
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--glass-border)] border border-[var(--glass-border)] whitespace-nowrap">
-                        <span className="text-[10px] text-[var(--text-muted)] border-r border-[var(--glass-border)] pr-2 mr-0.5">{t(`platforms.${getPlatformI18nKey(currentTrack.source)}`)}</span>
-                        <span className="text-[10px] font-bold text-[#fbbf24]">{currentTrack.quality}</span>
+                        <span className={`text-[10px] text-[var(--text-muted)] mr-0.5 ${currentTrack.platform !== 'local' ? 'border-r border-[var(--glass-border)] pr-2' : ''}`}>
+                            {t(`platforms.${getPlatformI18nKey(currentTrack.platform as any)}`)}
+                        </span>
+                        {currentTrack.platform !== 'local' && (
+                            <span className="text-[10px] font-bold text-[#fbbf24]">{currentTrack.quality}</span>
+                        )}
                     </div>
                     <VolumeControl popoverDirection="up" />
                 </div>

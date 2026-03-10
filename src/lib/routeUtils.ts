@@ -5,6 +5,7 @@ export type AppRoute =
     | { type: 'explore' }
     | { type: 'library', tab: 'Songs' | 'Playlists' | 'Albums' }
     | { type: 'settings' }
+    | { type: 'local' }
     | { type: 'playlist', id: string | number }
     | { type: 'album', id: string | number, platform: MusicPlatform }
     | { type: 'artist', name: string, id?: string | number, platform: MusicPlatform };
@@ -23,6 +24,7 @@ export const routeTo = {
     home: (): string => 'Home',
     explore: (): string => 'Explore',
     settings: (): string => 'Settings',
+    local: (): string => 'Local',
     library: (tab: 'Songs' | 'Playlists' | 'Albums' = 'Songs'): string =>
         tab === 'Playlists' ? 'Playlists' : tab === 'Albums' ? 'Library' : 'Library',
     playlist: (id: string | number): string => `Playlist:${id}`,
@@ -89,6 +91,7 @@ export function parseRoute(activeView: string): AppRoute {
         case 'Home': return { type: 'home' };
         case 'Explore': return { type: 'explore' };
         case 'Settings': return { type: 'settings' };
+        case 'Local': return { type: 'local' };
         case 'Playlists': return { type: 'library', tab: 'Playlists' };
         case 'Library':
         case 'My Music':

@@ -30,8 +30,10 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
         const audio = audioRef.current;
         if (!audio) return;
 
-        const platform = detectPlatform(currentTrack.source);
-        remoteLog(`[UrlResolver] Track Source: ${currentTrack.source} Platform: ${platform}`);
+        // Prioritize explicit platform field if available
+        const platform = currentTrack.platform !== 'unknown'
+            ? currentTrack.platform
+            : detectPlatform(currentTrack.source);
 
         // Immediately stop old track and clear its playback URI
         audio.pause();
@@ -39,7 +41,7 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
         audio.load();
         currentUrlRef.current = '';
 
-        if (platform !== 'netease' && platform !== 'qq' && platform !== 'qishui') {
+        if (platform !== 'netease' && platform !== 'qq' && platform !== 'qishui' && platform !== 'local') {
             return;
         }
 
@@ -84,6 +86,10 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                         url = directUrl;
                         durationFromApi = parseDuration(currentTrack.duration);
                     }
+                } else if (platform === 'local') {
+                    // For local tracks, the "source" IS the file path
+                    url = currentTrack.source;
+                    durationFromApi = parseDuration(currentTrack.duration);
                 }
 
                 if (cancelled) return;
@@ -95,7 +101,6 @@ export function useTrackUrlResolver(audioRef: React.RefObject<HTMLAudioElement |
                         const proxiedUrl = `http://127.0.0.1:${proxyPort}/proxy?url=${encodeURIComponent(url)}` +
                             (referer ? `&referer=${encodeURIComponent(referer)}` : '');
                         url = proxiedUrl;
-                        remoteLog(`[UrlResolver] Proxied URL initialized`);
                     } catch (proxyErr) {
                         remoteLog(`[UrlResolver] Proxy port error: ${proxyErr}, using direct URL`);
                     }

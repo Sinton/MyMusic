@@ -27,7 +27,8 @@
         "createPlaylist": "创建歌单",
         "playlistName": "歌单名称",
         "coverStyle": "封面风格",
-        "linked": "已连接账户"
+        "linked": "已连接账户",
+        "local": "本地音乐"
     },
     "home": {
         "searchPlaceholder": "搜索歌曲、艺术家或专辑...",
@@ -276,7 +277,8 @@
     "platforms": {
         "netease": "网易云音乐",
         "qq": "QQ音乐",
-        "qishui": "汽水音乐"
+        "qishui": "汽水音乐",
+        "local": "本地音乐"
     },
     "fullPlayer": {
         "nowPlaying": "正在播放",
@@ -329,5 +331,15 @@
         "detected": "检测到 {{platform}} 链接",
         "fetching": "正在获取歌曲信息...",
         "fetchFailed": "获取失败"
+    },
+    "local": {
+        "folders_connected": "个已连接文件夹",
+        "last_synced": "上次同步",
+        "add_folder": "添加文件夹",
+        "scanning_sonar": "正在进行的声呐扫描",
+        "no_tracks_title": "听见本地的心跳",
+        "no_tracks_desc": "通过拖拽文件夹到此处，或者手动添加目录，将您的私人收藏带入 Vibe 的数字收藏馆。",
+        "browse_files": "浏览文件夹",
+        "search_placeholder": "搜索本地歌曲、歌手、专辑..."
     }
 }
