@@ -24,6 +24,11 @@ pub struct ProxyQuery {
     referer: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct CoverQuery {
+    path: String,
+}
+
 pub async fn start_proxy_server() -> Result<u16, Box<dyn std::error::Error>> {
     let client = Client::builder()
         .build()?;
@@ -38,6 +43,7 @@ pub async fn start_proxy_server() -> Result<u16, Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/proxy", get(proxy_handler))
+        .route("/cover", get(cover_handler))
         .layer(cors)
         .with_state(state);
 
@@ -183,6 +189,9 @@ async fn proxy_handler(
                 response_headers.insert("accept-ranges", "bytes".parse().unwrap());
             }
 
+            // Always allow CORS for images/audio coming through proxy
+            response_headers.insert("access-control-allow-origin", "*".parse().unwrap());
+
             // Stream the body using reqwest stream feature
             // We convert the reqwest Bytes stream directly into an axum Body
             let stream = resp.bytes_stream();
@@ -196,6 +205,55 @@ async fn proxy_handler(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to proxy request: {}", e),
             ).into_response()
+        }
+    }
+}
+
+async fn cover_handler(
+    Query(query): Query<CoverQuery>,
+) -> impl IntoResponse {
+    let target_path = query.path;
+
+    // Use lofty to extract the picture directly
+    let cover_data = tokio::task::spawn_blocking(move || {
+        use lofty::prelude::*;
+        use lofty::probe::Probe;
+        use std::path::Path;
+
+        let path = Path::new(&target_path);
+        if !path.exists() {
+            return Err("File does not exist".to_string());
+        }
+
+        let tagged_file = match Probe::open(path).and_then(|p| p.read()) {
+            Ok(t) => t,
+            Err(e) => return Err(format!("Failed to probe file: {}", e)),
+        };
+
+        let tag = tagged_file.primary_tag().or_else(|| tagged_file.first_tag());
+        if let Some(t) = tag {
+            if let Some(pic) = t.pictures().first() {
+                let bytes = pic.data().to_vec();
+                let mime = pic.mime_type().map(|m| m.to_string()).unwrap_or_else(|| "image/jpeg".to_string());
+                return Ok((bytes, mime));
+            }
+        }
+        
+        Err("No embedded cover found".to_string())
+    }).await.unwrap_or_else(|e| Err(format!("Task panic: {}", e)));
+
+    match cover_data {
+        Ok((bytes, mime)) => {
+            let mut response_headers = HeaderMap::new();
+            response_headers.insert("content-type", mime.parse().unwrap());
+            response_headers.insert("content-length", bytes.len().to_string().parse().unwrap());
+            response_headers.insert("access-control-allow-origin", "*".parse().unwrap());
+            
+            (StatusCode::OK, response_headers, axum::body::Body::from(bytes)).into_response()
+        }
+        Err(e) => {
+            // Return 404 or a fallback transparent PNG. For simplicity, just return 404.
+            (StatusCode::NOT_FOUND, e).into_response()
         }
     }
 }

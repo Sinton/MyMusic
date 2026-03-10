@@ -338,7 +338,7 @@
         "add_folder": "添加文件夹",
         "scanning_sonar": "正在进行的声呐扫描",
         "no_tracks_title": "听见本地的心跳",
-        "no_tracks_desc": "通过拖拽文件夹到此处，或者手动添加目录，将您的私人收藏带入 Vibe 的数字收藏馆。",
+        "no_tracks_desc": "将文件夹拖拽至此，或直接点击该区域开启您的私人数字收藏馆。",
         "browse_files": "浏览文件夹",
         "search_placeholder": "搜索本地歌曲、歌手、专辑..."
     }

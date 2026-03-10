@@ -5,6 +5,7 @@ import Drawer from '../common/Drawer';
 import type { Track } from '../../types';
 import { getTrackGradient } from '../../lib/playerUtils';
 import { Play } from 'lucide-react';
+import { useLocalCoverUrl } from '../../hooks/useLocalCoverUrl';
 
 interface QueuePanelProps {
     isOpen: boolean;
@@ -164,6 +165,7 @@ const QueueTrackItem = React.memo<QueueTrackItemProps>(({
     onRemoveTrack
 }) => {
     const trackColor = getTrackGradient(track.songId);
+    const resolvedCover = useLocalCoverUrl(track.cover, track.source);
 
     return (
         <div
@@ -177,9 +179,9 @@ const QueueTrackItem = React.memo<QueueTrackItemProps>(({
             )}
 
             <div className="text-sm font-mono text-[var(--text-muted)] w-4 pl-1">{index + 1}</div>
-            <div className={`w-12 h-12 rounded-lg ${track.cover ? 'bg-black/20' : `bg-gradient-to-br ${trackColor}`} flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform relative overflow-hidden`}>
-                {track.cover && (
-                    <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className={`w-12 h-12 rounded-lg ${resolvedCover ? 'bg-black/20' : `bg-gradient-to-br ${trackColor}`} flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform relative overflow-hidden`}>
+                {resolvedCover && (
+                    <img src={resolvedCover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 <div className={`absolute inset-0 flex items-center justify-center ${isCurrent && isPlaying ? 'bg-black/40' : 'bg-black/20 opacity-0 group-hover:opacity-100'} transition-opacity`}>
                     {isCurrent && isPlaying ? (

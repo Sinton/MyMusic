@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { ListMusic, Play, Trash2, Target, Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../stores/usePlayerStore';
+import { useLocalCoverUrl } from '../../hooks/useLocalCoverUrl';
 
 interface MiniQueuePopupProps {
     isOpen: boolean;
@@ -45,6 +46,8 @@ const MiniQueueTrackItem = React.memo<MiniQueueTrackItemProps>(({
     onRemove,
     t
 }) => {
+    const resolvedCover = useLocalCoverUrl(track.cover, track.source);
+
     return (
         <div
             data-active={isCurrent ? "true" : "false"}
@@ -58,9 +61,9 @@ const MiniQueueTrackItem = React.memo<MiniQueueTrackItemProps>(({
             {isCurrent && (
                 <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--accent-color)] rounded-r-full shadow-[0_0_10px_var(--accent-color)] z-10" />
             )}
-            <div className={`w-10 h-10 rounded ${track.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(track.songId)}`} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
-                {track.cover && (
-                    <img src={track.cover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className={`w-10 h-10 rounded ${resolvedCover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(track.songId)}`} flex-shrink-0 flex items-center justify-center relative overflow-hidden`}>
+                {resolvedCover && (
+                    <img src={resolvedCover} alt={track.title} className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 <div className={`absolute inset-0 flex items-center justify-center ${isCurrent && isPlaying ? 'bg-black/40' : 'bg-black/0 group-hover:bg-black/30'} transition-colors`}>
                     {isCurrent && isPlaying ? (

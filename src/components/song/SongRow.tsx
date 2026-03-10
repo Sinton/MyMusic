@@ -4,6 +4,7 @@ import { VipBadge } from '../common';
 import type { Song, AudioSource } from '../../types';
 import { useSongActions } from '../../hooks/useSongActions';
 import { usePlayerStore } from '../../stores/usePlayerStore';
+import { useLocalCoverUrl } from '../../hooks/useLocalCoverUrl';
 import { SongRowActions } from './song-row/SongRowActions';
 import { SongSourceList } from './song-row/SongSourceList';
 
@@ -75,6 +76,10 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
         }
     };
 
+    // Grab the first source's source url to assist local cover parsing if it's local
+    const firstSourceUrl = song.sources[0]?.platform === 'local' ? (song.sources[0] as any).url : undefined;
+    const resolvedCover = useLocalCoverUrl(song.cover, firstSourceUrl);
+
     return (
         <div
             className={`rounded-xl transition-all duration-300 group relative ${isCurrent ? 'bg-[var(--accent-color)]/10 dark:bg-[var(--accent-color)]/20' : 'hover:bg-[var(--glass-highlight)]'
@@ -110,9 +115,9 @@ const SongRow: React.FC<SongRowProps> = ({ song, onPlay, extraAction }) => {
                     className="w-12 h-12 rounded-lg bg-[var(--glass-border)] shadow-inner flex items-center justify-center text-xs text-[var(--text-muted)] hover:bg-[var(--glass-highlight)] transition-colors relative cursor-pointer z-10 hidden-play-button overflow-hidden group/cover"
                 >
                     {/* Cover Art */}
-                    {song.cover ? (
+                    {resolvedCover ? (
                         <img
-                            src={song.cover}
+                            src={resolvedCover}
                             alt={song.title}
                             className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity"
                         />

@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { invoke } from '@tauri-apps/api/core';
 import { SmartMatchService } from '../services/SmartMatchService';
+import localforage from 'localforage';
+
+localforage.config({
+    name: 'vibe-music',
+    storeName: 'local_music_store'
+});
 
 export interface LocalTrack {
     id: string;
@@ -19,10 +25,12 @@ interface LocalMusicState {
     folders: string[];
     tracks: LocalTrack[];
     isScanning: boolean;
+    scanningCount: number;
     lastScanTime: number | null;
 
     // Actions
     addFolder: (path: string) => Promise<void>;
+    addFolders: (paths: string[]) => Promise<void>;
     removeFolder: (path: string) => void;
     scanAll: () => Promise<void>;
     clearTracks: () => void;
@@ -34,13 +42,20 @@ export const useLocalMusicStore = create<LocalMusicState>()(
             folders: [],
             tracks: [],
             isScanning: false,
+            scanningCount: 0,
             lastScanTime: null,
 
             addFolder: async (path: string) => {
+                await get().addFolders([path]);
+            },
+
+            addFolders: async (paths: string[]) => {
                 const { folders } = get();
-                if (!folders.includes(path)) {
-                    set({ folders: [...folders, path] });
-                    // Trigger a scan for the new folder
+                const newFolders = paths.filter(path => !folders.includes(path));
+
+                if (newFolders.length > 0) {
+                    set({ folders: [...folders, ...newFolders] });
+                    // Trigger a scan for the new folders
                     await get().scanAll();
                 }
             },
@@ -54,15 +69,13 @@ export const useLocalMusicStore = create<LocalMusicState>()(
                 if (isScanning || folders.length === 0) return;
 
                 console.log('[Local Music] Starting scan for folders:', folders);
-                set({ isScanning: true });
+                set({ isScanning: true, scanningCount: 0 });
 
                 try {
                     let allTracks: LocalTrack[] = [];
 
                     for (const folder of folders) {
                         console.log(`[Local Music] Scanning folder: ${folder}`);
-                        // Call the Tauri backend API we just created
-                        // Note: provider="local", api_name="scan", options={ params: "directory=..." }
                         const response = await invoke<any>('request_api_gateway', {
                             provider: 'local',
                             apiName: 'scan',
@@ -71,11 +84,11 @@ export const useLocalMusicStore = create<LocalMusicState>()(
                             traceId: Math.random().toString(36).substring(7)
                         });
 
-                        const trackCount = response?.data?.tracks?.length || 0;
-                        console.log(`[Local Music] Found ${trackCount} tracks in: ${folder}`);
-
                         if (response && response.type === 'Raw' && response.data && response.data.tracks) {
-                            allTracks = [...allTracks, ...response.data.tracks];
+                            const newTracks = response.data.tracks;
+                            allTracks = [...allTracks, ...newTracks];
+                            // Incremental update to show "found" count
+                            set({ scanningCount: allTracks.length });
                         }
                     }
 
@@ -84,15 +97,18 @@ export const useLocalMusicStore = create<LocalMusicState>()(
                     // Remove duplicates by path
                     const uniqueTracks = Array.from(new Map(allTracks.map(t => [t.path, t])).values());
 
+                    // Initial set to show them immediately
                     set({ tracks: uniqueTracks });
 
                     // Smart Match Enrichment (Parallel)
-                    const enrichedTracks = await Promise.all(uniqueTracks.map(async track => {
+                    const enrichedTracks = await Promise.all(uniqueTracks.map(async (track, index) => {
                         if (!track.cover) {
                             try {
                                 const match = await SmartMatchService.findMatch(track);
                                 if (match) {
-                                    return { ...track, cover: match.cover };
+                                    const enriched = { ...track, cover: match.cover };
+                                    // Optionally update incrementally but might be too many renders
+                                    return enriched;
                                 }
                             } catch (e) {
                                 console.warn('[Local Music] Smart Match failed for:', track.title, e);
@@ -104,11 +120,12 @@ export const useLocalMusicStore = create<LocalMusicState>()(
                     set({
                         tracks: enrichedTracks,
                         isScanning: false,
+                        scanningCount: 0,
                         lastScanTime: Date.now()
                     });
                 } catch (error) {
                     console.error('Failed to scan folders:', error);
-                    set({ isScanning: false });
+                    set({ isScanning: false, scanningCount: 0 });
                 }
             },
 
@@ -116,6 +133,17 @@ export const useLocalMusicStore = create<LocalMusicState>()(
         }),
         {
             name: 'vibe-local-music-storage',
+            storage: {
+                getItem: async (name: string): Promise<string | null> => {
+                    return await localforage.getItem(name);
+                },
+                setItem: async (name: string, value: string): Promise<void> => {
+                    await localforage.setItem(name, value);
+                },
+                removeItem: async (name: string): Promise<void> => {
+                    await localforage.removeItem(name);
+                },
+            },
             partialize: (state) => ({
                 folders: state.folders,
                 tracks: state.tracks,

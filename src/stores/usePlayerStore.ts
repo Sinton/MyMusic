@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { PlayerStore, Track } from '../types';
 import { getNextIndex, getPreviousIndex } from '../lib/playerUtils';
+import localforage from 'localforage';
+
+localforage.config({
+    name: 'vibe-music',
+    storeName: 'player_store'
+});
 
 const EMPTY_TRACK: Track = {
     songId: 0,
@@ -110,13 +116,26 @@ export const usePlayerStore = create<PlayerStore>()(
             // Only persist user preferences and queue state.
             // Transient playback state (isPlaying, currentTimeSec, durationSec)
             // is intentionally excluded so the app doesn't auto-play on relaunch.
-            partialize: (state) => ({
-                currentTrack: state.currentTrack,
-                queue: state.queue,
-                volume: state.volume,
-                shuffle: state.shuffle,
-                repeat: state.repeat,
-            }),
+            storage: {
+                getItem: async (name: string): Promise<string | null> => {
+                    return await localforage.getItem(name);
+                },
+                setItem: async (name: string, value: string): Promise<void> => {
+                    await localforage.setItem(name, value);
+                },
+                removeItem: async (name: string): Promise<void> => {
+                    await localforage.removeItem(name);
+                },
+            },
+            partialize: (state) => {
+                return {
+                    currentTrack: state.currentTrack,
+                    queue: state.queue,
+                    volume: state.volume,
+                    shuffle: state.shuffle,
+                    repeat: state.repeat,
+                };
+            },
         }
     )
 );

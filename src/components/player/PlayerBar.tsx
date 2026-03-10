@@ -6,6 +6,7 @@ import { usePlayerStore } from '../../stores/usePlayerStore';
 import { getPlatformI18nKey } from '../../lib/platformUtils';
 import VolumeControl from '../player/VolumeControl';
 import { MiniQueuePopup } from './MiniQueuePopup';
+import { useLocalCoverUrl } from '../../hooks/useLocalCoverUrl';
 
 interface PlayerBarProps {
     onExpand: () => void;
@@ -35,7 +36,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
         toggleMode
     } = usePlayerStore();
 
-
+    const resolvedCover = useLocalCoverUrl(currentTrack.cover, currentTrack.source);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -114,11 +115,11 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ onExpand }) => {
                     className="flex items-center gap-4 w-[300px] cursor-pointer group"
                 >
                     <div
-                        className={`w-12 h-12 rounded-lg ${currentTrack.cover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(currentTrack.songId)}`} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
+                        className={`w-12 h-12 rounded-lg ${resolvedCover ? 'bg-black/20' : `bg-gradient-to-br ${getTrackColor(currentTrack.songId)}`} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden relative`}
                     >
-                        {currentTrack.cover ? (
+                        {resolvedCover ? (
                             <img
-                                src={currentTrack.cover}
+                                src={resolvedCover}
                                 alt={currentTrack.title}
                                 className="w-full h-full object-cover"
                             />

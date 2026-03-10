@@ -139,13 +139,12 @@ impl LocalProvider {
         let size = std::fs::metadata(path)?.len();
 
         // Extract cover if exists
-        let cover = tag.and_then(|t: &lofty::tag::Tag| {
-            t.pictures().first().map(|pic| {
-                let data = pic.data();
-                let mime = pic.mime_type().map(|m| m.as_str()).unwrap_or("image/jpeg");
-                format!("data:{};base64,{}", mime, general_purpose::STANDARD.encode(data))
-            })
-        });
+        let has_cover = tag.map(|t| !t.pictures().is_empty()).unwrap_or(false);
+        let cover = if has_cover {
+            Some("local_cover".to_string())
+        } else {
+            None
+        };
 
         let digest = md5::compute(path.to_string_lossy().as_bytes());
         Ok(LocalTrack {
