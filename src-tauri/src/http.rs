@@ -80,6 +80,61 @@ impl HttpClient {
         Ok(())
     }
 
+    pub fn clear_cookies(&self, _domain_pattern: &str) -> AppResult<()> {
+        let mut store = self.cookie_store.lock()
+            .map_err(|_| AppError::Internal("Lock poison".to_string()))?;
+        
+        // Reset the store to empty
+        *store = CookieStore::default();
+        Ok(())
+    }
+
+    pub fn add_cookie(&self, url: &str, cookie_str: &str) -> AppResult<()> {
+        let url_obj = reqwest::Url::parse(url)
+            .map_err(|e| AppError::Internal(format!("Invalid URL for cookie: {}", e)))?;
+        
+        let mut store = self.cookie_store.lock()
+            .map_err(|_| AppError::Internal("Lock poison".to_string()))?;
+        
+        // We use ';;' as our manual separator for multiple SET-COOKIE style strings
+        for cookie in cookie_str.split(";;") {
+            let cookie = cookie.trim();
+            if cookie.is_empty() { continue; }
+            
+            // Try to parse it properly. RawCookie::parse expects "name=val; attr1=val1; ..."
+            if let Ok(c) = cookie_store::RawCookie::parse(cookie) {
+                let _ = store.insert_raw(&c, &url_obj);
+                continue;
+            }
+
+            // Simple split once fallback
+            if let Some((name, val)) = cookie.split_once('=') {
+                // If it contains a semicolon, it's probably one with attributes but parse() failed.
+                // Try to take only the first name=value part if it's just a simple cookie.
+                let clean_name = name.trim();
+                let clean_val = if let Some((v, _)) = val.split_once(';') { v.trim() } else { val.trim() };
+                
+                let simple = format!("{}={}", clean_name, clean_val);
+                if let Ok(c) = cookie_store::RawCookie::parse(&simple) {
+                    let _ = store.insert_raw(&c, &url_obj);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn export_cookies(&self, url: &str) -> String {
+        if let Ok(uri) = reqwest::Url::parse(url) {
+            if let Ok(store) = self.cookie_store.lock() {
+                return store.get_request_values(&uri)
+                    .map(|(name, value)| format!("{}={}", name, value))
+                    .collect::<Vec<String>>()
+                    .join("; ");
+            }
+        }
+        "".to_string()
+    }
+
     fn build_common_headers(&self, headers_list: Vec<(String, String)>, referer: Option<String>) -> HeaderMap {
         let mut headers = HeaderMap::new();
         
@@ -178,7 +233,6 @@ impl HttpClient {
                  resp_headers.insert(k.to_string(), val.to_string());
              }
         }
-        println!("[HTTP DEBUG][{}] Headers: {:?}", current_trace_id, resp_headers);
 
         let cookie_headers: Vec<String> = resp.headers()
             .get_all(SET_COOKIE)
@@ -192,6 +246,18 @@ impl HttpClient {
 
         let raw_bytes = resp.bytes().await.map_err(AppError::from)?.to_vec();
         let text = String::from_utf8_lossy(&raw_bytes).to_string();
+
+        // LOG BODY INSTEAD OF HEADERS
+        let log_text = if text.len() > 1000 {
+            let mut end = 1000;
+            while !text.is_char_boundary(end) && end > 0 {
+                end -= 1;
+            }
+            format!("{}... (truncated)", &text[..end])
+        } else {
+            text.clone()
+        };
+        println!("[HTTP DEBUG][{}] Response Body: {}", current_trace_id, log_text);
         
         let body_json = if text.contains("ptuiCB(") {
             // Special handling for QQ ptlogin callbacks: ptuiCB('code', '0', 'url', ...)

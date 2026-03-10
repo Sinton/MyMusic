@@ -15,4 +15,5 @@ export interface MusicAuthResponse {
     nickname?: string;
     avatar?: string;
     cookie?: string;
+    auth_origin_url?: string;
 }

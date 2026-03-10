@@ -38,5 +38,21 @@ export const AuthService = {
     /** Standard QR Check */
     async checkQr(provider: string, authId: string): Promise<MusicAuthResponse> {
         return this.requestAuth(provider, 'auth_qr_check', `auth_id=${authId}`);
+    },
+
+    /** Hybrid Help: finish OAuth in frontend then sync back to backend */
+    async completeHybridAuth(provider: string, authUrl: string, initialCookies: string): Promise<void> {
+        console.log(`[AuthService] Setting initial cookies for hybrid flow: ${provider}`);
+
+        // Step 1: Tell Rust backend to "remember" these cookies for this session
+        await invoke('set_cookies', { url: "https://graph.qq.com/", cookies: initialCookies });
+        await invoke('set_cookies', { url: "https://qq.com/", cookies: initialCookies });
+
+        console.log('[AuthService] Hybrid auth setup done. User manual action required.');
+    },
+
+    /** Complete QR with OAuth code exchange */
+    async completeQr(provider: string, code: string): Promise<MusicAuthResponse> {
+        return this.requestAuth(provider, 'auth_qr_complete', `code=${code}`);
     }
 };

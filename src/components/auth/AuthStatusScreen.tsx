@@ -16,6 +16,7 @@ interface AuthStatusScreenProps {
     scannedUser?: { nickname: string; avatarUrl: string } | null;
     onRetry: () => void;
     onPhoneLogin: () => void;
+    onHybridVerify?: () => void;
     onLogout?: () => void;
     onClose?: () => void;
 }
@@ -136,29 +137,40 @@ const AuthStatusScreen: React.FC<AuthStatusScreenProps> = ({
 
     if (step === 'verify') {
         return (
-            <div className="py-6 flex flex-col items-center justify-center space-y-4 animate-fade-in">
+            <div className="py-6 flex flex-col items-center justify-center space-y-4 animate-fade-in w-full px-4">
                 <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
                     <ShieldCheck className="w-8 h-8 text-amber-500" />
                 </div>
-                <h3 className="text-lg font-bold text-[var(--text-main)]">{t('auth.error.verifyRequired')}</h3>
-                <p className="text-sm text-[var(--text-secondary)] text-center px-4">
-                    {t('auth.error.verifyOpenBrowser')}
-                </p>
-                <div className="flex flex-col gap-2 w-full">
+                <div className="space-y-1 text-center">
+                    <h3 className="text-lg font-bold text-[var(--text-main)]">
+                        {t('auth.error.verifyRequired', '需要安全验证')}
+                    </h3>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                        {t('auth.error.verifyDesc', '由于环境安全限制，请在专用窗口完成最后一步授权')}
+                    </p>
+                </div>
+
+                <div className="flex flex-col gap-3 w-full pt-2">
                     <button
-                        onClick={onPhoneLogin}
-                        className="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-95 shadow-lg"
+                        onClick={onHybridVerify}
+                        className="w-full py-3.5 rounded-xl font-bold text-white transition-all hover:scale-[1.01] active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
                         style={{ background: accentColor }}
                     >
-                        {t('auth.error.verifyComplete')}
+                        <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        {t('auth.error.startVerify', '开始安全验证')}
                     </button>
+
+                    <button
+                        onClick={onPhoneLogin}
+                        className="w-full py-3 rounded-xl font-bold text-sm transition-all bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] text-[var(--text-secondary)] border border-[var(--glass-border)]"
+                    >
+                        {t('auth.error.verifyComplete', '我已完成验证')}
+                    </button>
+
                     {verifyUrl && (
-                        <button
-                            onClick={() => shellOpen(verifyUrl)}
-                            className="w-full py-2.5 rounded-xl font-bold text-sm transition-all bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] text-[var(--text-secondary)]"
-                        >
-                            {t('auth.error.verifyReopen')}
-                        </button>
+                        <p className="text-[10px] text-[var(--text-secondary)] text-center opacity-60 px-4">
+                            {t('auth.error.verifyHint', '验证完成后该窗口会自动关闭，若未自动关闭请点击上方按钮')}
+                        </p>
                     )}
                 </div>
             </div>

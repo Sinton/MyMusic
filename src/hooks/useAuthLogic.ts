@@ -10,6 +10,8 @@ import type { Platform } from '../types';
 import type { AuthStep, LoginMode } from '../components/auth/authTypes';
 import { AuthService } from '../services/AuthService';
 import type { MusicAuthResponse } from '../types/api/models';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { usePlatformStore } from '../stores/usePlatformStore';
 
 interface UseAuthLogicOptions {
     isOpen: boolean;
@@ -113,28 +115,28 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
                             }
                         }, 500);
                     } else if (isQQ) {
-                        console.log('[QR Poll][qq] Success Status Reached:', {
-                            authId: result.authId,
-                            nickname: result.nickname,
-                            hasCookie: !!result.cookie
-                        });
-
                         qqStore.setQrStatus('confirmed');
                         qqStore.setLoggedIn(true);
 
                         if (result.cookie) {
                             console.log('[QR Poll][qq] Persisting cookie to state store...');
                             qqStore.setCookie(result.cookie);
-                        } else {
-                            console.warn('[QR Poll][qq] BACKEND RETURNED EMPTY COOKIE!');
                         }
 
                         qqStore.setUser({
-                            uin: result.authId,
+                            uin: result.uin || result.authId || '',
                             nickname: result.nickname || '',
                             avatarUrl: result.avatar || '',
                             vipType: 0,
                         });
+
+                        if (result.auth_origin_url) {
+                            console.log('[QR Poll][qq] Security intercept page detected. Providing verification URL...');
+                            setVerifyUrl(result.auth_origin_url);
+                            setStep('verify');
+                            // DON'T close the modal, let user click "Complete Verification"
+                            return;
+                        }
                     }
 
                     setStep('success');
@@ -480,8 +482,19 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         }
     };
 
-    /** Login with phone + captcha */
+    /** Login with phone + captcha or Complete Verification */
     const handlePhoneLogin = async () => {
+        // Handle QQ/Other verification completion
+        if (isQQ && step === 'verify') {
+            setStep('success');
+            qqStore.setLoggedIn(true);
+            setTimeout(() => {
+                onConnect(platform!.name);
+                onClose();
+            }, 1000);
+            return;
+        }
+
         if (!phoneNumber || !captchaCode) {
             setPhoneError(t('auth.error.phoneCaptchaRequired'));
             return;
@@ -535,6 +548,109 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         }
     };
 
+    /** Open hybrid verification window */
+    const handleHybridVerify = async () => {
+        if (!verifyUrl) return;
+        setLoading(true);
+
+        try {
+            const webview = new WebviewWindow('qq-auth-verify', {
+                url: verifyUrl,
+                title: t('auth.verifyTitle', 'QQ 安全验证'),
+                width: 600,
+                height: 700,
+                resizable: true,
+                center: true,
+                focus: true,
+            });
+
+            webview.once('tauri://created', () => {
+                console.log('[HybridAuth] Verification window created');
+            });
+
+            webview.once('tauri://error', (e) => {
+                console.error('[HybridAuth] Window error:', e);
+                setPhoneError(t('auth.error.windowFailed', '无法打开验证窗口'));
+                setLoading(false);
+            });
+
+            // Listen for redirect to y.qq.com
+            const unlisten = await webview.on('tauri://location-change', (event: any) => {
+                const url = event.payload?.url || '';
+                console.log('[HybridAuth] Location Change:', url);
+
+                if (url.includes('y.qq.com') && url.includes('code=')) {
+                    // Try to extract code parameter
+                    try {
+                        const urlObj = new URL(url);
+                        const code = urlObj.searchParams.get('code');
+
+                        if (code) {
+                            console.log('[HybridAuth] Verification Success detected with code. Syncing to backend...');
+                            webview.close();
+                            unlisten();
+
+                            AuthService.completeQr('qq', code).then(async (result) => {
+                                console.log('[HybridAuth] Backend Sync Result:', result.status);
+                                if (result.status === 'success') {
+                                    setStep('success');
+                                    qqStore.setLoggedIn(true);
+                                    if (result.cookie) {
+                                        qqStore.setCookie(result.cookie);
+                                    }
+
+                                    // Final profile sync
+                                    const user = await QQService.getLoginStatus(result.cookie || qqStore.cookie || '');
+                                    if (user) qqStore.setUser(user);
+
+                                    setTimeout(() => {
+                                        if (platform) onConnect(platform.name);
+                                        onClose();
+                                    }, 1500);
+                                } else {
+                                    setStep('error');
+                                    setPhoneError(t('auth.error.syncFailed', '授权同步失败，请尝试重新登录'));
+                                }
+                            }).catch(err => {
+                                console.error('[HybridAuth] Sync Error:', err);
+                                setStep('error');
+                                setPhoneError(t('auth.error.syncFailed'));
+                            });
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn('[HybridAuth] Failed to parse URL for code extraction:', e);
+                    }
+                }
+
+                if (url.includes('y.qq.com/portal/wx_redirect.html') || url.includes('y.qq.com')) {
+                    console.log('[HybridAuth] Verification Success detected via URL');
+                    webview.close();
+                    unlisten();
+
+                    // Trigger success state
+                    setStep('success');
+                    qqStore.setLoggedIn(true);
+
+                    setTimeout(async () => {
+                        // Attempt to refresh profile to capture final keyst tokens
+                        if (qqStore.cookie) {
+                            const user = await QQService.getLoginStatus(qqStore.cookie);
+                            if (user) qqStore.setUser(user);
+                        }
+                        if (platform) onConnect(platform.name);
+                        onClose();
+                    }, 1500);
+                }
+            });
+
+        } catch (err) {
+            console.error('[HybridAuth] Failed to open window:', err);
+            setPhoneError(t('auth.error.verificationFailed'));
+            setLoading(false);
+        }
+    };
+
     return {
         // State
         step,
@@ -568,5 +684,6 @@ export function useAuthLogic({ isOpen, platform, onConnect, onClose }: UseAuthLo
         handleQQCookieLogin,
         handleSendCaptcha,
         handlePhoneLogin,
+        handleHybridVerify,
     };
 }

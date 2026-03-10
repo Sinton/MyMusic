@@ -142,6 +142,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, platform, onConn
                     scannedUser={auth.scannedUser}
                     onRetry={auth.handleRefreshQr}
                     onPhoneLogin={auth.handlePhoneLogin}
+                    onHybridVerify={auth.handleHybridVerify}
                     onLogout={auth.handleLogout}
                     onClose={onClose}
                 />

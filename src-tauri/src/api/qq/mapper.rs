@@ -65,6 +65,7 @@ pub fn map_auth_response(resp: &HttpResponse, action_name: &str) -> MusicAuthRes
         .map(|s| s.to_string())
         .or_else(|| Some("https://q.qlogo.cn/g?b=qq&nk=1234567&s=100".to_string()));
     let cookie = resp.body["cookie"].as_str().map(|s| s.to_string());
+    let auth_origin_url = resp.body["auth_origin_url"].as_str().map(|s| s.to_string());
 
     let qr_data = if action_name == "auth_qr_init" {
         // Return base64 encoded image
@@ -93,6 +94,7 @@ pub fn map_auth_response(resp: &HttpResponse, action_name: &str) -> MusicAuthRes
         nickname, 
         avatar,
         cookie,
+        auth_origin_url,
     }
 }
 

@@ -30,7 +30,7 @@ export const QQService = {
      */
     _getCookieVals(cookie: string): { guid: string, uin: string } {
         const guidMatch = cookie.match(/(?:^|;\s*)(?:pgv_pvid|guid)=([^;]+)/);
-        const uinMatch = cookie.match(/(?:^|;\s*)(?:qq_uin|wxuin|pt2gguin|uin)=o?([^;]+)/);
+        const uinMatch = cookie.match(/(?:^|;\s*)(?:qq_uin|wxuin|pt2gguin|p_uin|uin)=o?([^;]+)/);
 
         let guid = guidMatch ? guidMatch[1] : '1000000000';
         let uin = uinMatch ? uinMatch[1] : '0';

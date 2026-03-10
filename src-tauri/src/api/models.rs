@@ -144,4 +144,5 @@ pub struct MusicAuthResponse {
     pub nickname: Option<String>,
     pub avatar: Option<String>,
     pub cookie: Option<String>,
+    pub auth_origin_url: Option<String>,
 }

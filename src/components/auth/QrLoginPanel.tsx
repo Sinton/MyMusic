@@ -40,28 +40,48 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
 
             {/* QR Code Container / Skeleton / Error State */}
             <div
-                className={`w-40 h-40 rounded-2xl transition-all duration-200 flex items-center justify-center relative overflow-hidden ${loading ? 'bg-gray-100 animate-pulse border-transparent' :
-                    (!hasQr && phoneError) ? 'bg-red-50 border border-red-200 cursor-pointer' :
-                        'bg-white shadow-sm border border-[var(--glass-border)]'
+                className={`w-40 h-40 rounded-2xl transition-all duration-300 flex items-center justify-center relative overflow-hidden border ${(!hasQr && phoneError) ? 'bg-red-50 border-red-200 cursor-pointer' :
+                    'bg-[var(--glass-highlight)]/40 border-[var(--glass-border)] shadow-sm'
                     }`}
                 onClick={(!hasQr && (isNetease || isQQ)) ? onSimulateLogin : undefined}
             >
                 {(loading || ((isNetease || isQQ) && !hasQr && !phoneError)) ? (
-                    /* Improved Skeleton visibility */
-                    <div className="relative w-full h-full flex items-center justify-center">
-                        <Skeleton width="100%" height="100%" variant="rectangular" className="rounded-2xl !bg-black/5 dark:!bg-white/5" />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <QrCode className="w-12 h-12 text-[var(--text-muted)] opacity-20" />
+                    /* Level 1: Skeleton - Perfect Padding Lock with Assembly Animation */
+                    <div className="w-full h-full p-3 flex items-center justify-center">
+                        <Skeleton width="100%" height="100%" variant="rectangular" className="rounded-xl !bg-[var(--accent-color)]/10" />
+
+                        {/* Assembly Animation: 4 Quadrants coming together */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+                            <div className="relative w-16 h-16">
+                                {/* Top Left Shard */}
+                                <QrCode
+                                    className="absolute inset-0 w-full h-full text-[var(--accent-color)] animate-assemble-tl"
+                                    style={{ clipPath: 'inset(0 50% 50% 0)' }}
+                                />
+                                {/* Top Right Shard */}
+                                <QrCode
+                                    className="absolute inset-0 w-full h-full text-[var(--accent-color)] animate-assemble-tr"
+                                    style={{ clipPath: 'inset(0 0 50% 50%)' }}
+                                />
+                                {/* Bottom Left Shard */}
+                                <QrCode
+                                    className="absolute inset-0 w-full h-full text-[var(--accent-color)] animate-assemble-bl"
+                                    style={{ clipPath: 'inset(50% 50% 0 0)' }}
+                                />
+                                {/* Bottom Right Shard */}
+                                <QrCode
+                                    className="absolute inset-0 w-full h-full text-[var(--accent-color)] animate-assemble-br"
+                                    style={{ clipPath: 'inset(50% 0 0 50%)' }}
+                                />
+                            </div>
                         </div>
                     </div>
                 ) : (!hasQr && phoneError) ? (
-                    /* Elegant Error State: Minimalist Larger Icon */
-                    <div className="p-3 w-full h-full relative group/error animate-in fade-in zoom-in-95 duration-500">
-                        <div className="w-full h-full border-2 border-dashed border-red-500/20 rounded-lg flex items-center justify-center bg-red-400/5 transition-all group-hover/error:bg-red-500/10">
+                    /* Level 2: Error State */
+                    <div className="w-full h-full p-3 relative group/error animate-in fade-in zoom-in-95 duration-500">
+                        <div className="w-full h-full border-2 border-dashed border-red-500/20 rounded-xl flex items-center justify-center bg-red-400/5 transition-all group-hover/error:bg-red-500/10">
                             <QrCode className="w-16 h-16 text-red-500/10" />
                         </div>
-
-                        {/* Ultra-Modern Glass Retry Layer */}
                         <div className="absolute inset-0 bg-white/40 backdrop-blur-[4px] flex flex-col items-center justify-center opacity-0 group-hover/error:opacity-100 transition-all duration-300 rounded-2xl cursor-pointer">
                             <div className="w-14 h-14 rounded-full bg-white shadow-xl flex items-center justify-center group-active/error:scale-95 transition-transform duration-200">
                                 <RefreshCcw className="w-6 h-6 text-red-500 group-hover/error:animate-spin-slow" />
@@ -70,30 +90,33 @@ const QrLoginPanel: React.FC<QrLoginPanelProps> = ({
                         </div>
                     </div>
                 ) : (isQQ && qrData) ? (
-                    /* QQ: Base64 Image */
-                    <div className="p-3 w-full h-full animate-in zoom-in-95 duration-300">
-                        <img
-                            src={qrData}
-                            alt="QQ QR Login"
-                            className="w-full h-full object-contain"
-                            style={{ filter: 'contrast(1.05)' }}
-                        />
+                    /* Level 3: Real QR (QQ Base64) - Same p-3 padding as skeleton */
+                    <div className="w-full h-full p-3 animate-in zoom-in-95 duration-300">
+                        <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
+                            <img
+                                src={qrData}
+                                alt="QQ QR Login"
+                                className="w-full h-full object-contain p-1"
+                            />
+                        </div>
                     </div>
                 ) : (qrUrl) ? (
-                    /* Netease/Others: Real QR (Direct swap) */
-                    <div className="p-3 w-full h-full animate-in zoom-in-95 duration-300">
-                        <QRCodeSVG
-                            value={qrUrl}
-                            size={136}
-                            level="M"
-                            includeMargin={false}
-                            style={{ width: '100%', height: '100%', filter: 'contrast(1.1)' }}
-                        />
+                    /* Level 3: Real QR (SVG) - Same p-3 padding as skeleton */
+                    <div className="w-full h-full p-3 animate-in zoom-in-95 duration-300">
+                        <div className="w-full h-full bg-white rounded-xl overflow-hidden flex items-center justify-center p-2.5 shadow-inner">
+                            <QRCodeSVG
+                                value={qrUrl}
+                                size={128}
+                                level="M"
+                                includeMargin={false}
+                                style={{ width: '100%', height: '100%' }}
+                            />
+                        </div>
                     </div>
                 ) : (
-                    /* Mock / Placeholder State for Simulated Login */
-                    <div className="p-3 w-full h-full relative group/mock">
-                        <div className="w-full h-full border-2 border-dashed border-[var(--glass-border)] rounded-lg flex items-center justify-center bg-[var(--glass-highlight)]/30">
+                    /* Level 4: Mock State */
+                    <div className="w-full h-full p-3 relative group/mock">
+                        <div className="w-full h-full border-2 border-dashed border-[var(--glass-border)] rounded-xl flex items-center justify-center bg-[var(--glass-highlight)]/30">
                             <QrCode className="w-16 h-16 text-[var(--accent-color)] opacity-10" />
                         </div>
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] text-white flex flex-col items-center justify-center opacity-0 group-hover/mock:opacity-100 transition-all duration-300 rounded-2xl">

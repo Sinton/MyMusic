@@ -44,6 +44,7 @@ pub fn map_auth_response(resp: &HttpResponse, action_name: &str) -> MusicAuthRes
             .or(body["profile"]["avatarUrl"].as_str())
             .map(|s| s.to_string()),
         cookie: body["cookie"].as_str().map(|s| s.to_string()),
+        auth_origin_url: None,
     }
 }
 

@@ -26,6 +26,16 @@ pub struct Options {
 }
 
 #[tauri::command]
+async fn set_cookies(
+    client: State<'_, HttpClient>,
+    url: String,
+    cookies: String,
+) -> Result<(), String> {
+    client.add_cookie(&url, &cookies)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn request_bytes(
     client: tauri::State<'_, HttpClient>,
     url: String,
@@ -163,6 +173,7 @@ fn main() {
             request_api,
             request_api_gateway,
             request_bytes,
+            set_cookies,
             log_info,
             get_proxy_port
         ])

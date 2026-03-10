@@ -63,6 +63,7 @@ impl super::base::ApiProvider for QQProvider {
             "song_hot_comments" => comment::get(client, options, 3).await,  // Sort 3: Hot
             "auth_qr_init" => login::qr_init(client, options).await,
             "auth_qr_check" => login::qr_check(client, options).await,
+            "auth_qr_complete" => login::qr_complete(client, options).await,
             _ => Err(AppError::Api(format!("Unknown QQ API: {}", api_name))),
         }
     }
@@ -94,7 +95,7 @@ impl super::base::ApiProvider for QQProvider {
                 let unified = mapper::map_comments(&resp.body);
                 Ok(GatewayResponse::Comments(unified))
             }
-            "auth_qr_init" | "auth_qr_check" => {
+            "auth_qr_init" | "auth_qr_check" | "auth_qr_complete" => {
                 let resp = self.dispatch(client, api_name, options).await?;
                 let unified = mapper::map_auth_response(&resp, api_name);
                 Ok(GatewayResponse::Auth(unified))
