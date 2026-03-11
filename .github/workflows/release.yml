@@ -38,14 +38,19 @@ jobs:
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: install frontend dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - uses: tauri-apps/tauri-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__ # the action automatically replaces this with your app's version
-          releaseName: "Vibe Music v__VERSION__"
-          releaseBody: "See the assets below to download the latest version of Vibe Music."
+          tagName: v__VERSION__
+          releaseName: "MyMusic v__VERSION__"
+          releaseBody: "See the assets below to download the latest version of MyMusic."
           releaseDraft: true
           prerelease: false
