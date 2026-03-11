@@ -80,7 +80,7 @@ pnpm tauri build
 
 ## 🤝 参与贡献
 
-我们非常欢迎任何形式的贡献！在开始之前，请阅读 [CONVENTIONS.md](./CONVENTIONS.md) 以了解我们的代码规范、分支管理以及提交说明。
+我们非常欢迎任何形式的贡献！在开始之前，请阅读 [CONVENTIONS_zh.md](./docs/CONVENTIONS_zh.md) 以了解我们的代码规范、分支管理以及提交说明。
 
 ## 📜 开源协议
 

@@ -24,7 +24,7 @@
 
 ## Checklist:
 
-- [ ] My code follows the [CONVENTIONS.md](./CONVENTIONS.md) of this project.
+- [ ] My code follows the [Development Conventions](../docs/CONVENTIONS.md) ([中文版](../docs/CONVENTIONS_zh.md)) of this project.
 - [ ] I have performed a self-review of my own code.
 - [ ] I have commented my code, particularly in hard-to-understand areas.
 - [ ] My changes generate no new warnings.

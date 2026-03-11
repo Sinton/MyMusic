@@ -80,7 +80,7 @@ pnpm tauri build
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [CONVENTIONS.md](./CONVENTIONS.md) for detailed guidelines on coding standards, branching, and commit messages.
+We welcome contributions! Please see our [CONVENTIONS.md](./docs/CONVENTIONS.md) for detailed guidelines on coding standards, branching, and commit messages.
 
 ## 📜 License
 
