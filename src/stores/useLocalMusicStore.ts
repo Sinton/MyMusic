@@ -5,7 +5,7 @@ import { SmartMatchService } from '../services/SmartMatchService';
 import localforage from 'localforage';
 
 localforage.config({
-    name: 'vibe-music',
+    name: 'my-music',
     storeName: 'local_music_store'
 });
 
@@ -132,7 +132,7 @@ export const useLocalMusicStore = create<LocalMusicState>()(
             clearTracks: () => set({ tracks: [] }),
         }),
         {
-            name: 'vibe-local-music-storage',
+            name: 'my-music-local-storage',
             storage: {
                 getItem: async (name: string): Promise<string | null> => {
                     return await localforage.getItem(name);

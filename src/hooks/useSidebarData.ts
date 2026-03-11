@@ -33,7 +33,7 @@ export const useSidebarData = () => {
     });
 
     const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
-        vibe: true,
+        'my-music': true,
         netease: true,
         netease_created: true,
         netease_collected: false,
@@ -53,7 +53,7 @@ export const useSidebarData = () => {
 
         // Local
         result.push({
-            id: 'vibe',
+            id: 'my-music',
             title: t('library.sections.local', '本地'),
             items: localPlaylists,
             type: 'simple'

@@ -1,8 +1,8 @@
 [package]
-name = "vibe-music"
+name = "my-music"
 version = "0.0.1"
-description = "A Vibe Coding Music App"
-authors = ["Vibe Coding"]
+description = "A MyMusic Coding App"
+authors = ["https://github.com/Sinton"]
 edition = "2021"
 
 [build-dependencies]

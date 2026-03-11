@@ -83,9 +83,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ canGoBack = false, onBack, i
                 className="flex-1 flex items-center px-4 pointer-events-auto"
             >
                 {/* Optional App Title */}
-                <div className="text-[10px] font-medium text-white/30 pointer-events-none uppercase tracking-widest hidden">
-                    Vibe Music
-                </div>
+                    MyMusic
             </div>
 
             {/* Window Controls - Separate Flex Item */}

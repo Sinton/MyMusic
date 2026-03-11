@@ -1,10 +1,22 @@
 import React from 'react';
 import { Info, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { open } from '@tauri-apps/plugin-shell';
 import logoBgImg from '../../assets/logo_bg.png';
+
+const AUTHOR_GITHUB = 'https://github.com/Sinton/MyMusic';
+
+const linkMap: Partial<Record<string, string>> = {
+    github: AUTHOR_GITHUB,
+};
 
 const AboutSection: React.FC = () => {
     const { t } = useTranslation();
+
+    const handleClick = async (key: string) => {
+        const url = linkMap[key];
+        if (url) await open(url);
+    };
 
     return (
         <div className="p-6 rounded-2xl bg-[var(--glass-bg)] border border-[var(--glass-border)]">
@@ -13,10 +25,16 @@ const AboutSection: React.FC = () => {
             </h3>
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                    <img src={logoBgImg} className="w-14 h-14 rounded-2xl shadow-lg object-cover" alt="Vibe Music" />
+                    <img src={logoBgImg} className="w-14 h-14 rounded-2xl shadow-lg object-cover" alt="MyMusic" />
                     <div>
                         <div className="font-bold text-lg text-[var(--text-main)]">{t('settings.about.appName')}</div>
                         <div className="text-sm text-[var(--text-secondary)]">{t('settings.about.appDesc')}</div>
+                        <button
+                            onClick={() => handleClick('github')}
+                            className="text-xs text-[var(--accent-color)] hover:underline mt-0.5 block"
+                        >
+                            {AUTHOR_GITHUB}
+                        </button>
                     </div>
                 </div>
                 <button className="px-4 py-2 bg-[var(--glass-highlight)] border border-[var(--glass-border)] rounded-lg text-sm hover:bg-[var(--glass-border)] text-[var(--text-main)] transition-colors">
@@ -27,6 +45,7 @@ const AboutSection: React.FC = () => {
                 {(['terms', 'privacy', 'licenses', 'github'] as const).map((key) => (
                     <button
                         key={key}
+                        onClick={() => handleClick(key)}
                         className="flex items-center justify-between p-3 rounded-xl bg-[var(--glass-highlight)] hover:bg-[var(--glass-border)] transition-colors text-left group"
                     >
                         <span>{t(`settings.about.${key}`)}</span>

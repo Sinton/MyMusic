@@ -1,4 +1,4 @@
-﻿{
+{
     "common": {
         "loading": "Loading...",
         "error": {
@@ -59,7 +59,7 @@
                 "dark": "Dark"
             },
             "accent": "Accent Color",
-            "accentDesc": "Personalize your Vibe",
+            "accentDesc": "Personalize your MyMusic",
             "visualizer": "Audio Visualizer",
             "visualizerDesc": "Show dynamic effects in full screen",
             "immersiveHeader": "Immersive Header Background",
@@ -72,7 +72,7 @@
             "launchOnLogin": "Launch on login",
             "launchOnLoginDesc": "Launch on login automagically",
             "searchShortcut": "Global Search Shortcut",
-            "searchShortcutDesc": "Set a global shortcut to toggle Vibe search anytime",
+            "searchShortcutDesc": "Set a global shortcut to toggle MyMusic search anytime",
             "clipboardMonitor": "Clipboard Monitor",
             "clipboardMonitorDesc": "Auto-recognize and suggest playing music links from your clipboard",
             "developerMode": "Developer Mode",
@@ -116,7 +116,7 @@
             "title": "About",
             "version": "Version",
             "checkUpdates": "Check for Updates",
-            "appName": "Vibe Music",
+            "appName": "MyMusic",
             "appDesc": "Version 1.0.0 (Beta)",
             "terms": "Terms of Service",
             "privacy": "Privacy Policy",
@@ -338,7 +338,7 @@
         "add_folder": "Add Folder",
         "scanning_sonar": "Scanning Sonar in progress",
         "no_tracks_title": "Hear the Local Heartbeat",
-        "no_tracks_desc": "Bring your private collection into Vibe's digital gallery by dragging folders here or adding them manually.",
+        "no_tracks_desc": "Bring your private collection into MyMusic's digital gallery by dragging folders here or adding them manually.",
         "browse_files": "Browse Folders",
         "search_placeholder": "Search local tracks, artists, albums..."
     }

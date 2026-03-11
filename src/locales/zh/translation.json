@@ -1,4 +1,4 @@
-﻿{
+{
     "common": {
         "loading": "加载中...",
         "error": {
@@ -59,7 +59,7 @@
                 "dark": "深色"
             },
             "accent": "强调色",
-            "accentDesc": "个性化你的 Vibe",
+            "accentDesc": "个性化你的 MyMusic",
             "visualizer": "音频可视化",
             "visualizerDesc": "在全屏播放器中显示动态效果",
             "immersiveHeader": "沉浸式头部背景",
@@ -116,7 +116,7 @@
             "title": "关于",
             "version": "版本",
             "checkUpdates": "检查更新",
-            "appName": "Vibe Music",
+            "appName": "MyMusic",
             "appDesc": "版本 1.0.0 (Beta)",
             "terms": "服务条款",
             "privacy": "隐私政策",

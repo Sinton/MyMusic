@@ -2210,6 +2210,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "my-music"
+version = "0.0.1"
+dependencies = [
+ "aes",
+ "async-trait",
+ "axum",
+ "base64 0.21.7",
+ "cbc",
+ "cookie_store 0.21.1",
+ "ecb",
+ "env_logger",
+ "hex",
+ "http-body-util",
+ "http-range",
+ "hyper",
+ "lazy_static",
+ "lofty",
+ "log",
+ "md5",
+ "mime_guess",
+ "notify",
+ "num-bigint",
+ "rand 0.8.5",
+ "regex",
+ "reqwest 0.12.28",
+ "reqwest_cookie_store",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-shell",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-util",
+ "tower-http",
+ "url",
+ "walkdir",
+]
+
+[[package]]
 name = "native-tls"
 version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4843,47 +4884,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "vibe-music"
-version = "0.0.1"
-dependencies = [
- "aes",
- "async-trait",
- "axum",
- "base64 0.21.7",
- "cbc",
- "cookie_store 0.21.1",
- "ecb",
- "env_logger",
- "hex",
- "http-body-util",
- "http-range",
- "hyper",
- "lazy_static",
- "lofty",
- "log",
- "md5",
- "mime_guess",
- "notify",
- "num-bigint",
- "rand 0.8.5",
- "regex",
- "reqwest 0.12.28",
- "reqwest_cookie_store",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-shell",
- "thiserror 1.0.69",
- "tokio",
- "tokio-util",
- "tower-http",
- "url",
- "walkdir",
-]
 
 [[package]]
 name = "vswhom"

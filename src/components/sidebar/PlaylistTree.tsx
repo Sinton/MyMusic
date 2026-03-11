@@ -35,7 +35,7 @@ export const PlaylistTree: React.FC<PlaylistTreeProps> = ({
                                 title={section.title}
                                 isExpanded={isSectionExpanded}
                                 onToggle={() => onToggleGroup(section.id)}
-                                onCreateClick={section.id === 'vibe' ? onCreatePlaylist : undefined}
+                                onCreateClick={section.id === 'my-music' ? onCreatePlaylist : undefined}
                             />
 
                             {isSectionExpanded && (
@@ -43,7 +43,7 @@ export const PlaylistTree: React.FC<PlaylistTreeProps> = ({
                                     {section.type === 'simple' ? (
                                         section.items?.map(pl => (
                                             <SidebarTreeItem
-                                                key={`vibe-${pl.id}`}
+                                                key={`my-music-${pl.id}`}
                                                 playlist={pl}
                                                 activeView={activeView}
                                                 onNavigate={onNavigate}

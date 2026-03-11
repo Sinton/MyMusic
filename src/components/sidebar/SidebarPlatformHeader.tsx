@@ -19,7 +19,7 @@ export const SidebarPlatformHeader: React.FC<SidebarPlatformHeaderProps> = ({
     onCreateClick
 }) => {
     const { t } = useTranslation();
-    const platformName = id === 'netease' ? 'NetEase' : id === 'qq' ? 'QQ Music' : 'Vibe';
+    const platformName = id === 'netease' ? 'NetEase' : id === 'qq' ? 'QQ Music' : 'MyMusic';
 
     return (
         <div className="flex items-center">
@@ -31,7 +31,7 @@ export const SidebarPlatformHeader: React.FC<SidebarPlatformHeaderProps> = ({
                 <PlatformBadge name={platformName} size="xs" className="opacity-70 group-hover:opacity-100" />
                 <span className="flex-1">{title}</span>
             </button>
-            {id === 'vibe' && onCreateClick && (
+            {id === 'my-music' && onCreateClick && (
                 <button
                     onClick={(e) => {
                         e.stopPropagation();

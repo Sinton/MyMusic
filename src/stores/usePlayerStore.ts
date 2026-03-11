@@ -5,7 +5,7 @@ import { getNextIndex, getPreviousIndex } from '../lib/playerUtils';
 import localforage from 'localforage';
 
 localforage.config({
-    name: 'vibe-music',
+    name: 'my-music',
     storeName: 'player_store'
 });
 

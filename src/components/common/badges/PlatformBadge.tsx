@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Music } from 'lucide-react';
 import neteaseIcon from '../../../assets/netease_music.png';
 import qqIcon from '../../../assets/qq_music.png';
@@ -26,7 +26,7 @@ const iconMap: Record<string, string> = {
     'Qishui': qishuiIcon,
     '汽水音乐': qishuiIcon,
     'local': vibeLogo,
-    'Vibe': vibeLogo,
+    'MyMusic': vibeLogo,
 };
 
 export const PlatformBadge: React.FC<PlatformBadgeProps> = ({

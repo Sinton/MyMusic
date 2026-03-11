@@ -1,7 +1,7 @@
 {
-    "productName": "Vibe Music",
+    "productName": "MyMusic",
     "version": "0.1.0",
-    "identifier": "VibeMusic",
+    "identifier": "my-music",
     "build": {
         "beforeDevCommand": "pnpm dev",
         "beforeBuildCommand": "pnpm build",
@@ -17,7 +17,7 @@
                 "minHeight": 800,
                 "minWidth": 1366,
                 "resizable": true,
-                "title": "Vibe Music",
+                "title": "MyMusic",
                 "width": 1366,
                 "transparent": true,
                 "decorations": false
